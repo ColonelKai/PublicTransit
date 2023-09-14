@@ -1,0 +1,39 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "All-Rights-Reserved",
+  "plugins": [
+    {
+      "id": "PublicTransit",
+      "name": "PublicTransit",
+      "version": "${version}",
+      "entrypoint": "org.colonelkai.publictransit.PublicTransit",
+            "description": "A plugin to allow server owners to set up public transit lines.",
+            "branding": {},
+      "links": {
+                "homepage": "https://spongepowered.org"
+              },
+      "contributors": [
+                {
+          "name": "ColonelKai",
+          "description": "Author"
+        }
+              ],
+      "dependencies": [
+        {
+          "id": "spongeapi",
+          "version": "11.0.0-SNAPSHOT",
+          "load-order": "after",
+          "optional": false
+                },
+        {
+          "id": "Vault",
+          "load-order": "after",
+          "optional": false
+                }
+      ]
+    }
+  ]
+}
