@@ -1,2 +1,6 @@
-package org.colonelkai.publictransit.nodes;public enum NodeTypes {
+package org.colonelkai.publictransit.nodes;
+
+public enum NodeTypes {
+    STOP,
+    TRANSITIONAL
 }
