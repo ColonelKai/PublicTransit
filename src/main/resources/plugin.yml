@@ -1,0 +1,36 @@
+name: PublicTransit
+version: '${project.version}'
+main: colonelkai.publictarnsit.PublicTransit
+api-version: 1.20
+prefix: PublicTransit
+loadbefore: [ Vault ]
+softdepend: [ Vault ]
+authors: [ ColonelKai]
+description: A Minecraft plugin that allows server owners to create public transit lines that the players can use to travel - travelling costs money and time!
+website: https://github.com/ColonelKai/PublicTransit
+permissions:
+  publictransit.default:
+    default: true
+    description: Allows you to use PublicTransit
+  publictransit.admin:
+    default: op
+    description: Allows you to use PublicTransit as an Administrator.
+commands:
+  PublicTransit:
+    description: The main command for PublicTransit!
+    usage: /publictransit [help/version]
+    aliases:
+      - transit
+      - pt
+      - ptransit
+    permission: publictransit.default
+  Travel:
+    description: Travel through a PublicTransit Line!
+    usage: /publictransit [starting stop] [ending stop]
+    aliases:
+      - ptravel
+    permission: publictransit.default
+  Lines:
+    description: The command to edit lines and nodes.
+    usage: /lines
+    permission: publictransit.admin
