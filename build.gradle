@@ -3,6 +3,7 @@ plugins {
 }
 
 group = "org.colonelkai"
+version = "0.0.1"
 
 apply from: "buildGradle/buildCommon.gradle"
 apply from: "buildGradle/buildBukkit.gradle"

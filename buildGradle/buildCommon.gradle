@@ -1,3 +1,4 @@
+import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -59,9 +60,12 @@ ext.combined = { String translator, String translatorName, String exportPath, Co
     var zipFiles = new File[]{translatorJar, pluginJar}
     var entered = new ArrayList<String>();
     for (File zipPath : zipFiles) {
-        var zipFile = new ZipFile(translatorJar)
+        var zipFile = new ZipFile(zipPath)
         zipFile.stream().forEach((ZipEntry entry) -> {
             var name = entry.getName()
+            if(name.contains("plugin.yml")){
+                return
+            }
             if(entered.contains(name)){
                 if(!entry.isDirectory()) {
                     println(" > Found duplicate: " + name);
@@ -79,11 +83,27 @@ ext.combined = { String translator, String translatorName, String exportPath, Co
                 zip.write(bytes, 0, length);
             }
             is.close()
+            zip.closeEntry()
         })
         zipFile.close()
     }
     extra.accept(zip)
-    output.close()
+
+    var entry = new ZipEntry("META-INF/translate-core.properties")
+    zip.putNextEntry(entry)
+
+    var stringBuilder = new StringBuilder();
+    stringBuilder.append("stand-alone=org.colonelkai.publictransit.PublicTransit")
+    var byteIS = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))
+
+    int length;
+    while ((length = byteIS.read(bytes)) >= 0) {
+        zip.write(bytes, 0, length)
+    }
+    byteIS.close()
+    zip.closeEntry()
+
+    zip.close()
 }
 
 tasks.register("setup") {
