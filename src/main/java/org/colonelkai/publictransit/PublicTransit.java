@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class PublicTransit implements CorePlugin {
 
     static PublicTransit plugin;
+    private final NodeManager nodeManager = new NodeManager();
     private Object launcher;
     private Logger logger;
 
@@ -19,6 +20,25 @@ public class PublicTransit implements CorePlugin {
 
     public Logger getLogger() {
         return this.logger;
+    }
+
+    public NodeManager getNodeManager() {
+        return this.nodeManager;
+    }
+
+    @Override
+    public @NotNull String getPluginName() {
+        return "PublicTransit";
+    }
+
+    @Override
+    public @NotNull String getPluginId() {
+        return "public_transit";
+    }
+
+    @Override
+    public @NotNull Object getPlatformLauncher() {
+        return this.launcher;
     }
 
     @Override
@@ -39,22 +59,11 @@ public class PublicTransit implements CorePlugin {
     }
 
     @Override
-    public @NotNull String getPluginName() {
-        return "PublicTransit";
-    }
-
-    @Override
-    public @NotNull String getPluginId() {
-        return "public_transit";
-    }
-
-    @Override
     public @NotNull CorePluginVersion getPluginVersion() {
         return new CorePluginVersion(0, 0, 1);
     }
 
-    @Override
-    public @NotNull Object getPlatformLauncher() {
-        return this.launcher;
+    public static PublicTransit getPlugin() {
+        return plugin;
     }
 }
