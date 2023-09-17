@@ -1,0 +1,95 @@
+import java.util.function.Consumer
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
+
+ext.download = { String repoName ->
+    var relative = file(repoName)
+    if (relative.exists()) {
+        println(" > Skipping download: " + repoName)
+        return
+    }
+
+    byte[] buffer = new byte[2048];
+    String download = "https://github.com/Minecraft-Ships/" + repoName + "/archive/refs/heads/master.zip"
+    var downloadUrl = new URL(download).openStream()
+
+    var zip = new ZipInputStream(downloadUrl)
+
+    ZipEntry entry;
+
+    while ((entry = zip.getNextEntry()) != null) {
+        if (entry.isDirectory()) {
+            continue
+        }
+        var name = entry.getName().substring((repoName + "-master").length() + 1)
+        var file = file(repoName + "/" + name)
+        file.parentFile.mkdirs()
+        file.createNewFile()
+
+        FileOutputStream fos = new FileOutputStream(file)
+        int length
+        while ((length = zip.read(buffer)) > 0) {
+            fos.write(buffer, 0, length)
+        }
+        fos.close()
+    }
+
+    zip.close()
+}
+
+ext.downloadAll = { ->
+    download("CoreToBukkit")
+}
+
+ext.combined = { String translator, String translatorName, String exportPath, Consumer<ZipOutputStream> extra ->
+    var translatorJar = file(translator + "/build/libs/TranslateCore" + translatorName + ".jar")
+    var pluginJar = file("build/libs/PublicTransit.jar")
+
+    var exportFile = file(exportPath)
+
+    exportFile.parentFile.mkdirs()
+    exportFile.createNewFile()
+
+    var output = new FileOutputStream(exportFile)
+    var zip = new ZipOutputStream(output)
+    byte[] bytes = new byte[1024];
+
+    var zipFiles = new File[]{translatorJar, pluginJar}
+    var entered = new ArrayList<String>();
+    for (File zipPath : zipFiles) {
+        var zipFile = new ZipFile(translatorJar)
+        zipFile.stream().forEach((ZipEntry entry) -> {
+            var name = entry.getName()
+            if(entered.contains(name)){
+                if(!entry.isDirectory()) {
+                    println(" > Found duplicate: " + name);
+                }
+                return
+            }
+            var newEntry = new ZipEntry(name)
+            zip.putNextEntry(newEntry)
+            entered.add(name)
+
+
+            var is = zipFile.getInputStream(entry)
+            int length;
+            while ((length = is.read(bytes)) >= 0) {
+                zip.write(bytes, 0, length);
+            }
+            is.close()
+        })
+        zipFile.close()
+    }
+    extra.accept(zip)
+    output.close()
+}
+
+tasks.register("setup") {
+    group = "Translate Core"
+    description = "Setup Translate Core"
+    doLast {
+        downloadAll()
+    }
+}

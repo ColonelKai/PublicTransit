@@ -1,0 +1,32 @@
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
+tasks.register("buildBukkit") {
+    group = "translate core"
+    description = "Build Bukkit plugin"
+    dependsOn("setup")
+    dependsOn("build")
+    doLast {
+        String exportPath = getProperty("exportToBukkit")
+        combined("CoreToBukkit", "Bukkit", exportPath, (ZipOutputStream zos) -> {
+            var entry = new ZipEntry("plugin.yml")
+            zos.putNextEntry(entry)
+
+            var stringBuilder = new StringBuilder();
+            stringBuilder.append("name: PublicTransit\n")
+            stringBuilder.append("version: " + version + "\n")
+            stringBuilder.append("main: org.core.implementation.bukkit.platform.plugin.boot.TranslateCoreBoot\n")
+            stringBuilder.append("api-version: 1.20\n")
+            stringBuilder.append("softdepend: [ Vault ]\n")
+
+            var byteIS = new ByteArrayInputStream(stringBuilder.toString().getBytes())
+            byte[] bytes = new byte[1024];
+
+            int length;
+            while ((length = byteIS.read()) >= 0) {
+                zos.write(bytes, 0, length)
+            }
+            byteIS.close()
+        })
+    }
+}

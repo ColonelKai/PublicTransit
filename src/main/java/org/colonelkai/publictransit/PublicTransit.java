@@ -1,25 +1,60 @@
 package org.colonelkai.publictransit;
 
 
-import org.bukkit.plugin.java.JavaPlugin;
+import org.core.command.CommandRegister;
+import org.core.logger.Logger;
+import org.core.platform.plugin.CorePlugin;
+import org.core.platform.plugin.details.CorePluginVersion;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.logging.Logger;
-
-public class PublicTransit extends JavaPlugin {
+public class PublicTransit implements CorePlugin {
 
     static PublicTransit plugin;
-    static Logger logger;
+    private Object launcher;
+    private Logger logger;
 
-    @Override
-    public void onEnable() {
-        PublicTransit.plugin = this;
-        PublicTransit.logger = this.getLogger();
+    public PublicTransit() {
+        plugin = this;
+    }
 
-        this.getLogger().info("Registering commands...");
+    public Logger getLogger() {
+        return this.logger;
     }
 
     @Override
-    public void onDisable() {
+    public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
+        this.launcher = pluginLauncher;
+        this.logger = logger;
 
+    }
+
+    @Override
+    public void onRegisterCommands(@NotNull CommandRegister register) {
+
+    }
+
+    @Override
+    public @NotNull String getLicence() {
+        return "All Rights Reserved";
+    }
+
+    @Override
+    public @NotNull String getPluginName() {
+        return "PublicTransit";
+    }
+
+    @Override
+    public @NotNull String getPluginId() {
+        return "public_transit";
+    }
+
+    @Override
+    public @NotNull CorePluginVersion getPluginVersion() {
+        return new CorePluginVersion(0, 0, 1);
+    }
+
+    @Override
+    public @NotNull Object getPlatformLauncher() {
+        return this.launcher;
     }
 }
