@@ -1,67 +1,64 @@
 package org.colonelkai.publictransit.nodes;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.core.entity.living.human.player.Player;
+import org.core.world.position.impl.ExactPosition;
+import org.core.world.position.impl.Position;
+import org.core.world.position.impl.sync.SyncExactPosition;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.OptionalInt;
 
 public class Node {
-    private Location location;
+    private SyncExactPosition location;
     private NodeTypes nodeType;
-    private Optional<Integer> time;
+    private Integer time;
     private String name;
 
-    public Node(Location location, NodeTypes nodeType, String name) {
-        this.location = location;
+    public Node(Position<?> location, NodeTypes nodeType, String name) {
+        this.location = Position.toSync(Position.toExact(location));
         this.nodeType = nodeType;
-        this.time = Optional.empty();
         this.name = name;
     }
 
-    public boolean isPlayerWithin(Player player) {
-        Location playerLocation = player.getLocation();
-
-        return
-                Objects.equals(playerLocation.getWorld(), this.location.getWorld())
-                        &&
-                        playerLocation.distance(this.location) < 10;
+    public boolean isPlayerWithin(Player<?> player) {
+        ExactPosition playerLocation = player.getPosition();
+        if (!playerLocation.getWorld().equals(this.location.getWorld())) {
+            return false;
+        }
+        double distance = playerLocation.getPosition().distanceSquared(this.location.getPosition());
+        return distance < 10;
 
     }
 
-
-
-
-
-
-
-    // GETTER-SETTERS
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public Location getLocation() {
+    public SyncExactPosition getPosition() {
         return location;
     }
 
-    public void setNodeType(NodeTypes nodeType) {
-        this.nodeType = nodeType;
+    // GETTER-SETTERS
+    public void setLocation(Position<?> location) {
+        this.location = Position.toSync(Position.toExact(location));
     }
 
     public NodeTypes getNodeType() {
         return nodeType;
     }
 
+    public void setNodeType(NodeTypes nodeType) {
+        this.nodeType = nodeType;
+    }
+
+    public OptionalInt getTime() {
+        if (this.time == null) {
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(this.time);
+    }
+
     public void setTime(Integer time) {
-        this.time = Optional.of(time);
-    }
-
-    public Optional<Integer> getTime() {
-        return time;
-    }
-
-    public void setTime(Optional<Integer> time) {
         this.time = time;
+    }
+
+    public void removeTime() {
+        this.time = null;
     }
 
     public String getName() {

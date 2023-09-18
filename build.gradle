@@ -1,0 +1,21 @@
+plugins {
+    id "java-library"
+}
+
+group = "org.colonelkai"
+version = "0.0.1"
+
+apply from: "buildGradle/buildCommon.gradle"
+apply from: "buildGradle/buildBukkit.gradle"
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    implementation group: 'com.github.Minecraft-Ships', name: 'TranslateCore', version: '6.0.0.0Beta15.6'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '24.0.1'
+}
