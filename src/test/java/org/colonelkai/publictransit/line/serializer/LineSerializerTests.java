@@ -6,7 +6,7 @@ import org.colonelkai.publictransit.line.LineBuilder;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
-import org.colonelkai.publictransit.utils.Serializers;
+import org.colonelkai.publictransit.utils.serializers.Serializers;
 import org.core.world.WorldExtent;
 import org.core.world.position.impl.sync.SyncExactPosition;
 import org.junit.jupiter.api.Assertions;

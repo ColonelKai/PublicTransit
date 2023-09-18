@@ -3,7 +3,7 @@ package org.colonelkai.publictransit.node.serializer;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
-import org.colonelkai.publictransit.utils.Serializers;
+import org.colonelkai.publictransit.utils.serializers.Serializers;
 import org.core.TranslateCore;
 import org.core.platform.PlatformServer;
 import org.core.world.WorldExtent;

@@ -1,4 +1,4 @@
-package org.colonelkai.publictransit.utils;
+package org.colonelkai.publictransit.utils.serializers;
 
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.node.Node;

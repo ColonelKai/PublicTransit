@@ -1,5 +1,8 @@
+import java.awt.Desktop
+
 plugins {
     id "java-library"
+    id 'jacoco'
 }
 
 group = "org.colonelkai"
@@ -16,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'com.github.Minecraft-Ships', name: 'TranslateCore', version: '6.0.0.0Beta15.6'
+    implementation project(":TranslateCore")
     implementation group: 'org.jetbrains', name: 'annotations', version: '24.0.1'
     implementation group: 'com.github.mosemister', name: 'EasyConfig', version: 'master-SNAPSHOT'
 
@@ -27,7 +30,26 @@ dependencies {
 }
 
 test {
+    finalizedBy jacocoTestReport
     useJUnitPlatform()
     scanForTestClasses = false
     include("**/*Tests.class")
+}
+
+jacocoTestReport {
+    dependsOn test
+    doLast {
+        var showCodeCoverage = Boolean.parseBoolean(getProperty("showCodeCoverage"));
+        if(!showCodeCoverage){
+            println("> Skipping showing code coverage: disabled in properties")
+            return
+        }
+        if(!Desktop.isDesktopSupported()){
+            return
+        }
+        if(!Desktop.desktop.isSupported(Desktop.Action.BROWSE)){
+            return
+        }
+        Desktop.desktop.browse(file("build/reports/jacoco/test/html/index.html").toURI())
+    }
 }
