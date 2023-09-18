@@ -20,7 +20,7 @@ public class NodeManager {
 
     private final Collection<Line> lines = new LinkedTransferQueue<>();
 
-    private static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(),"data/lines");
+    public static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(),"data/lines");
 
     public Collection<Line> getLines() {
         return Collections.unmodifiableCollection(this.lines);

@@ -13,19 +13,30 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class LineSerializerTests {
 
     @Test
     public void canDeserializeToObject() {
+        Map<String, Object> positionNode = new HashMap<>();
+        positionNode.put("identifier", "worldID");
+        positionNode.put("x", 2.0);
+        positionNode.put("y", 5.0);
+        positionNode.put("z", 6.0);
+
+        Map<String, Object> nodeMap = new HashMap<>();
+        nodeMap.put("name", "Name");
+        nodeMap.put("location", positionNode);
+        nodeMap.put("nodeType", NodeType.STOP.name());
+
+        Map<String, Object> node2Map = new HashMap<>(nodeMap);
+        node2Map.replace("name", "Other");
+
         Map<String, Object> lineNode = new HashMap<>();
         lineNode.put("identifier", "Id");
         lineNode.put("name", "Name");
-        lineNode.put("nodes", Collections.emptyList());
+        lineNode.put("nodes", Arrays.asList(nodeMap, node2Map));
         lineNode.put("cost", 1);
         lineNode.put("costType", CostType.FLAT_RATE.name());
         lineNode.put("oneWay", true);
@@ -55,7 +66,8 @@ public class LineSerializerTests {
         Mockito.when(position.getWorld()).thenReturn(world);
 
 
-        Node node = new NodeBuilder().setName("example").setType(NodeType.STOP).setPosition(position).build();
+        NodeBuilder node = new NodeBuilder().setName("example").setType(NodeType.STOP).setPosition(position);
+        NodeBuilder node2 = new NodeBuilder().setName("another").setType(NodeType.STOP).setPosition(position);
         Line line = new LineBuilder()
                 .setIdentifier("id")
                 .setName("name")
@@ -63,7 +75,7 @@ public class LineSerializerTests {
                 .setCostType(CostType.FLAT_RATE)
                 .setOneWay(true)
                 .setOneWayReversed(true)
-                .addNodes(node)
+                .addNodes(node, node2)
                 .build();
 
         //act
@@ -78,7 +90,7 @@ public class LineSerializerTests {
         Assertions.assertEquals(asMap.get("identifier"), "id");
         Assertions.assertNotNull(asMap.get("nodes"));
         Assertions.assertInstanceOf(Collection.class, asMap.get("nodes"));
-        Assertions.assertEquals(((Collection<?>) asMap.get("nodes")).size(), 1);
+        Assertions.assertEquals(((Collection<?>) asMap.get("nodes")).size(), 2);
         Assertions.assertEquals(asMap.get("oneWayReversed"), true);
         Assertions.assertEquals(asMap.get("oneWay"), true);
         Assertions.assertEquals(asMap.get("costType"), CostType.FLAT_RATE.name());

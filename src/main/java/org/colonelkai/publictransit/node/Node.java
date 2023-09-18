@@ -68,6 +68,19 @@ public class Node implements Buildable<NodeBuilder, Node> {
     }
 
     @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Node node)){
+            return false;
+        }
+        return node.name.equalsIgnoreCase(this.name);
+    }
+
+    @Override
     public NodeBuilder toBuilder() {
         return new NodeBuilder().setPosition(this.location).setTime(this.time).setType(this.nodeType).setName(this.name);
     }

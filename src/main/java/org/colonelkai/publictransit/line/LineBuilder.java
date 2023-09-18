@@ -1,6 +1,7 @@
 package org.colonelkai.publictransit.line;
 
 import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.utils.Builder;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,15 +11,15 @@ import java.util.List;
 
 public class LineBuilder implements Builder<LineBuilder, Line> {
 
-    private Integer cost;
+    private Double cost;
     private CostType costType;
     private String identifier;
     private boolean isOneWay;
     private boolean isOneWayReversed;
     private String name;
-    private List<Node> nodes = new ArrayList<>();
+    private List<NodeBuilder> nodes = new ArrayList<>();
 
-    public LineBuilder addNodes(Node... nodes) {
+    public LineBuilder addNodes(NodeBuilder... nodes) {
         this.nodes.addAll(Arrays.asList(nodes));
         return this;
     }
@@ -40,55 +41,50 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
-    public Integer cost() {
-        return cost;
+    public Double cost() {
+        return this.cost;
     }
 
     public CostType costType() {
-        return costType;
+        return this.costType;
     }
 
     public String identifier() {
-        return identifier;
+        return this.identifier;
     }
 
     public boolean isOneWay() {
-        return isOneWay;
+        return this.isOneWay;
     }
 
     public LineBuilder setOneWay(boolean oneWay) {
-        isOneWay = oneWay;
+        this.isOneWay = oneWay;
         return this;
     }
 
     public boolean isOneWayReversed() {
-        return isOneWayReversed;
+        return this.isOneWayReversed;
     }
 
     public LineBuilder setOneWayReversed(boolean oneWayReversed) {
-        isOneWayReversed = oneWayReversed;
+        this.isOneWayReversed = oneWayReversed;
         return this;
     }
 
     public String name() {
-        return name;
+        return this.name;
     }
 
-    public List<Node> nodes() {
-        return nodes;
+    public List<NodeBuilder> nodes() {
+        return this.nodes;
     }
 
     public LineBuilder removeNode(String nodeName) {
-        this.nodes.stream().filter(node -> node.getName().equals(nodeName)).forEach(n -> this.nodes.remove(n));
+        this.nodes.stream().filter(node -> null != node.name()).filter(node -> node.name().equals(nodeName)).forEach(n -> this.nodes.remove(n));
         return this;
     }
 
-    public LineBuilder removeNode(@NotNull Node node) {
-        this.nodes.remove(node);
-        return this;
-    }
-
-    public LineBuilder setCost(int cost) {
+    public LineBuilder setCost(double cost) {
         this.cost = cost;
         return this;
     }
@@ -108,7 +104,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
-    public LineBuilder setNodes(List<Node> nodes) {
+    public LineBuilder setNodes(List<NodeBuilder> nodes) {
         this.nodes = nodes;
         return this;
     }
