@@ -38,6 +38,6 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
-          name: Bukkit Standalone
+          name: Code Coverage
           path: build/reports/jacoco/test/html/
           if-no-files-found: error
