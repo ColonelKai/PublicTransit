@@ -13,7 +13,11 @@ public enum CostType {
         int endIndex = nodes.indexOf(end);
         return ((double) Math.abs(endIndex - startIndex)) * line.getCost();
     }),
-    PER_STOP((line, start, end) -> line.getNodesBetween(start, end).stream().filter(node -> node.getNodeType() == NodeType.STOP).count() * line.getCost()),
+    PER_STOP((line, start, end) -> {
+        int amount = (int) line.getNodesBetween(start, end).stream().filter(node -> node.getNodeType() == NodeType.STOP).count();
+        double cost = line.getCost();
+        return amount * cost;
+    }),
     FLAT_RATE((line, start, end) -> line.getCost());
 
     private final TriFunction<Line, Node, Node, Double> applier;

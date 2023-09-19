@@ -64,9 +64,16 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         }
     }
 
-    public List<Node> getNodesBetween(Node start, Node end) {
+    public List<Node> getNodesBetween(Node start, Node end){
+        return getNodesBetween(start, end, true);
+    }
+
+    public List<Node> getNodesBetween(Node start, Node end, boolean includeEnd) {
         int startIndex = this.nodes.indexOf(start);
         int endIndex = this.nodes.indexOf(end);
+        if(includeEnd){
+            endIndex++;
+        }
         return this.getNodes().subList(startIndex, endIndex);
     }
 

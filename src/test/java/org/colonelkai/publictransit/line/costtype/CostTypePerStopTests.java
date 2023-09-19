@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CostTypePerNodeTests extends AbstractCostTypeTests {
+public class CostTypePerStopTests extends AbstractCostTypeTests {
 
-    private static final CostType TYPE = CostType.PER_NODE;
+    private static final CostType TYPE = CostType.PER_STOP;
 
     @Test
     public void testValidCost() {
@@ -24,11 +24,7 @@ public class CostTypePerNodeTests extends AbstractCostTypeTests {
         }, builder -> {
             ExactPosition position = Mockito.mock(SyncExactPosition.class);
             Mockito.when(position.toExactPosition()).thenReturn(position);
-            return builder.setType(NodeType.TRANSITIONAL).setName("Mid-First").setPosition(position);
-        }, builder -> {
-            ExactPosition position = Mockito.mock(SyncExactPosition.class);
-            Mockito.when(position.toExactPosition()).thenReturn(position);
-            return builder.setType(NodeType.TRANSITIONAL).setName("Mid-Second").setPosition(position);
+            return builder.setType(NodeType.TRANSITIONAL).setName("Mid").setPosition(position);
         }, builder -> {
             ExactPosition position = Mockito.mock(SyncExactPosition.class);
             Mockito.when(position.toExactPosition()).thenReturn(position);
@@ -39,7 +35,7 @@ public class CostTypePerNodeTests extends AbstractCostTypeTests {
         double amount = line.getPrice();
 
         //assert
-        Assertions.assertEquals(6, amount);
+        Assertions.assertEquals(4, amount);
     }
 
     @Test
@@ -53,11 +49,7 @@ public class CostTypePerNodeTests extends AbstractCostTypeTests {
         }, builder -> {
             ExactPosition position = Mockito.mock(SyncExactPosition.class);
             Mockito.when(position.toExactPosition()).thenReturn(position);
-            return builder.setType(NodeType.TRANSITIONAL).setName("Mid-First").setPosition(position);
-        }, builder -> {
-            ExactPosition position = Mockito.mock(SyncExactPosition.class);
-            Mockito.when(position.toExactPosition()).thenReturn(position);
-            return builder.setType(NodeType.TRANSITIONAL).setName("Mid-Second").setPosition(position);
+            return builder.setType(NodeType.TRANSITIONAL).setName("Mid").setPosition(position);
         }, builder -> {
             ExactPosition position = Mockito.mock(SyncExactPosition.class);
             Mockito.when(position.toExactPosition()).thenReturn(position);
@@ -68,7 +60,7 @@ public class CostTypePerNodeTests extends AbstractCostTypeTests {
         double amount = line.getPrice();
 
         //assert
-        Assertions.assertEquals(cost * 4, amount);
+        Assertions.assertEquals(cost * 2, amount);
     }
 
 }
