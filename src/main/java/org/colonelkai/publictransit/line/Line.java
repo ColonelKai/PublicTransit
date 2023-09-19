@@ -1,128 +1,151 @@
 package org.colonelkai.publictransit.line;
 
-import org.colonelkai.publictransit.nodes.Node;
-import org.colonelkai.publictransit.nodes.NodeTypes;
+import org.colonelkai.publictransit.NodeManager;
+import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
+import org.colonelkai.publictransit.node.NodeType;
+import org.colonelkai.publictransit.utils.Buildable;
+import org.colonelkai.publictransit.utils.Savable;
+import org.colonelkai.publictransit.utils.serializers.Serializers;
+import org.core.TranslateCore;
+import org.core.config.ConfigurationFormat;
+import org.core.config.ConfigurationNode;
+import org.core.config.ConfigurationStream;
+import org.easy.config.auto.annotations.ConfigConstructor;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.io.File;
+import java.util.*;
 
-public class Line {
+public class Line implements Buildable<LineBuilder, Line>, Savable {
 
-    final String identifier;
-    String name;
-    List<Node> nodes;
+    private final String identifier;
+    private final String name;
 
-    int cost;
-    CostType costType;
+    private final List<Node> nodes;
 
-    boolean oneWay;
-    boolean oneWayReversed;
+    private final double cost;
+    private final CostType costType;
 
-    public Line(String identifier, String name, int cost, CostType costType, boolean oneWay, boolean oneWayReversed) {
+    private final boolean oneWay;
+    private final boolean oneWayReversed;
+
+    @ConfigConstructor
+    private Line(String identifier, String name, List<Node> nodes, double cost, CostType costType, boolean oneWay, boolean oneWayReversed) {
         this.identifier = identifier;
         this.name = name;
-        this.cost = cost;
         this.costType = costType;
+        this.cost = cost;
         this.oneWay = oneWay;
         this.oneWayReversed = oneWayReversed;
+        this.nodes = new ArrayList<>(nodes);
+        this.validateNodes();
     }
 
-    // get every node between two given integers
-    // returns map because we gotta preserve their index, as that's how we identify them
-    public Map<Integer, Node> getAllNodesBetween(int start, int end) {
-        Map<Integer, Node> map = new HashMap<>();
-        int cursor = start;
-
-        do {
-            map.put(cursor, this.nodes.get(cursor));
-            if(start<end) cursor++;
-            else if(start>end) cursor--;
-        } while (cursor != end);
-
-        return map;
+    Line(@NotNull LineBuilder builder) {
+        this.identifier = Objects.requireNonNull(builder.identifier());
+        this.name = Objects.requireNonNullElse(builder.name(), this.identifier);
+        this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
+        this.validateNodes();
+        this.cost = Objects.requireNonNull(builder.cost());
+        this.costType = Objects.requireNonNull(builder.costType());
+        this.oneWay = builder.isOneWay();
+        this.oneWayReversed = builder.isOneWayReversed();
     }
 
-    public int getPrice(int start, int end) {
-        switch (this.costType) {
-            case FLAT_RATE -> {
-                return this.cost;
-            }
-            case PER_NODE -> {
-                return Math.abs(start - end);
-            }
-            case PER_STOP -> {
-                Map<Integer, Node> nodes = getAllNodesBetween(start, end);
-                return
-                        (nodes.entrySet().parallelStream()
-                                .filter(
-                                        integerNodeEntry -> integerNodeEntry.getValue().getNodeType() == NodeTypes.STOP)
-                                .collect(Collectors.toSet())).size();
-            }
+    private void validateNodes() {
+        if (2 > this.nodes.size()) {
+            throw new IllegalStateException("Requires two or more nodes");
         }
-        return 0;
+        Collection<Node> uniqueTest = new HashSet<>(this.nodes);
+        if (uniqueTest.size() != this.nodes.size()) {
+            throw new IllegalStateException("Two or more nodes have the same name");
+        }
     }
 
-    // GETTER SETTERS
-
-    public boolean addNode(Node node) {
-        return this.nodes.add(node);
+    public List<Node> getNodesBetween(Node start, Node end) {
+        int startIndex = this.nodes.indexOf(start);
+        int endIndex = this.nodes.indexOf(end);
+        return this.getNodes().subList(startIndex, endIndex);
     }
 
-    public void addNode(Node node, int index) {
-        this.nodes.add(index, node);
-    }
-
-    public boolean removeNode(Node node) {
-        return this.nodes.remove(node);
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
-    public void setCostType(CostType costType) {
-        this.costType = costType;
-    }
-
-    public void setOneWay(boolean oneWay) {
-        this.oneWay = oneWay;
-    }
-
-    public void setOneWayReversed(boolean oneWayReversed) {
-        this.oneWayReversed = oneWayReversed;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<Node> getNodes() {
-        return nodes;
-    }
-
-    public int getCost() {
-        return cost;
+    public double getCost() {
+        return this.cost;
     }
 
     public CostType getCostType() {
-        return costType;
+        return this.costType;
+    }
+
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public List<Node> getNodes() {
+        return this.getNodes(false);
+    }
+
+    public List<Node> getNodes(boolean reverse) {
+        List<Node> nodes = new ArrayList<>(this.nodes);
+        if (this.oneWayReversed != reverse) {
+            Collections.reverse(nodes);
+        }
+        return Collections.unmodifiableList(nodes);
+    }
+
+    @Override
+    public File defaultFile() {
+        return new File(NodeManager.LINES_DATA_PATH, this.identifier);
+    }
+
+    @Override
+    public void save(File file) throws Exception {
+        PublicTransit.getPlugin().getNodeManager().save(this, file);
+    }
+
+    public double getPrice() {
+        return this.getPrice(this.nodes.get(0), this.nodes.get(this.nodes.size() - 1));
+    }
+
+    public double getPrice(@NotNull Node start, @NotNull Node end) {
+        return this.costType.get(this, start, end);
     }
 
     public boolean isOneWay() {
-        return oneWay;
+        return this.oneWay;
     }
 
     public boolean isOneWayReversed() {
-        return oneWayReversed;
+        return this.oneWayReversed;
+    }
+
+    @Override
+    public LineBuilder toBuilder() {
+        return new LineBuilder()
+                .setIdentifier(this.identifier)
+                .setName(this.name)
+                .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())
+                .setCostType(this.costType)
+                .setCost(this.cost)
+                .setOneWay(this.oneWay)
+                .setOneWayReversed(this.oneWayReversed);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.identifier.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Line line)) {
+            return false;
+        }
+        return line.identifier.equalsIgnoreCase(this.identifier);
     }
 }
