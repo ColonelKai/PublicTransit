@@ -39,4 +39,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Bukkit Standalone
-          path: build/reports/jacoco/tests/html/*
+          path: build/reports/jacoco/test/html/
+          if-no-files-found: error
