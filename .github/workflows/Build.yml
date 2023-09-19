@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  buildBukkit:
 
     runs-on: ubuntu-latest
 
@@ -24,3 +24,8 @@ jobs:
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: buildBukkit
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: Bukkit Standalone
+        path: translate/bukkitPlugin.jar
