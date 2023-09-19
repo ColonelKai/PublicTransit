@@ -19,8 +19,8 @@ import java.util.stream.Stream;
 public class PublicTransitConfig implements Config {
 
 
-    /*private static final ParserConfigNode<StringParser<CostType>, CostType> EXAMPLE_COST_TYPE = new ParserConfigNode<>(
-            new ConfigurationNode.KnownParser.SingleKnown<>(Parsers.COST_TYPE, "location", "in", "file"), CostType.FLAT_RATE);*/
+    private static final ParserConfigNode<StringParser<CostType>, CostType> EXAMPLE_COST_TYPE = new ParserConfigNode<>(
+            new ConfigurationNode.KnownParser.SingleKnown<>(Parsers.COST_TYPE, "location", "in", "file"), CostType.FLAT_RATE);
 
     private static final File FILE = new File(PublicTransit.getPlugin().getConfigFolder(),
                                               "config." + TranslateCore.getPlatform().getConfigFormat().getFileType()[0]);
@@ -32,13 +32,13 @@ public class PublicTransitConfig implements Config {
         updateFile();
     }
 
-    /*public CostType getExampleCostType() {
+    public CostType getExampleCostType() {
         return EXAMPLE_COST_TYPE.currentValue(this.config);
     }
 
     public void setExampleCostType(@NotNull CostType type) {
         EXAMPLE_COST_TYPE.set(this.config, type);
-    }*/
+    }
 
     @Override
     public ConfigurationStream.ConfigurationFile getFile() {
