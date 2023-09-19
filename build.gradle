@@ -10,6 +10,7 @@ version = "0.0.1"
 
 apply from: "buildGradle/buildCommon.gradle"
 apply from: "buildGradle/buildBukkit.gradle"
+apply from: "buildGradle/clearsetup.gradle"
 
 repositories {
     mavenCentral()
@@ -24,9 +25,9 @@ dependencies {
     implementation group: 'com.github.mosemister', name: 'EasyConfig', version: 'master-SNAPSHOT'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.2.0'
-    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.3.1'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.2'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.5.0'
+    testRuntimeOnly group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.5.0'
 }
 
 test {
@@ -40,14 +41,14 @@ jacocoTestReport {
     dependsOn test
     doLast {
         var showCodeCoverage = Boolean.parseBoolean(getProperty("showCodeCoverage"));
-        if(!showCodeCoverage){
+        if (!showCodeCoverage) {
             println("> Skipping showing code coverage: disabled in properties")
             return
         }
-        if(!Desktop.isDesktopSupported()){
+        if (!Desktop.isDesktopSupported()) {
             return
         }
-        if(!Desktop.desktop.isSupported(Desktop.Action.BROWSE)){
+        if (!Desktop.desktop.isSupported(Desktop.Action.BROWSE)) {
             return
         }
         Desktop.desktop.browse(file("build/reports/jacoco/test/html/index.html").toURI())

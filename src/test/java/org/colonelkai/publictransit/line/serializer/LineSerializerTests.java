@@ -7,18 +7,45 @@ import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.serializers.Serializers;
+import org.core.TranslateCore;
+import org.core.platform.PlatformServer;
 import org.core.world.WorldExtent;
+import org.core.world.position.impl.ExactPosition;
 import org.core.world.position.impl.sync.SyncExactPosition;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
 
 public class LineSerializerTests {
 
+    private MockedStatic<TranslateCore> translateCore;
+
+    @BeforeEach
+    public void before(){
+        translateCore = Mockito.mockStatic(TranslateCore.class);
+    }
+
+    @AfterEach
+    public void after(){
+        translateCore.close();
+    }
+
     @Test
     public void canDeserializeToObject() {
+        SyncExactPosition position = Mockito.mock(SyncExactPosition.class);
+        PlatformServer server = Mockito.mock(PlatformServer.class);
+        WorldExtent world = Mockito.mock(WorldExtent.class);
+        translateCore.when(TranslateCore::getServer).thenReturn(server);
+        Mockito.when(server.getWorldByPlatformSpecific(Mockito.anyString())).thenReturn(Optional.of(world));
+        Mockito.when(world.getPosition(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(position);
+
+
         Map<String, Object> positionNode = new HashMap<>();
         positionNode.put("identifier", "worldID");
         positionNode.put("x", 2.0);

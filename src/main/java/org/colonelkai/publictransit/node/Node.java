@@ -16,7 +16,7 @@ import java.util.OptionalInt;
 public class Node implements Buildable<NodeBuilder, Node> {
 
     @ConfigField(serializer = PositionSerializer.class)
-    private final SyncExactPosition location;
+    private final ExactPosition location;
 
     private final String name;
     private final NodeType nodeType;
@@ -24,18 +24,26 @@ public class Node implements Buildable<NodeBuilder, Node> {
     private final Integer time;
 
     @ConfigConstructor
-    Node(Position<?> position, String name, NodeType nodeType, Integer time){
-        this.location = Position.toSync(Position.toExact(position));
-        this.name = name;
-        this.nodeType = nodeType;
+    private Node(Position<?> position, String name, NodeType nodeType, Integer time) {
+        this.location = Objects.requireNonNull(position).toExactPosition();
+        this.name = Objects.requireNonNull(name);
+        this.nodeType = Objects.requireNonNull(nodeType);
         this.time = time;
+        validateNode();
     }
 
     public Node(NodeBuilder builder) {
-        this.location = Position.toSync(Position.toExact(Objects.requireNonNull(builder.position())));
+        this.location = Objects.requireNonNull(builder.position()).toExactPosition();
         this.nodeType = Objects.requireNonNull(builder.type());
         this.name = Objects.requireNonNull(builder.name());
         this.time = builder.time();
+        validateNode();
+    }
+
+    private void validateNode() {
+        if (this.name.contains(" ")) {
+            throw new IllegalArgumentException("Name cannot have spaces included");
+        }
     }
 
     public String getName() {
@@ -46,7 +54,7 @@ public class Node implements Buildable<NodeBuilder, Node> {
         return nodeType;
     }
 
-    public SyncExactPosition getPosition() {
+    public ExactPosition getPosition() {
         return location;
     }
 
@@ -74,7 +82,7 @@ public class Node implements Buildable<NodeBuilder, Node> {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Node node)){
+        if (!(obj instanceof Node node)) {
             return false;
         }
         return node.name.equalsIgnoreCase(this.name);

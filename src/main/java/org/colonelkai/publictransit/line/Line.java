@@ -7,12 +7,8 @@ import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.Savable;
-import org.colonelkai.publictransit.utils.serializers.Serializers;
-import org.core.TranslateCore;
-import org.core.config.ConfigurationFormat;
-import org.core.config.ConfigurationNode;
-import org.core.config.ConfigurationStream;
 import org.easy.config.auto.annotations.ConfigConstructor;
+import org.easy.config.auto.annotations.ConfigList;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -23,6 +19,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     private final String identifier;
     private final String name;
 
+    @ConfigList(ofType = Node.class)
     private final List<Node> nodes;
 
     private final double cost;
@@ -40,23 +37,26 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.oneWay = oneWay;
         this.oneWayReversed = oneWayReversed;
         this.nodes = new ArrayList<>(nodes);
-        this.validateNodes();
+        this.validate();
     }
 
     Line(@NotNull LineBuilder builder) {
         this.identifier = Objects.requireNonNull(builder.identifier());
         this.name = Objects.requireNonNullElse(builder.name(), this.identifier);
         this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
-        this.validateNodes();
         this.cost = Objects.requireNonNull(builder.cost());
         this.costType = Objects.requireNonNull(builder.costType());
         this.oneWay = builder.isOneWay();
         this.oneWayReversed = builder.isOneWayReversed();
+        this.validate();
     }
 
-    private void validateNodes() {
-        if (2 > this.nodes.size()) {
-            throw new IllegalStateException("Requires two or more nodes");
+    private void validate() {
+        if (2 > this.nodes.stream().filter(node -> node.getNodeType().equals(NodeType.STOP)).count()) {
+            throw new IllegalStateException("Requires two or more stop nodes");
+        }
+        if (this.cost < 0) {
+            throw new IllegalStateException("Cost cannot be negative");
         }
         Collection<Node> uniqueTest = new HashSet<>(this.nodes);
         if (uniqueTest.size() != this.nodes.size()) {
