@@ -6,17 +6,19 @@ tasks.register("buildBukkit") {
     group = "translate core"
     description = "Build Bukkit plugin"
     dependsOn("setup")
+    dependsOn("TranslateCore:build")
+    dependsOn("CoreToFolia:build")
     dependsOn("build")
     doLast {
         String exportPath = getProperty("exportToBukkit")
-        combined("CoreToBukkit", "Bukkit", exportPath, (ZipOutputStream zos) -> {
+        combined("CoreToFolia", "Folia", exportPath, (ZipOutputStream zos) -> {
             var entry = new ZipEntry("plugin.yml")
             zos.putNextEntry(entry)
 
             var stringBuilder = new StringBuilder();
             stringBuilder.append("name: PublicTransit\n")
             stringBuilder.append("version: " + version + "\n")
-            stringBuilder.append("main: org.core.implementation.bukkit.platform.plugin.boot.TranslateCoreBoot\n")
+            stringBuilder.append("main: org.core.implementation.folia.platform.plugin.boot.TranslateCoreBoot\n")
             stringBuilder.append("api-version: 1.20\n")
             stringBuilder.append("softdepend: [ Vault ]\n")
 

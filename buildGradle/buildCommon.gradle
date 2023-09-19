@@ -41,12 +41,14 @@ ext.download = { String repoName ->
 }
 
 ext.downloadAll = { ->
-    download("CoreToBukkit")
+    download("TranslateCore")
+    download("CoreToFolia")
 }
 
 ext.combined = { String translator, String translatorName, String exportPath, Consumer<ZipOutputStream> extra ->
-    var translatorJar = file(translator + "/build/libs/TranslateCore" + translatorName + ".jar")
-    var pluginJar = file("build/libs/PublicTransit.jar")
+    var translatorJar = file(translator + "/build/libs").listFiles()[0]
+    var translatorApiJar = file("TranslateCore/build/libs").listFiles()[0]
+    var pluginJar = file("build/libs").listFiles()[0]
 
     var exportFile = file(exportPath)
 
@@ -57,7 +59,7 @@ ext.combined = { String translator, String translatorName, String exportPath, Co
     var zip = new ZipOutputStream(output)
     byte[] bytes = new byte[1024];
 
-    var zipFiles = new File[]{translatorJar, pluginJar}
+    var zipFiles = new File[]{translatorJar, translatorApiJar, pluginJar}
     var entered = new ArrayList<String>();
     for (File zipPath : zipFiles) {
         var zipFile = new ZipFile(zipPath)

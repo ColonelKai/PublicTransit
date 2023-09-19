@@ -1,6 +1,7 @@
 package org.colonelkai.publictransit;
 
 
+import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
 import org.core.platform.plugin.CorePlugin;
@@ -10,32 +11,20 @@ import org.jetbrains.annotations.NotNull;
 public class PublicTransit implements CorePlugin {
 
     static PublicTransit plugin;
+    private final NodeManager nodeManager;
     private Object launcher;
     private Logger logger;
-
     public PublicTransit() {
         plugin = this;
+        this.nodeManager = new NodeManager();
     }
 
     public Logger getLogger() {
         return this.logger;
     }
 
-    @Override
-    public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
-        this.launcher = pluginLauncher;
-        this.logger = logger;
-
-    }
-
-    @Override
-    public void onRegisterCommands(@NotNull CommandRegister register) {
-
-    }
-
-    @Override
-    public @NotNull String getLicence() {
-        return "All Rights Reserved";
+    public NodeManager getNodeManager() {
+        return this.nodeManager;
     }
 
     @Override
@@ -49,12 +38,38 @@ public class PublicTransit implements CorePlugin {
     }
 
     @Override
+    public @NotNull Object getPlatformLauncher() {
+        return this.launcher;
+    }
+
+    @Override
+    public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
+        this.launcher = pluginLauncher;
+        this.logger = logger;
+    }
+
+    @Override
+    public void onRegisterCommands(@NotNull CommandRegister register) {
+
+    }
+
+    @Override
+    public @NotNull String getLicence() {
+        return "All Rights Reserved";
+    }
+
+    @Override
     public @NotNull CorePluginVersion getPluginVersion() {
         return new CorePluginVersion(0, 0, 1);
     }
 
     @Override
-    public @NotNull Object getPlatformLauncher() {
-        return this.launcher;
+    public void onCoreReady() {
+        this.nodeManager.loadAll().forEach(this.nodeManager::register);
+        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
+    }
+
+    public static PublicTransit getPlugin() {
+        return plugin;
     }
 }
