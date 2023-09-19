@@ -1,6 +1,7 @@
 package org.colonelkai.publictransit;
 
 
+import org.colonelkai.publictransit.config.PublicTransitConfig;
 import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
@@ -12,15 +13,22 @@ public class PublicTransit implements CorePlugin {
 
     static PublicTransit plugin;
     private final NodeManager nodeManager;
+    private final PublicTransitConfig config;
     private Object launcher;
     private Logger logger;
+
     public PublicTransit() {
         plugin = this;
         this.nodeManager = new NodeManager();
+        this.config = new PublicTransitConfig();
     }
 
     public Logger getLogger() {
         return this.logger;
+    }
+
+    public PublicTransitConfig getConfig() {
+        return this.config;
     }
 
     public NodeManager getNodeManager() {
