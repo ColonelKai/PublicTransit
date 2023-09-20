@@ -1,3 +1,17 @@
 body {
-	background: GRAY
+	background: GRAY;
+}
+.centre {
+    text-align: center;
+}
+.box {
+    max-width: 20vw;
+    border-style: dashed;
+}
+.no-bullet {
+    display: block;
+    border-width: 2vw;
+}
+.underline {
+    text-decoration-line: underline;
 }

@@ -1,0 +1,8 @@
+.gradle
+.idea
+build
+CoreToFolia
+githubPage
+TranslateCore
+translate
+*.iml
