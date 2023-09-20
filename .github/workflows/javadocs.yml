@@ -34,9 +34,13 @@ jobs:
       - name: make javadoc folder
         run: mkdir -p githubPage/master/javadocs
       - name: move javadocs
-        run: mv build/docs/javadoc githubPage/master/javadocs
-      - name: list
-        run: ls githubPage/master/javadocs
-      - name: list codeoverage
-        run: ls build/reports/jacoco/test/html
+        run: mv build/docs/javadoc/* githubPage/master/javadocs
+      - name: move code coverage
+        run: mv build/reports/jacoco/test/html/* githubPage/master/codecoverage
+      - name: push to branch
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: 'gh_pages'
+          directory: githubPage
 
