@@ -34,5 +34,5 @@ jobs:
       - name: make javadoc folder
         run: mkdir -p githubPage/master/javadocs
       - name: list
-        run: ls githubPage/*/
+        run: ls githubPage/
 
