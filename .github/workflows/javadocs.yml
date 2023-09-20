@@ -33,6 +33,10 @@ jobs:
           path: githubPage
       - name: make javadoc folder
         run: mkdir -p githubPage/master/javadocs
+      - name: move javadocs
+        run: mv docs/javadoc githubPage/master/javadocs
       - name: list
-        run: ls githubPage/
+        run: ls githubPage/master/javadocs
+      - name: list codeoverage
+        run: ls build/report/jacoco/test/html
 
