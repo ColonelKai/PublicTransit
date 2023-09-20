@@ -99,11 +99,12 @@ public class LineSerializerTests {
                 .setCost(5)
                 .setCostType(CostType.FLAT_RATE)
                 .setDirection(LineDirection.POSITIVE)
+                .setBiDirectional(true)
                 .addNodes(node, node2)
                 .build();
 
         //act
-        Map<String, Object> asMap = null;
+        Map<String, Object> asMap;
         try {
             asMap = Serializers.LINE.serialize(line);
         } catch (Exception e) {
@@ -116,6 +117,7 @@ public class LineSerializerTests {
         Assertions.assertInstanceOf(Collection.class, asMap.get("nodes"));
         Assertions.assertEquals(2, ((Collection<?>) asMap.get("nodes")).size());
         Assertions.assertEquals(LineDirection.POSITIVE.name(), asMap.get("direction"));
+        Assertions.assertTrue((boolean) asMap.get("isBiDirectional"));
         Assertions.assertEquals(CostType.FLAT_RATE.name(), asMap.get("costType"));
     }
 

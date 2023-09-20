@@ -16,6 +16,10 @@ public enum LineDirection {
         this.isPositive = isPositive;
     }
 
+    public boolean isPositive() {
+        return this.isPositive;
+    }
+
     private int getAddition(boolean isReverse) {
         int addition = this.isPositive ? 1 : -1;
         if (isReverse) {
