@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CostType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.line</a> &gt; <span class="el_source">CostType.java</span></div><h1>CostType.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.line;
+
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeType;
+import org.colonelkai.publictransit.utils.lamda.TriFunction;
+
+import java.util.List;
+
+<span class="fc" id="L9">public enum CostType {</span>
+<span class="fc" id="L10">    PER_NODE((line, start, end) -&gt; {</span>
+<span class="nc" id="L11">        List&lt;Node&gt; nodes = line.getNodes();</span>
+<span class="nc" id="L12">        int startIndex = nodes.indexOf(start);</span>
+<span class="nc" id="L13">        int endIndex = nodes.indexOf(end);</span>
+<span class="nc" id="L14">        return ((double) Math.abs(endIndex - startIndex)) * line.getCost();</span>
+    }),
+<span class="pc bnc" id="L16" title="All 2 branches missed.">    PER_STOP((line, start, end) -&gt; line.getNodesBetween(start, end).stream().filter(node -&gt; node.getNodeType() == NodeType.STOP).count() * line.getCost()),</span>
+<span class="pc" id="L17">    FLAT_RATE((line, start, end) -&gt; line.getCost());</span>
+
+    private final TriFunction&lt;Line, Node, Node, Double&gt; applier;
+
+<span class="fc" id="L21">    CostType(TriFunction&lt;Line, Node, Node, Double&gt; applier) {</span>
+<span class="fc" id="L22">        this.applier = applier;</span>
+<span class="fc" id="L23">    }</span>
+
+    public double get(Line line, Node starting, Node ending) {
+<span class="nc" id="L26">        return this.applier.apply(line, starting, ending);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,9 @@
+org.colonelkai.publictransit
+org.colonelkai.publictransit.commands
+org.colonelkai.publictransit.commands.arguments
+org.colonelkai.publictransit.line
+org.colonelkai.publictransit.line.travel
+org.colonelkai.publictransit.node
+org.colonelkai.publictransit.utils
+org.colonelkai.publictransit.utils.lamda
+org.colonelkai.publictransit.utils.serializers

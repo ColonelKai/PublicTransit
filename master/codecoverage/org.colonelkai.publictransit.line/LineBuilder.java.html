@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LineBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.line</a> &gt; <span class="el_source">LineBuilder.java</span></div><h1>LineBuilder.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.line;
+
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
+import org.colonelkai.publictransit.utils.Builder;
+import org.core.adventureText.AText;
+import org.core.world.position.impl.ExactPosition;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+<span class="fc" id="L14">public class LineBuilder implements Builder&lt;LineBuilder, Line&gt; {</span>
+
+    private Double cost;
+    private CostType costType;
+    private String identifier;
+    private LineDirection direction;
+    private AText name;
+    private boolean isBiDirectional;
+<span class="fc" id="L22">    private List&lt;NodeBuilder&gt; nodes = new ArrayList&lt;&gt;();</span>
+
+    public LineBuilder addNodes(NodeBuilder... nodes) {
+<span class="fc" id="L25">        this.nodes.addAll(Arrays.asList(nodes));</span>
+<span class="fc" id="L26">        return this;</span>
+    }
+
+    public boolean isBiDirectional() {
+<span class="fc" id="L30">        return this.isBiDirectional;</span>
+    }
+
+    public LineBuilder setBiDirectional(boolean isBiDirectional) {
+<span class="fc" id="L34">        this.isBiDirectional = isBiDirectional;</span>
+<span class="fc" id="L35">        return this;</span>
+    }
+
+    @Override
+    public Line build() {
+<span class="fc" id="L40">        return new Line(this);</span>
+    }
+
+    @Override
+    public LineBuilder from(LineBuilder lineBuilder) {
+<span class="nc" id="L45">        this.nodes = lineBuilder.nodes();</span>
+<span class="nc" id="L46">        this.cost = lineBuilder.cost();</span>
+<span class="nc" id="L47">        this.costType = lineBuilder.costType();</span>
+<span class="nc" id="L48">        this.name = lineBuilder.name();</span>
+<span class="nc" id="L49">        this.identifier = lineBuilder.identifier();</span>
+<span class="nc" id="L50">        this.direction = lineBuilder.direction();</span>
+<span class="nc" id="L51">        return this;</span>
+    }
+
+    public Double cost() {
+<span class="fc" id="L55">        return this.cost;</span>
+    }
+
+    public CostType costType() {
+<span class="fc" id="L59">        return this.costType;</span>
+    }
+
+    public String identifier() {
+<span class="fc" id="L63">        return this.identifier;</span>
+    }
+
+    public LineDirection direction() {
+<span class="fc" id="L67">        return this.direction;</span>
+    }
+
+    public LineBuilder setDirection(LineDirection direction) {
+<span class="fc" id="L71">        this.direction = direction;</span>
+<span class="fc" id="L72">        return this;</span>
+    }
+
+    public AText name() {
+<span class="fc" id="L76">        return this.name;</span>
+    }
+
+    public List&lt;NodeBuilder&gt; nodes() {
+<span class="fc" id="L80">        return this.nodes;</span>
+    }
+
+    public LineBuilder removeNode(ExactPosition position) {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        this.nodes.stream().filter(node -&gt; null != node.position()).filter(node -&gt; node.position().equals(position)).forEach(n -&gt; this.nodes.remove(n));</span>
+<span class="nc" id="L85">        return this;</span>
+    }
+
+    public LineBuilder setCost(double cost) {
+<span class="fc" id="L89">        this.cost = cost;</span>
+<span class="fc" id="L90">        return this;</span>
+    }
+
+    public LineBuilder setCostType(CostType costType) {
+<span class="fc" id="L94">        this.costType = costType;</span>
+<span class="fc" id="L95">        return this;</span>
+    }
+
+    public LineBuilder setIdentifier(String identifier) {
+<span class="fc" id="L99">        this.identifier = identifier;</span>
+<span class="fc" id="L100">        return this;</span>
+    }
+
+    public LineBuilder setName(AText name) {
+<span class="nc" id="L104">        this.name = name;</span>
+<span class="nc" id="L105">        return this;</span>
+    }
+
+    public LineBuilder setNodes(List&lt;NodeBuilder&gt; nodes) {
+<span class="nc" id="L109">        this.nodes = nodes;</span>
+<span class="nc" id="L110">        return this;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
