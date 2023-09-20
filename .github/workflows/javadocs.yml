@@ -33,4 +33,6 @@ jobs:
         with:
           ref: gh_pages
           path: githubPage
+      - name: list
+        run: ls -d githubPage/
 
