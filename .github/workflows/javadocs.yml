@@ -33,6 +33,8 @@ jobs:
           path: githubPage
       - name: make javadoc folder
         run: mkdir -p githubPage/master/javadocs
+      - name: make code coverage folder
+        run: mkdir -p githubPage/master/codecoverage
       - name: move javadocs
         run: mv build/docs/javadoc/* githubPage/master/javadocs
       - name: move code coverage
