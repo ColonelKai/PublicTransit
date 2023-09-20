@@ -1,24 +1,51 @@
 package org.colonelkai.publictransit.line.serializer;
 
+import org.colonelkai.publictransit.fake.position.FakeSyncExactPosition;
 import org.colonelkai.publictransit.line.CostType;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
-import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.serializers.Serializers;
+import org.core.TranslateCore;
+import org.core.platform.PlatformServer;
+import org.core.vector.type.Vector3;
 import org.core.world.WorldExtent;
 import org.core.world.position.impl.sync.SyncExactPosition;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.*;
 
 public class LineSerializerTests {
 
+    private MockedStatic<TranslateCore> translateCore;
+
+    @BeforeEach
+    public void before() {
+        translateCore = Mockito.mockStatic(TranslateCore.class);
+    }
+
+    @AfterEach
+    public void after() {
+        translateCore.close();
+    }
+
     @Test
     public void canDeserializeToObject() {
+        PlatformServer server = Mockito.mock(PlatformServer.class);
+        WorldExtent world = Mockito.mock(WorldExtent.class);
+        translateCore.when(TranslateCore::getServer).thenReturn(server);
+        Mockito.when(server.getWorldByPlatformSpecific(Mockito.anyString())).thenReturn(Optional.of(world));
+        Mockito.when(world.getPosition(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyDouble())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new FakeSyncExactPosition(world, Vector3.valueOf((double) args[0], (double) args[1], (double) args[2]));
+        });
+
         Map<String, Object> positionNode = new HashMap<>();
         positionNode.put("identifier", "worldID");
         positionNode.put("x", 2.0);
@@ -54,7 +81,7 @@ public class LineSerializerTests {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result.getCost(), 1);
         Assertions.assertEquals(result.getCostType(), CostType.FLAT_RATE);
-        Assertions.assertEquals(result.getName(), "Name");
+        Assertions.assertEquals(result.getName().toPlain(), "Name");
         Assertions.assertTrue(result.isOneWay());
         Assertions.assertTrue(result.isOneWayReversed());
     }
@@ -62,15 +89,13 @@ public class LineSerializerTests {
     @Test
     public void canSerializeToMap() {
         var world = Mockito.mock(WorldExtent.class);
-        var position = Mockito.mock(SyncExactPosition.class);
-        Mockito.when(position.getWorld()).thenReturn(world);
-
+        var position = new FakeSyncExactPosition(world, 1, 2, 3);
+        var position2 = new FakeSyncExactPosition(world, 2, 2, 1);
 
         NodeBuilder node = new NodeBuilder().setName("example").setType(NodeType.STOP).setPosition(position);
-        NodeBuilder node2 = new NodeBuilder().setName("another").setType(NodeType.STOP).setPosition(position);
+        NodeBuilder node2 = new NodeBuilder().setName("another").setType(NodeType.STOP).setPosition(position2);
         Line line = new LineBuilder()
                 .setIdentifier("id")
-                .setName("name")
                 .setCost(5)
                 .setCostType(CostType.FLAT_RATE)
                 .setOneWay(true)

@@ -63,7 +63,8 @@ public class NodeSerializerTests {
 
         //ASSERT
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(result.getName(), "Name");
+        Assertions.assertTrue(result.getName().isPresent());
+        Assertions.assertEquals(result.getName().get(), "Name");
     }
 
     @Test
@@ -71,6 +72,7 @@ public class NodeSerializerTests {
         var world = Mockito.mock(WorldExtent.class);
         var position = Mockito.mock(SyncExactPosition.class);
         Mockito.when(position.getWorld()).thenReturn(world);
+        Mockito.when(position.toExactPosition()).thenReturn(position);
 
 
         Node node = new NodeBuilder().setName("example").setType(NodeType.STOP).setPosition(position).build();

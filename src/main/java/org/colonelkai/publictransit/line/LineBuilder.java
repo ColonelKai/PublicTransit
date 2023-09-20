@@ -3,6 +3,8 @@ package org.colonelkai.publictransit.line;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.utils.Builder;
+import org.core.adventureText.AText;
+import org.core.world.position.impl.ExactPosition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
     private String identifier;
     private boolean isOneWay;
     private boolean isOneWayReversed;
-    private String name;
+    private AText name;
     private List<NodeBuilder> nodes = new ArrayList<>();
 
     public LineBuilder addNodes(NodeBuilder... nodes) {
@@ -71,7 +73,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
-    public String name() {
+    public AText name() {
         return this.name;
     }
 
@@ -79,8 +81,8 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this.nodes;
     }
 
-    public LineBuilder removeNode(String nodeName) {
-        this.nodes.stream().filter(node -> null != node.name()).filter(node -> node.name().equals(nodeName)).forEach(n -> this.nodes.remove(n));
+    public LineBuilder removeNode(ExactPosition position) {
+        this.nodes.stream().filter(node -> null != node.position()).filter(node -> node.position().equals(position)).forEach(n -> this.nodes.remove(n));
         return this;
     }
 
@@ -99,7 +101,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
-    public LineBuilder setName(String name) {
+    public LineBuilder setName(AText name) {
         this.name = name;
         return this;
     }
