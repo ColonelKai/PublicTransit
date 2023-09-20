@@ -4,6 +4,7 @@ import org.colonelkai.publictransit.node.Node;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public enum LineDirection {
 
@@ -20,23 +21,20 @@ public enum LineDirection {
         return this.isPositive;
     }
 
-    private int getAddition(boolean isReverse) {
-        int addition = this.isPositive ? 1 : -1;
-        if (isReverse) {
-            return -addition;
-        }
-        return addition;
+    public LineDirection getOpposite() {
+        return valueOf(!this.isPositive);
     }
 
-    public Optional<Node> getNextNode(int currentIndex, boolean isReverse, List<Node> nodes) {
+    public Optional<Node> getNextNode(int currentIndex, List<Node> nodes) {
         if (nodes.isEmpty()) {
             return Optional.empty();
         }
-        return this.next(currentIndex, isReverse, nodes);
+        return this.next(currentIndex, nodes);
     }
 
-    private Optional<Node> next(int currentIndex, boolean isReverse, List<Node> nodes) {
-        int index = currentIndex + this.getAddition(isReverse);
+    private Optional<Node> next(int currentIndex, List<Node> nodes) {
+        int index = currentIndex + (this.isPositive ? 1 : -1);
+
         if (index < nodes.size()) {
             //valid index
             return Optional.of(nodes.get(index));
@@ -44,8 +42,11 @@ public enum LineDirection {
         return Optional.empty();
     }
 
-    public boolean isAtEndOfLine(int currentIndex, boolean isReverse, List<Node> nodes) {
-        return this.next(currentIndex, isReverse, nodes).isEmpty();
+    public boolean isAtEndOfLine(int currentIndex, List<Node> nodes) {
+        return this.next(currentIndex, nodes).isEmpty();
     }
 
+    public static LineDirection valueOf(boolean isPositive) {
+        return isPositive ? POSITIVE : NEGATIVE;
+    }
 }

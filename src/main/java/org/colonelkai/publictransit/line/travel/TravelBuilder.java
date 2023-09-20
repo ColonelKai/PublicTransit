@@ -1,15 +1,17 @@
 package org.colonelkai.publictransit.line.travel;
 
 import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Builder;
+import org.jetbrains.annotations.Nullable;
 
 public class TravelBuilder implements Builder<TravelBuilder, Travel> {
 
     private Line travellingOn;
     private Node currentNode;
     private Node endingNode;
-    private boolean isRidingReversed;
+    private LineDirection travellingDirection;
 
     public Line travellingOn() {
         return this.travellingOn;
@@ -38,12 +40,12 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
         return this;
     }
 
-    public boolean isRidingReversed() {
-        return this.isRidingReversed;
+    public LineDirection travellingDirection() {
+        return this.travellingDirection;
     }
 
-    public TravelBuilder setRidingReversed(boolean ridingReversed) {
-        this.isRidingReversed = ridingReversed;
+    public TravelBuilder setTravellingDirection(@Nullable LineDirection ridingReversed) {
+        this.travellingDirection = ridingReversed;
         return this;
     }
 
@@ -55,7 +57,7 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
     @Override
     public TravelBuilder from(TravelBuilder travelBuilder) {
         this.travellingOn = travelBuilder.travellingOn;
-        this.isRidingReversed = travelBuilder.isRidingReversed;
+        this.travellingDirection = travelBuilder.travellingDirection;
         this.currentNode = travelBuilder.currentNode;
         this.endingNode = travelBuilder.endingNode;
         return this;

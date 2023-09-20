@@ -13,13 +13,13 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
     private final Line travellingOn;
     private final Node currentNode;
     private final Node endingNode;
-    private final boolean isRidingReversed;
+    private final LineDirection travellingDirection;
 
     Travel(TravelBuilder builder) {
         this.currentNode = Objects.requireNonNull(builder.currentNode());
         this.endingNode = Objects.requireNonNull(builder.endingNode());
         this.travellingOn = Objects.requireNonNull(builder.travellingOn());
-        this.isRidingReversed = builder.isRidingReversed();
+        this.travellingDirection = Objects.requireNonNullElse(builder.travellingDirection(), this.travellingOn.getDirection());
 
         if (!this.travellingOn.getNodes().contains(this.currentNode)) {
             throw new IllegalStateException("Travelling On must contain the current node");
@@ -27,7 +27,7 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
         if (!this.travellingOn.getNodes().contains(this.endingNode)) {
             throw new IllegalStateException("Travelling On must contain the ending node");
         }
-        if (!this.travellingOn.isBiDirectional() && (this.travellingOn.getDirection().isPositive() == this.isRidingReversed)) {
+        if (!this.travellingOn.isBiDirectional() && (this.travellingOn.getDirection() != this.travellingDirection)) {
             throw new IllegalStateException("Cannot ride backwards on a one way Line");
         }
     }
@@ -42,7 +42,7 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
                 .setTravellingOn(this.travellingOn)
                 .setEndingNode(this.endingNode)
                 .setCurrentNode(this.currentNode)
-                .setRidingReversed(this.isRidingReversed);
+                .setTravellingDirection(this.travellingDirection);
     }
 
     public Optional<Travel> travelToNext() {
@@ -50,15 +50,14 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
             return Optional.empty();
         }
         int index = this.travellingOn.getNodes().indexOf(this.currentNode);
-        LineDirection direction = this.travellingOn.getDirection();
-        boolean nextIsReversed = this.isRidingReversed;
-        if (this.travellingOn.isBiDirectional() && direction.isAtEndOfLine(index, this.isRidingReversed, this.travellingOn.getNodes())) {
-            nextIsReversed = !this.isRidingReversed;
+        LineDirection nextIsReversed = this.travellingDirection;
+        if (this.travellingOn.isBiDirectional() && nextIsReversed.isAtEndOfLine(index, this.travellingOn.getNodes())) {
+            nextIsReversed = nextIsReversed.getOpposite();
         }
-        Optional<Node> opNext = direction.getNextNode(index, nextIsReversed, this.travellingOn.getNodes());
+        Optional<Node> opNext = nextIsReversed.getNextNode(index, this.travellingOn.getNodes());
         if (opNext.isPresent()) {
-            final boolean finalNextIsReversed = nextIsReversed;
-            return opNext.map(node -> this.toBuilder().setCurrentNode(node).setRidingReversed(finalNextIsReversed).build());
+            final LineDirection finalNextIsReversed = nextIsReversed;
+            return opNext.map(node -> this.toBuilder().setCurrentNode(node).setTravellingDirection(finalNextIsReversed).build());
         }
         return Optional.empty();
     }
@@ -75,7 +74,7 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
         return this.endingNode;
     }
 
-    public boolean isRidingReversed() {
-        return this.isRidingReversed;
+    public LineDirection getTravellingDirection() {
+        return this.travellingDirection;
     }
 }
