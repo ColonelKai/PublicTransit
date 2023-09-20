@@ -3,6 +3,7 @@ build
 .idea/*.xml
 *.iml
 translate
+gradle.properties
 
 
 CoreToBukkit
