@@ -31,17 +31,15 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     private final double cost;
     private final CostType costType;
 
-    private final boolean oneWay;
-    private final boolean oneWayReversed;
+    private final LineDirection direction;
 
     @ConfigConstructor
-    private Line(String identifier, String name, List<Node> nodes, double cost, CostType costType, boolean oneWay, boolean oneWayReversed) {
+    private Line(String identifier, String name, List<Node> nodes, double cost, CostType costType, LineDirection direction) {
         this.identifier = identifier;
         this.name = name;
         this.costType = costType;
         this.cost = cost;
-        this.oneWay = oneWay;
-        this.oneWayReversed = oneWayReversed;
+        this.direction = direction;
         this.nodes = new ArrayList<>(nodes);
         this.validate(this.nodes);
     }
@@ -52,8 +50,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
         this.cost = Objects.requireNonNull(builder.cost());
         this.costType = Objects.requireNonNull(builder.costType());
-        this.oneWay = builder.isOneWay();
-        this.oneWayReversed = builder.isOneWayReversed();
+        this.direction = Objects.requireNonNull(builder.direction());
         this.validate(this.nodes);
     }
 
@@ -71,7 +68,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     public List<Node> getNodesBetween(Node start, Node end) {
         int startIndex = this.nodes.indexOf(start);
         int endIndex = this.nodes.indexOf(end);
-        return this.applyReverseLogic(this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex)), false);
+        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
     }
 
     public Optional<Node> getNextNode(Node node) {
@@ -79,18 +76,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     }
 
     public Optional<Node> getNextNode(int index) {
-        index++;
-        List<Node> nodes = this.getNodes();
-        if (index < nodes.size()) {
-            return Optional.of(nodes.get(index + 1));
-        }
-        if (this.isOneWay()) {
-            return Optional.empty();
-        }
-        while (index >= nodes.size()) {
-            index -= nodes.size();
-        }
-        return Optional.of(nodes.get(index));
+        return this.direction.getNextNode(index, this.nodes);
     }
 
     public double getCost() {
@@ -110,14 +96,6 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     }
 
     public List<Node> getNodes() {
-        return this.getNodes(false);
-    }
-
-    public List<Node> getNodes(boolean reverse) {
-        return this.applyReverseLogic(this.nodes, reverse);
-    }
-
-    public List<Node> getNodesUnmodified() {
         return Collections.unmodifiableList(this.nodes);
     }
 
@@ -126,14 +104,6 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         nodes.add(node);
         this.validate(nodes);
         this.nodes.add(node);
-    }
-
-    private List<Node> applyReverseLogic(List<Node> nodesList, boolean reverse) {
-        List<Node> nodes = new ArrayList<>(nodesList);
-        if (this.oneWayReversed != reverse) {
-            Collections.reverse(nodes);
-        }
-        return Collections.unmodifiableList(nodes);
     }
 
     @Override
@@ -154,12 +124,8 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.costType.get(this, start, end);
     }
 
-    public boolean isOneWay() {
-        return this.oneWay;
-    }
-
-    public boolean isOneWayReversed() {
-        return this.oneWayReversed;
+    public LineDirection getDirection() {
+        return this.direction;
     }
 
     @Override
@@ -170,8 +136,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
                 .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())
                 .setCostType(this.costType)
                 .setCost(this.cost)
-                .setOneWay(this.oneWay)
-                .setOneWayReversed(this.oneWayReversed);
+                .setDirection(this.direction);
     }
 
     @Override

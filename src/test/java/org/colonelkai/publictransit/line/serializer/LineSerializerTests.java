@@ -4,6 +4,7 @@ import org.colonelkai.publictransit.fake.position.FakeSyncExactPosition;
 import org.colonelkai.publictransit.line.CostType;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
+import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.serializers.Serializers;
@@ -66,8 +67,7 @@ public class LineSerializerTests {
         lineNode.put("nodes", Arrays.asList(nodeMap, node2Map));
         lineNode.put("cost", 1);
         lineNode.put("costType", CostType.FLAT_RATE.name());
-        lineNode.put("oneWay", true);
-        lineNode.put("oneWayReversed", true);
+        lineNode.put("direction", LineDirection.POSITIVE_FLIP.name());
 
         //ACT
         Line result;
@@ -79,11 +79,10 @@ public class LineSerializerTests {
 
         //ASSERT
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(result.getCost(), 1);
-        Assertions.assertEquals(result.getCostType(), CostType.FLAT_RATE);
-        Assertions.assertEquals(result.getName().toPlain(), "Name");
-        Assertions.assertTrue(result.isOneWay());
-        Assertions.assertTrue(result.isOneWayReversed());
+        Assertions.assertEquals(1, result.getCost());
+        Assertions.assertEquals(CostType.FLAT_RATE, result.getCostType());
+        Assertions.assertEquals("Name", result.getName().toPlain());
+        Assertions.assertEquals(LineDirection.POSITIVE_FLIP, result.getDirection());
     }
 
     @Test
@@ -98,8 +97,7 @@ public class LineSerializerTests {
                 .setIdentifier("id")
                 .setCost(5)
                 .setCostType(CostType.FLAT_RATE)
-                .setOneWay(true)
-                .setOneWayReversed(true)
+                .setDirection(LineDirection.POSITIVE_FLIP)
                 .addNodes(node, node2)
                 .build();
 
@@ -112,13 +110,12 @@ public class LineSerializerTests {
         }
 
         //assert
-        Assertions.assertEquals(asMap.get("identifier"), "id");
+        Assertions.assertEquals("id", asMap.get("identifier"));
         Assertions.assertNotNull(asMap.get("nodes"));
         Assertions.assertInstanceOf(Collection.class, asMap.get("nodes"));
-        Assertions.assertEquals(((Collection<?>) asMap.get("nodes")).size(), 2);
-        Assertions.assertEquals(asMap.get("oneWayReversed"), true);
-        Assertions.assertEquals(asMap.get("oneWay"), true);
-        Assertions.assertEquals(asMap.get("costType"), CostType.FLAT_RATE.name());
+        Assertions.assertEquals(2, ((Collection<?>) asMap.get("nodes")).size());
+        Assertions.assertEquals(LineDirection.POSITIVE_FLIP.name(), asMap.get("direction"));
+        Assertions.assertEquals(CostType.FLAT_RATE.name(), asMap.get("costType"));
     }
 
 }

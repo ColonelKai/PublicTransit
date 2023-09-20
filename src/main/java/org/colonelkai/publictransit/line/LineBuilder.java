@@ -16,8 +16,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
     private Double cost;
     private CostType costType;
     private String identifier;
-    private boolean isOneWay;
-    private boolean isOneWayReversed;
+    private LineDirection direction;
     private AText name;
     private List<NodeBuilder> nodes = new ArrayList<>();
 
@@ -38,8 +37,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         this.costType = lineBuilder.costType();
         this.name = lineBuilder.name();
         this.identifier = lineBuilder.identifier();
-        this.isOneWay = lineBuilder.isOneWay();
-        this.isOneWayReversed = lineBuilder.isOneWayReversed();
+        this.direction = lineBuilder.direction();
         return this;
     }
 
@@ -55,21 +53,12 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this.identifier;
     }
 
-    public boolean isOneWay() {
-        return this.isOneWay;
+    public LineDirection direction() {
+        return this.direction;
     }
 
-    public LineBuilder setOneWay(boolean oneWay) {
-        this.isOneWay = oneWay;
-        return this;
-    }
-
-    public boolean isOneWayReversed() {
-        return this.isOneWayReversed;
-    }
-
-    public LineBuilder setOneWayReversed(boolean oneWayReversed) {
-        this.isOneWayReversed = oneWayReversed;
+    public LineBuilder setDirection(LineDirection direction) {
+        this.direction = direction;
         return this;
     }
 
