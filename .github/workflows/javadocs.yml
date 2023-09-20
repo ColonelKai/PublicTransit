@@ -26,13 +26,13 @@ jobs:
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
           arguments: :javadoc
-      - name: make javadoc folder
-        run: mkdir -p githubPage/master/javadocs
       - name: clone pages branch
         uses: actions/checkout@v3
         with:
           ref: gh_pages
           path: githubPage
+      - name: make javadoc folder
+        run: mkdir -p githubPage/master/javadocs
       - name: list
-        run: ls -d githubPage/*/
+        run: ls githubPage/*/
 
