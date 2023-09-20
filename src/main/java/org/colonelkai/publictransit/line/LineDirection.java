@@ -7,39 +7,41 @@ import java.util.Optional;
 
 public enum LineDirection {
 
-    //one way normal
-    POSITIVE_SINGLE(false, 1),
-    //two way normal
-    POSITIVE_FLIP(true, 1),
-    //one way reversed
-    NEGATIVE_SINGLE(false, -1);
+    POSITIVE(true),
+    NEGATIVE(false);
 
-    private final int addition;
-    private final boolean canFlipBack;
+    private final boolean isPositive;
 
-    LineDirection(boolean canFlipBack, int addition) {
-        this.addition = addition;
-        this.canFlipBack = canFlipBack;
+    LineDirection(boolean isPositive) {
+        this.isPositive = isPositive;
     }
 
-    public Optional<Node> getNextNode(int currentIndex, List<Node> nodes) {
+    private int getAddition(boolean isReverse) {
+        int addition = this.isPositive ? 1 : -1;
+        if (isReverse) {
+            return -addition;
+        }
+        return addition;
+    }
+
+    public Optional<Node> getNextNode(int currentIndex, boolean isReverse, List<Node> nodes) {
         if (nodes.isEmpty()) {
             return Optional.empty();
         }
-        int index = currentIndex + this.addition;
-        if (index == -1 && this.canFlipBack) {
-            //gets first
-            return Optional.of(nodes.get(0));
-        }
-        if (index == nodes.size() && this.canFlipBack) {
-            //gets last
-            return Optional.of(nodes.get(nodes.size() - 1));
-        }
+        return this.next(currentIndex, isReverse, nodes);
+    }
+
+    private Optional<Node> next(int currentIndex, boolean isReverse, List<Node> nodes) {
+        int index = currentIndex + this.getAddition(isReverse);
         if (index < nodes.size()) {
             //valid index
             return Optional.of(nodes.get(index));
         }
         return Optional.empty();
+    }
+
+    public boolean isAtEndOfLine(int currentIndex, boolean isReverse, List<Node> nodes) {
+        return this.next(currentIndex, isReverse, nodes).isEmpty();
     }
 
 }

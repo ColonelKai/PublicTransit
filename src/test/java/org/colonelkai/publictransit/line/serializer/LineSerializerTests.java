@@ -67,7 +67,8 @@ public class LineSerializerTests {
         lineNode.put("nodes", Arrays.asList(nodeMap, node2Map));
         lineNode.put("cost", 1);
         lineNode.put("costType", CostType.FLAT_RATE.name());
-        lineNode.put("direction", LineDirection.POSITIVE_FLIP.name());
+        lineNode.put("isBiDirectional", true);
+        lineNode.put("direction", LineDirection.POSITIVE.name());
 
         //ACT
         Line result;
@@ -82,7 +83,7 @@ public class LineSerializerTests {
         Assertions.assertEquals(1, result.getCost());
         Assertions.assertEquals(CostType.FLAT_RATE, result.getCostType());
         Assertions.assertEquals("Name", result.getName().toPlain());
-        Assertions.assertEquals(LineDirection.POSITIVE_FLIP, result.getDirection());
+        Assertions.assertEquals(LineDirection.POSITIVE, result.getDirection());
     }
 
     @Test
@@ -97,7 +98,7 @@ public class LineSerializerTests {
                 .setIdentifier("id")
                 .setCost(5)
                 .setCostType(CostType.FLAT_RATE)
-                .setDirection(LineDirection.POSITIVE_FLIP)
+                .setDirection(LineDirection.POSITIVE)
                 .addNodes(node, node2)
                 .build();
 
@@ -114,7 +115,7 @@ public class LineSerializerTests {
         Assertions.assertNotNull(asMap.get("nodes"));
         Assertions.assertInstanceOf(Collection.class, asMap.get("nodes"));
         Assertions.assertEquals(2, ((Collection<?>) asMap.get("nodes")).size());
-        Assertions.assertEquals(LineDirection.POSITIVE_FLIP.name(), asMap.get("direction"));
+        Assertions.assertEquals(LineDirection.POSITIVE.name(), asMap.get("direction"));
         Assertions.assertEquals(CostType.FLAT_RATE.name(), asMap.get("costType"));
     }
 

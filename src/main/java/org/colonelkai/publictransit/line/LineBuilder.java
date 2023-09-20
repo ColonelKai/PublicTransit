@@ -18,10 +18,20 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
     private String identifier;
     private LineDirection direction;
     private AText name;
+    private boolean isBiDirectional;
     private List<NodeBuilder> nodes = new ArrayList<>();
 
     public LineBuilder addNodes(NodeBuilder... nodes) {
         this.nodes.addAll(Arrays.asList(nodes));
+        return this;
+    }
+
+    public boolean isBiDirectional() {
+        return this.isBiDirectional;
+    }
+
+    public LineBuilder setBiDirectional(boolean isBiDirectional) {
+        this.isBiDirectional = isBiDirectional;
         return this;
     }
 

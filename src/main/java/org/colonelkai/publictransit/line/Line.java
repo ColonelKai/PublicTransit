@@ -30,16 +30,17 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
 
     private final double cost;
     private final CostType costType;
-
+    private final boolean isBiDirectional;
     private final LineDirection direction;
 
     @ConfigConstructor
-    private Line(String identifier, String name, List<Node> nodes, double cost, CostType costType, LineDirection direction) {
+    private Line(String identifier, String name, List<Node> nodes, double cost, CostType costType, boolean isBiDirectional, LineDirection direction) {
         this.identifier = identifier;
         this.name = name;
         this.costType = costType;
         this.cost = cost;
         this.direction = direction;
+        this.isBiDirectional = isBiDirectional;
         this.nodes = new ArrayList<>(nodes);
         this.validate(this.nodes);
     }
@@ -50,7 +51,12 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
         this.cost = Objects.requireNonNull(builder.cost());
         this.costType = Objects.requireNonNull(builder.costType());
-        this.direction = Objects.requireNonNull(builder.direction());
+        this.isBiDirectional = builder.isBiDirectional();
+        var direction = builder.direction();
+        if (!this.isBiDirectional && (null == direction)) {
+            throw new IllegalStateException("direction must be set if bi-direction is disabled");
+        }
+        this.direction = Objects.requireNonNullElse(direction, LineDirection.POSITIVE);
         this.validate(this.nodes);
     }
 
@@ -61,6 +67,10 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         }
     }
 
+    public boolean isBiDirectional() {
+        return this.isBiDirectional;
+    }
+
     public boolean isActive() {
         return 2 <= this.nodes.stream().filter(node -> NodeType.STOP == node.getNodeType()).count();
     }
@@ -69,14 +79,6 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         int startIndex = this.nodes.indexOf(start);
         int endIndex = this.nodes.indexOf(end);
         return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
-    }
-
-    public Optional<Node> getNextNode(Node node) {
-        return this.getNextNode(this.getNodes().indexOf(node));
-    }
-
-    public Optional<Node> getNextNode(int index) {
-        return this.direction.getNextNode(index, this.nodes);
     }
 
     public double getCost() {
