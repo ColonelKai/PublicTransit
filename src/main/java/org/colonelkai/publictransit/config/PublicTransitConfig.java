@@ -2,14 +2,10 @@ package org.colonelkai.publictransit.config;
 
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.config.node.ConfigNode;
-import org.colonelkai.publictransit.config.node.ParserConfigNode;
-import org.colonelkai.publictransit.line.CostType;
-import org.colonelkai.publictransit.utils.parser.Parsers;
+import org.colonelkai.publictransit.config.node.DoubleConfigNode;
 import org.core.TranslateCore;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
-import org.core.config.parser.StringParser;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
@@ -19,8 +15,7 @@ import java.util.stream.Stream;
 public class PublicTransitConfig implements Config {
 
 
-    private static final ParserConfigNode<StringParser<CostType>, CostType> EXAMPLE_COST_TYPE = new ParserConfigNode<>(
-            new ConfigurationNode.KnownParser.SingleKnown<>(Parsers.COST_TYPE, "location", "in", "file"), CostType.FLAT_RATE);
+    private static final DoubleConfigNode PLAYER_DISTANCE_FROM_NODE = new DoubleConfigNode(new ConfigurationNode("node", "distance", "player"), 10);
 
     private static final File FILE = new File(PublicTransit.getPlugin().getConfigFolder(),
                                               "config." + TranslateCore.getPlatform().getConfigFormat().getFileType()[0]);
@@ -28,16 +23,8 @@ public class PublicTransitConfig implements Config {
     private ConfigurationStream.ConfigurationFile config;
 
     public PublicTransitConfig() {
-        reloadFile();
-        updateFile();
-    }
-
-    public CostType getExampleCostType() {
-        return EXAMPLE_COST_TYPE.currentValue(this.config);
-    }
-
-    public void setExampleCostType(@NotNull CostType type) {
-        EXAMPLE_COST_TYPE.set(this.config, type);
+        this.reloadFile();
+        this.updateFile();
     }
 
     @Override
@@ -47,7 +34,7 @@ public class PublicTransitConfig implements Config {
 
     @Override
     public void updateFile() {
-        getNodes().forEach(node -> {
+        this.getNodes().forEach(node -> {
             try {
                 node.currentValue(this.config);
             } catch (Throwable e) {
@@ -58,8 +45,8 @@ public class PublicTransitConfig implements Config {
 
     @Override
     public void reloadFile() {
-        config = TranslateCore.createConfigurationFile(FILE, TranslateCore.getPlatform().getConfigFormat());
-        getNodes().forEach(ConfigNode::reset);
+        this.config = TranslateCore.createConfigurationFile(FILE, TranslateCore.getPlatform().getConfigFormat());
+        this.getNodes().forEach(ConfigNode::reset);
     }
 
     @Override
@@ -79,5 +66,13 @@ public class PublicTransitConfig implements Config {
                     }
                 })
                 .filter(Objects::nonNull);
+    }
+
+    public double getPlayerDistanceFromNode() {
+        return PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);
+    }
+
+    public void setPlayerDistanceFromNode(double amount) {
+        PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);
     }
 }

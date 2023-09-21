@@ -1,7 +1,7 @@
 package org.colonelkai.publictransit.node;
 
+import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.utils.Buildable;
-import org.colonelkai.publictransit.utils.serializers.NodeTypeSerializer;
 import org.colonelkai.publictransit.utils.serializers.PositionSerializer;
 import org.core.entity.living.human.player.Player;
 import org.core.world.position.impl.ExactPosition;
@@ -24,7 +24,7 @@ public class Node implements Buildable<NodeBuilder, Node> {
     private final Integer time;
 
     @ConfigConstructor
-    Node(Position<?> position, String name, NodeType nodeType, Integer time){
+    Node(Position<?> position, String name, NodeType nodeType, Integer time) {
         this.location = Position.toSync(Position.toExact(position));
         this.name = name;
         this.nodeType = nodeType;
@@ -57,16 +57,6 @@ public class Node implements Buildable<NodeBuilder, Node> {
         return OptionalInt.of(this.time);
     }
 
-    public boolean isPlayerWithin(Player<?> player) {
-        ExactPosition playerLocation = player.getPosition();
-        if (!playerLocation.getWorld().equals(this.location.getWorld())) {
-            return false;
-        }
-        double distance = playerLocation.getPosition().distanceSquared(this.location.getPosition());
-        return distance < 10; // TODO: Get this value from config.
-
-    }
-
     @Override
     public int hashCode() {
         return this.name.hashCode();
@@ -74,10 +64,20 @@ public class Node implements Buildable<NodeBuilder, Node> {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof Node node)){
+        if (!(obj instanceof Node node)) {
             return false;
         }
         return node.name.equalsIgnoreCase(this.name);
+    }
+
+    public boolean isPlayerWithin(Player<?> player) {
+        ExactPosition playerLocation = player.getPosition();
+        if (!playerLocation.getWorld().equals(this.location.getWorld())) {
+            return false;
+        }
+        double distance = playerLocation.getPosition().distanceSquared(this.location.getPosition());
+        return distance < PublicTransit.getPlugin().getConfig().getPlayerDistanceFromNode();
+
     }
 
     @Override
