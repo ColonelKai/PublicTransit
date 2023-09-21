@@ -28,7 +28,10 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     private final double cost;
     private final CostType costType;
 
+    // this is to indicate that a player may only travel one direction in the line.
     private final boolean oneWay;
+    // normally, when oneWay is true, the player will only be able to travel in an increasing order of index. So for example, 2 to 3 but not 3 to 2.
+    // oneWayReversed makes it so they can only travel in reverse, aka, in a decreasing order of index.
     private final boolean oneWayReversed;
 
     @ConfigConstructor
@@ -40,29 +43,30 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.oneWay = oneWay;
         this.oneWayReversed = oneWayReversed;
         this.nodes = new ArrayList<>(nodes);
-        this.validateNodes();
     }
 
     Line(@NotNull LineBuilder builder) {
         this.identifier = Objects.requireNonNull(builder.identifier());
         this.name = Objects.requireNonNullElse(builder.name(), this.identifier);
         this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
-        this.validateNodes();
         this.cost = Objects.requireNonNull(builder.cost());
         this.costType = Objects.requireNonNull(builder.costType());
         this.oneWay = builder.isOneWay();
         this.oneWayReversed = builder.isOneWayReversed();
     }
 
-    private void validateNodes() {
-        if (2 > this.nodes.size()) {
-            throw new IllegalStateException("Requires two or more nodes");
-        }
-        Collection<Node> uniqueTest = new HashSet<>(this.nodes);
-        if (uniqueTest.size() != this.nodes.size()) {
-            throw new IllegalStateException("Two or more nodes have the same name");
-        }
-    }
+
+//    We don't care about this, two nodes *can* have the same name!! Or literally be the same...
+
+//    private void validateNodes() {
+//        if (2 > this.nodes.size()) {
+//            throw new IllegalStateException("Requires two or more nodes");
+//        }
+//        Collection<Node> uniqueTest = new HashSet<>(this.nodes);
+//        if (uniqueTest.size() != this.nodes.size()) {
+//            throw new IllegalStateException("Two or more nodes have the same name");
+//        }
+//    }
 
     public List<Node> getNodesBetween(Node start, Node end) {
         int startIndex = this.nodes.indexOf(start);
@@ -92,9 +96,11 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
 
     public List<Node> getNodes(boolean reverse) {
         List<Node> nodes = new ArrayList<>(this.nodes);
-        if (this.oneWayReversed != reverse) {
-            Collections.reverse(nodes);
-        }
+
+// I think you may be misunderstanding this... Read above for the notes.
+//        if (this.oneWayReversed != reverse) {
+//            Collections.reverse(nodes);
+//        }
         return Collections.unmodifiableList(nodes);
     }
 

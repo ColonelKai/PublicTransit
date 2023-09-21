@@ -63,7 +63,7 @@ public class Node implements Buildable<NodeBuilder, Node> {
             return false;
         }
         double distance = playerLocation.getPosition().distanceSquared(this.location.getPosition());
-        return distance < 10;
+        return distance < 10; // TODO: Get this value from config.
 
     }
 
