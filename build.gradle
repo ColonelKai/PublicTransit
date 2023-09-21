@@ -29,6 +29,12 @@ dependencies {
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.2'
 }
 
+javadoc {
+    options {
+        links('https://minecraft-ships.github.io/TranslateCore/')
+    }
+}
+
 test {
     finalizedBy jacocoTestReport
     useJUnitPlatform()
@@ -40,14 +46,14 @@ jacocoTestReport {
     dependsOn test
     doLast {
         var showCodeCoverage = Boolean.parseBoolean(getProperty("showCodeCoverage"));
-        if(!showCodeCoverage){
+        if (!showCodeCoverage) {
             println("> Skipping showing code coverage: disabled in properties")
             return
         }
-        if(!Desktop.isDesktopSupported()){
+        if (!Desktop.isDesktopSupported()) {
             return
         }
-        if(!Desktop.desktop.isSupported(Desktop.Action.BROWSE)){
+        if (!Desktop.desktop.isSupported(Desktop.Action.BROWSE)) {
             return
         }
         Desktop.desktop.browse(file("build/reports/jacoco/test/html/index.html").toURI())
