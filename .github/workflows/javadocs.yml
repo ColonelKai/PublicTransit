@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - javadocs
 
 permissions:
   contents: write
@@ -30,6 +31,8 @@ jobs:
         with:
           ref: gh_pages
           path: githubPage
+      - name: Delete old
+        run: rm -rf githubPage/master/*
       - name: make javadoc folder
         run: mkdir -p githubPage/master/javadocs
       - name: make code coverage folder
