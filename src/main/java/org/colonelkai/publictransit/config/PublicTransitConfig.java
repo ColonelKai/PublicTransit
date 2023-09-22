@@ -38,9 +38,13 @@ public class PublicTransitConfig implements Config {
             try {
                 node.currentValue(this.config);
             } catch (Throwable e) {
-                node.setValue(this.config, node.defaultValue());
+                this.setDefaultValue(node);
             }
         });
+    }
+
+    private <T> void setDefaultValue(ConfigNode<T> node){
+        node.setValue(this.config, node.defaultValue());
     }
 
     @Override
