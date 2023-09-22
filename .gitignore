@@ -6,6 +6,7 @@ translate
 gradle.properties
 
 
+githubPage
 CoreToBukkit
 CoreToFolia
 TranslateCore

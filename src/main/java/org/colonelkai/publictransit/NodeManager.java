@@ -20,7 +20,7 @@ public class NodeManager {
 
     private final Collection<Line> lines = new LinkedTransferQueue<>();
 
-    public static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(),"data/lines");
+    public static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(), "data/lines");
 
     public Collection<Line> getLines() {
         return Collections.unmodifiableCollection(this.lines);
@@ -31,19 +31,19 @@ public class NodeManager {
     }
 
     public void register(@NotNull Line line) {
-        if(this.lines.stream().anyMatch(l -> l.getName().equals(line.getName()))){
+        if (this.lines.stream().anyMatch(l -> l.getIdentifier().equals(line.getIdentifier()))) {
             throw new IllegalArgumentException("Line of '" + line.getName() + "' is already registered");
         }
         this.lines.add(line);
     }
 
-    public Stream<Line> loadAll(){
-        return loadAll(LINES_DATA_PATH);
+    public Stream<Line> loadAll() {
+        return this.loadAll(LINES_DATA_PATH);
     }
 
-    public Stream<Line> loadAll(File folder){
+    public Stream<Line> loadAll(File folder) {
         File[] files = folder.listFiles();
-        if(null == files){
+        if (null == files) {
             return Stream.empty();
         }
         return Arrays.stream(files).map(file -> {
@@ -77,30 +77,34 @@ public class NodeManager {
         config.save();
     }
 
-    private ConfigurationFormat getFormat(String name){
-        return getFormats().filter(format -> Arrays.stream(format.getFileType()).anyMatch(t -> name.toLowerCase().endsWith(t.toLowerCase()))).findAny().orElseThrow(() -> new IllegalArgumentException("No supported format for '" + name + "'"));
+    private ConfigurationFormat getFormat(String name) {
+        return this
+                .getFormats()
+                .filter(format -> Arrays.stream(format.getFileType()).anyMatch(t -> name.toLowerCase().endsWith(t.toLowerCase())))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("No supported format for '" + name + "'"));
     }
 
-    private Stream<ConfigurationFormat> getFormats(){
-        return Arrays.stream(ConfigurationFormat.class.getDeclaredFields()).filter(field -> Modifier.isFinal(field.getModifiers())).filter(field -> Modifier.isPublic(field.getModifiers())).filter(field -> Modifier.isStatic(field.getModifiers())).filter(field -> field.getType().isAssignableFrom(ConfigurationFormat.class)).map(field -> {
-            try{
-                return (ConfigurationFormat)field.get(null);
-            }catch (Throwable e){
-                //should never hit
-                e.printStackTrace();
-                return null;
-            }
-        }).filter(Objects::nonNull);
+    private Stream<ConfigurationFormat> getFormats() {
+        return Arrays
+                .stream(ConfigurationFormat.class.getDeclaredFields())
+                .filter(field -> Modifier.isFinal(field.getModifiers()))
+                .filter(field -> Modifier.isPublic(field.getModifiers()))
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .filter(field -> field.getType().isAssignableFrom(ConfigurationFormat.class))
+                .map(field -> {
+                    try {
+                        return (ConfigurationFormat) field.get(null);
+                    } catch (Throwable e) {
+                        //should never hit
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull);
     }
 
-    public void update(@NotNull Node node) {
-        var lines = this.lines.stream().filter(line -> line.getNodes().stream().anyMatch(lineNode -> lineNode.getName().equals(node.getName()))).toList();
-        var add = lines.stream().map(line -> line.toBuilder().removeNode(node.getName()).build()).toList();
-        this.lines.removeAll(lines);
-        this.lines.addAll(add);
-    }
-
-    public void update(@NotNull Line line){
+    public void update(@NotNull Line line) {
         List<Line> toRemove = this.lines.stream().filter(l -> l.getName().equals(line.getName())).toList();
         this.lines.removeAll(toRemove);
         this.lines.add(line);
