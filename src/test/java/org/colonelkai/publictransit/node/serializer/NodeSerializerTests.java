@@ -64,7 +64,8 @@ public class NodeSerializerTests {
 
         //ASSERT
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(result.getName(), "Name");
+        Assertions.assertTrue(result.getName().isPresent());
+        Assertions.assertEquals(result.getName().get(), "Name");
     }
 
     @Test

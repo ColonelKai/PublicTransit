@@ -30,6 +30,12 @@ dependencies {
     testRuntimeOnly group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.5.0'
 }
 
+javadoc {
+    options {
+        links('https://minecraft-ships.github.io/TranslateCore/')
+    }
+}
+
 test {
     finalizedBy jacocoTestReport
     useJUnitPlatform()

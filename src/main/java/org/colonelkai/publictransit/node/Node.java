@@ -3,14 +3,18 @@ package org.colonelkai.publictransit.node;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.serializers.NodeTypeSerializer;
 import org.colonelkai.publictransit.utils.serializers.PositionSerializer;
+import org.core.entity.Entity;
 import org.core.entity.living.human.player.Player;
+import org.core.world.position.Positionable;
 import org.core.world.position.impl.ExactPosition;
 import org.core.world.position.impl.Position;
 import org.core.world.position.impl.sync.SyncExactPosition;
 import org.easy.config.auto.annotations.ConfigConstructor;
 import org.easy.config.auto.annotations.ConfigField;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 public class Node implements Buildable<NodeBuilder, Node> {
@@ -18,66 +22,70 @@ public class Node implements Buildable<NodeBuilder, Node> {
     @ConfigField(serializer = PositionSerializer.class)
     private final ExactPosition location;
 
-    private final String name;
+    @ConfigField(optional = true)
+    private final @Nullable String name;
     private final NodeType nodeType;
     @ConfigField(optional = true)
-    private final Integer time;
+    private final @Nullable Integer time;
 
     @ConfigConstructor
-    private Node(Position<?> position, String name, NodeType nodeType, Integer time) {
-        this.location = Objects.requireNonNull(position).toExactPosition();
-        this.name = Objects.requireNonNull(name);
-        this.nodeType = Objects.requireNonNull(nodeType);
+    Node(Position<?> position, @Nullable String name, NodeType nodeType, @Nullable Integer time) {
+        this.location = position.toExactPosition();
+        this.name = name;
+        this.nodeType = nodeType;
         this.time = time;
-        validateNode();
+        this.validate();
     }
 
     public Node(NodeBuilder builder) {
         this.location = Objects.requireNonNull(builder.position()).toExactPosition();
         this.nodeType = Objects.requireNonNull(builder.type());
-        this.name = Objects.requireNonNull(builder.name());
+        this.name = builder.name();
         this.time = builder.time();
-        validateNode();
+        this.validate();
     }
 
-    private void validateNode() {
-        if (this.name.contains(" ")) {
-            throw new IllegalArgumentException("Name cannot have spaces included");
+    private void validate() {
+        if ((null == this.name) && (NodeType.STOP == this.nodeType)) {
+            throw new RuntimeException("A stop must have a name specified");
         }
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(this.name);
     }
 
     public NodeType getNodeType() {
-        return nodeType;
+        return this.nodeType;
     }
 
     public ExactPosition getPosition() {
-        return location;
+        return this.location;
     }
 
     public OptionalInt getTime() {
-        if (this.time == null) {
+        if (null == this.time) {
             return OptionalInt.empty();
         }
         return OptionalInt.of(this.time);
     }
 
-    public boolean isPlayerWithin(Player<?> player) {
-        ExactPosition playerLocation = player.getPosition();
-        if (!playerLocation.getWorld().equals(this.location.getWorld())) {
+    public boolean isWithin(Positionable<? extends Position<?>> positionable) {
+        return this.isWithin(positionable.getPosition());
+    }
+
+    public boolean isWithin(Position<?> position) {
+        if (!position.getWorld().equals(this.location.getWorld())) {
             return false;
         }
-        double distance = playerLocation.getPosition().distanceSquared(this.location.getPosition());
-        return distance < 10;
+        double distance = position.getPosition().distanceSquared(this.location.getPosition());
+        return 10 > distance;
 
     }
 
     @Override
     public int hashCode() {
-        return this.name.hashCode();
+        return this.location.hashCode();
     }
 
     @Override
@@ -85,7 +93,7 @@ public class Node implements Buildable<NodeBuilder, Node> {
         if (!(obj instanceof Node node)) {
             return false;
         }
-        return node.name.equalsIgnoreCase(this.name);
+        return node.location.equals(this.location);
     }
 
     @Override

@@ -3,8 +3,10 @@ build
 .idea/*.xml
 *.iml
 translate
+gradle.properties
 
 
+githubPage
 CoreToBukkit
 CoreToFolia
 TranslateCore
