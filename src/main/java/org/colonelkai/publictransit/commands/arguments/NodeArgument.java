@@ -10,16 +10,24 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NodeArgument implements CommandArgument<Node> {
 
     private final String id;
     private final BiFunction<CommandContext, CommandArgumentContext<Node>, List<Node>> function;
+    private final Function<Stream<Node>, Stream<Node>> filter;
 
     public NodeArgument(String id, BiFunction<CommandContext, CommandArgumentContext<Node>, List<Node>> function) {
+        this(id, function, s -> s);
+    }
+
+    public NodeArgument(String id, BiFunction<CommandContext, CommandArgumentContext<Node>, List<Node>> function, Function<Stream<Node>, Stream<Node>> filter) {
         this.id = id;
         this.function = function;
+        this.filter = filter;
     }
 
     @Override
@@ -46,6 +54,7 @@ public class NodeArgument implements CommandArgument<Node> {
                     .findAny()
                     .orElseThrow(() -> new IOException("no node by that name"));
         }
+        node = this.filter.apply(Stream.of(node)).findAny().orElseThrow(() -> new IOException("Invalid node"));
         return CommandArgumentResult.from(argument, node);
     }
 
@@ -53,16 +62,20 @@ public class NodeArgument implements CommandArgument<Node> {
     public Collection<String> suggest(CommandContext commandContext, CommandArgumentContext<Node> argument) {
         String peek = commandContext.getCommand()[argument.getFirstArgument()];
         List<Node> list = this.function.apply(commandContext, argument);
-        try {
-            Integer.parseInt(peek);
-            return list.stream().map(n -> list.indexOf(n) + "").filter(t -> t.startsWith(peek)).collect(Collectors.toList());
-        } catch (NumberFormatException e) {
-            return list
-                    .stream()
-                    .filter(n -> n.getName().isPresent())
-                    .map(n -> n.getName().get())
-                    .filter(name -> name.toLowerCase().startsWith(peek.toLowerCase()))
-                    .collect(Collectors.toList());
+        Stream<Node> target = this.filter.apply(list.stream());
+        Function<Stream<Node>, List<String>> toDisplay = (stream) -> stream.flatMap(node -> {
+            var opName = node.getName();
+            var display = list.indexOf(node) + "";
+            if (opName.isPresent()) {
+                return Stream.of(display, opName.get());
+            }
+            return Stream.of(display);
+        }).sorted().collect(Collectors.toList());
+
+
+        if (peek.isEmpty()) {
+            return toDisplay.apply(target);
         }
+        return toDisplay.apply(target).stream().filter(name -> name.toLowerCase().startsWith(peek.toLowerCase())).collect(Collectors.toList());
     }
 }
