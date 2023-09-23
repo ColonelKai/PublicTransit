@@ -116,6 +116,23 @@ public class NodeArgumentTests {
     }
 
     @Test
+    public void testSuggestOneNumberWithFilter() {
+        //setup
+        ConsoleSource source = Mockito.mock(ConsoleSource.class);
+        NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes, stream -> stream.filter(n -> NodeType.TRANSITIONAL == n.getNodeType()));
+        CommandLine line = new CommandLineBuilder().setArguments(nodeArgument).build();
+
+        //act
+        Collection<String> suggestions = line.suggest(source, "1");
+
+        //assert
+        Assertions.assertEquals(1, suggestions.size());
+        Assertions.assertInstanceOf(List.class, suggestions);
+        List<String> sortedSuggestions = (List<String>) suggestions;
+        Assertions.assertEquals("1", sortedSuggestions.get(0));
+    }
+
+    @Test
     public void testSuggestInvalidOneLetter() {
         //setup
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
