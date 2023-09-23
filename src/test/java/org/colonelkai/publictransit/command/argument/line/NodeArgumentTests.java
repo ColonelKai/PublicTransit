@@ -123,6 +123,7 @@ public class NodeArgumentTests {
         CommandLine line = new CommandLineBuilder().setArguments(nodeArgument).build();
 
         //act
+
         Collection<String> suggestions = line.suggest(source, "1");
 
         //assert

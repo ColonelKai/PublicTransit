@@ -3,6 +3,7 @@ package org.colonelkai.publictransit.fake;
 import org.colonelkai.publictransit.utils.lamda.ThrowableTriPredicate;
 import org.core.command.argument.ArgumentCommand;
 import org.core.command.argument.CommandArgument;
+import org.core.command.argument.context.CommandArgumentContext;
 import org.core.command.argument.context.CommandContext;
 import org.core.exceptions.NotEnoughArguments;
 import org.core.permission.Permission;
@@ -52,8 +53,12 @@ public class CommandLine implements ArgumentCommand {
         }
     }
 
-    public Collection<String> suggest(CommandSource source, String arguments) {
+    public <T> Collection<String> suggest(CommandSource source, String arguments) {
         CommandContext commandContext = new CommandContext(source, Collections.singleton(this), arguments);
+        if(this.arguments.size() == 1){
+            var arg = (CommandArgument<T>) this.arguments.get(0);
+            return arg.suggest(commandContext, new CommandArgumentContext<>(arg, 0, arguments));
+        }
         return commandContext.getSuggestions(this);
     }
 }
