@@ -6,6 +6,7 @@ import org.colonelkai.publictransit.commands.arguments.LineArgument;
 import org.colonelkai.publictransit.commands.arguments.NodeArgument;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeType;
 import org.core.adventureText.AText;
 import org.core.command.argument.ArgumentCommand;
 import org.core.command.argument.CommandArgument;
@@ -39,7 +40,7 @@ public class CostBetweenCommand implements ArgumentCommand {
                 .getArgument(CostBetweenCommand.this, CostBetweenCommand.this.lineArgument)
                 .stream()
                 .flatMap(line -> line.getNodes().stream())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()), stream -> stream.filter(node -> NodeType.STOP == node.getNodeType()));
         this.lastArgument = new NodeArgument("last", (commandContext, nodeCommandArgumentContext) -> {
             Node firstNode = commandContext.getArgument(CostBetweenCommand.this, CostBetweenCommand.this.firstArgument);
             return commandContext
@@ -48,7 +49,7 @@ public class CostBetweenCommand implements ArgumentCommand {
                     .filter(line -> line.getNodes().contains(firstNode))
                     .flatMap(line -> line.getNodes().stream())
                     .collect(Collectors.toList());
-        });
+        }, stream -> stream.filter(node -> NodeType.STOP == node.getNodeType()));
     }
 
 
