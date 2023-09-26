@@ -47,7 +47,6 @@ public class CostBetweenCommand implements ArgumentCommand {
                     .stream()
                     .filter(line -> line.getNodes().contains(firstNode))
                     .flatMap(line -> line.getNodes().stream())
-                    .filter(node -> node != firstNode)
                     .collect(Collectors.toList());
         });
     }
@@ -73,9 +72,15 @@ public class CostBetweenCommand implements ArgumentCommand {
         if (commandContext.getSource() instanceof CommandViewer) {
             return false;
         }
+        String currency = ""; //bukkit vault doesnt supports currencies ....
         CommandViewer source = (CommandViewer) commandContext.getSource();
         Node node = commandContext.getArgument(this, this.firstArgument);
         Node compare = commandContext.getArgument(this, this.lastArgument);
+        if (node.equals(compare)) {
+            //node going to itself
+            source.sendMessage(this.createCostMessage(currency, 0));
+            return true;
+        }
         Line line = PublicTransit
                 .getPlugin()
                 .getNodeManager()
@@ -84,9 +89,12 @@ public class CostBetweenCommand implements ArgumentCommand {
                 .orElseThrow(() -> new RuntimeException("Broken logic"));
 
         double price = line.getPrice(node, compare);
-        String currency = ""; //bukkit vault doesnt supports currencies ....
 
-        source.sendMessage(AText.ofPlain("Your journey will cost " + currency + price));
+        source.sendMessage(this.createCostMessage(currency, price));
         return true;
+    }
+
+    private AText createCostMessage(String currency, double price) {
+        return AText.ofPlain("Your journey will cost " + currency + price);
     }
 }
