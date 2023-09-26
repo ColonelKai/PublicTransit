@@ -70,11 +70,10 @@ public class CostBetweenCommand implements ArgumentCommand {
 
     @Override
     public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
-        if (commandContext.getSource() instanceof CommandViewer) {
+        if (!(commandContext.getSource() instanceof CommandViewer source)) {
             return false;
         }
         String currency = ""; //bukkit vault doesnt supports currencies ....
-        CommandViewer source = (CommandViewer) commandContext.getSource();
         Node node = commandContext.getArgument(this, this.firstArgument);
         Node compare = commandContext.getArgument(this, this.lastArgument);
         if (node.equals(compare)) {
