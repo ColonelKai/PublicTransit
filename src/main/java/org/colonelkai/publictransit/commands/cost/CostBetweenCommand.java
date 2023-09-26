@@ -34,21 +34,7 @@ public class CostBetweenCommand implements ArgumentCommand {
 
     public CostBetweenCommand() {
         this.costArgument = new ExactArgument("cost");
-        MappedArgumentWrapper<List<Line>, Line> mappedLine = new MappedArgumentWrapper<>(new LineArgument("line"), Collections::singletonList);
-        this.lineArgument = new OptionalArgument<>(mappedLine, (ParseCommandArgument<List<Line>>) (context, argument) -> {
-            CommandSource source = context.getSource();
-            if (!(source instanceof Positionable<?> positionable)) {
-                throw new IOException("Line must be specified");
-            }
-            NodeManager manager = PublicTransit.getPlugin().getNodeManager();
-            Optional<Node> opNode = manager.getClosestNode(positionable);
-            if (opNode.isEmpty()) {
-                throw new IOException("No nodes near you");
-            }
-            List<Line> lines = manager.getLinesFor(opNode.get()).collect(Collectors.toList());
-            return CommandArgumentResult.from(argument, argument.getFirstArgument(), lines);
-
-        });
+        this.lineArgument = LineArgument.linesOrClosest("line");
         this.firstArgument = new NodeArgument("first", (commandContext, nodeCommandArgumentContext) -> commandContext
                 .getArgument(CostBetweenCommand.this, CostBetweenCommand.this.lineArgument)
                 .stream()
