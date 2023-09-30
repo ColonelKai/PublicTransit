@@ -8,22 +8,26 @@ import java.util.List;
 
 <span class="fc" id="L9">public enum CostType {</span>
 <span class="fc" id="L10">    PER_NODE((line, start, end) -&gt; {</span>
-<span class="nc" id="L11">        List&lt;Node&gt; nodes = line.getNodes();</span>
-<span class="nc" id="L12">        int startIndex = nodes.indexOf(start);</span>
-<span class="nc" id="L13">        int endIndex = nodes.indexOf(end);</span>
-<span class="nc" id="L14">        return ((double) Math.abs(endIndex - startIndex)) * line.getCost();</span>
+<span class="fc" id="L11">        List&lt;Node&gt; nodes = line.getNodes();</span>
+<span class="fc" id="L12">        int startIndex = nodes.indexOf(start);</span>
+<span class="fc" id="L13">        int endIndex = nodes.indexOf(end);</span>
+<span class="fc" id="L14">        return ((double) Math.abs(endIndex - startIndex)) * line.getCost();</span>
     }),
-<span class="pc bnc" id="L16" title="All 2 branches missed.">    PER_STOP((line, start, end) -&gt; line.getNodesBetween(start, end).stream().filter(node -&gt; node.getNodeType() == NodeType.STOP).count() * line.getCost()),</span>
-<span class="pc" id="L17">    FLAT_RATE((line, start, end) -&gt; line.getCost());</span>
+<span class="fc" id="L16">    PER_STOP((line, start, end) -&gt; {</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">        int amount = (int) line.getNodesBetween(start, end).stream().filter(node -&gt; node.getNodeType() == NodeType.STOP).count();</span>
+<span class="fc" id="L18">        double cost = line.getCost();</span>
+<span class="fc" id="L19">        return amount * cost;</span>
+    }),
+<span class="fc" id="L21">    FLAT_RATE((line, start, end) -&gt; line.getCost());</span>
 
     private final TriFunction&lt;Line, Node, Node, Double&gt; applier;
 
-<span class="fc" id="L21">    CostType(TriFunction&lt;Line, Node, Node, Double&gt; applier) {</span>
-<span class="fc" id="L22">        this.applier = applier;</span>
-<span class="fc" id="L23">    }</span>
+<span class="fc" id="L25">    CostType(TriFunction&lt;Line, Node, Node, Double&gt; applier) {</span>
+<span class="fc" id="L26">        this.applier = applier;</span>
+<span class="fc" id="L27">    }</span>
 
     public double get(Line line, Node starting, Node ending) {
-<span class="nc" id="L26">        return this.applier.apply(line, starting, ending);</span>
+<span class="fc" id="L30">        return this.applier.apply(line, starting, ending);</span>
     }
 
 }
