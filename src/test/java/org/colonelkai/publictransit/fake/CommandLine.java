@@ -45,20 +45,29 @@ public class CommandLine implements ArgumentCommand {
     }
 
     public boolean run(CommandSource source, String... arguments) {
-        CommandContext commandContext = new CommandContext(source, Collections.singleton(this), arguments);
+        return run(this, source, arguments);
+    }
+
+    public <T> Collection<String> suggest(CommandSource source, String arguments) {
+        return suggest(this, source, arguments);
+    }
+
+    public static boolean run(ArgumentCommand cmd, CommandSource source, String... arguments) {
+        CommandContext commandContext = new CommandContext(source, Collections.singleton(cmd), arguments);
         try {
-            return run(commandContext, arguments);
+            return cmd.run(commandContext, arguments);
         } catch (NotEnoughArguments e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T> Collection<String> suggest(CommandSource source, String arguments) {
-        CommandContext commandContext = new CommandContext(source, Collections.singleton(this), arguments);
-        if(this.arguments.size() == 1){
-            var arg = (CommandArgument<T>) this.arguments.get(0);
+    public static <T> Collection<String> suggest(ArgumentCommand cmd, CommandSource source, String arguments) {
+        CommandContext commandContext = new CommandContext(source, Collections.singleton(cmd), arguments);
+        var cmdArguments = cmd.getArguments();
+        if (1 == cmdArguments.size()) {
+            var arg = (CommandArgument<T>) cmdArguments.get(0);
             return arg.suggest(commandContext, new CommandArgumentContext<>(arg, 0, arguments));
         }
-        return commandContext.getSuggestions(this);
+        return commandContext.getSuggestions(cmd);
     }
 }
