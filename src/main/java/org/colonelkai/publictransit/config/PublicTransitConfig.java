@@ -2,9 +2,7 @@ package org.colonelkai.publictransit.config;
 
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.config.node.ConfigNode;
-import org.colonelkai.publictransit.config.node.DoubleConfigNode;
 import org.core.TranslateCore;
-import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 
 import java.io.File;
@@ -13,9 +11,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public class PublicTransitConfig implements Config {
-
-
-    private static final DoubleConfigNode PLAYER_DISTANCE_FROM_NODE = new DoubleConfigNode(new ConfigurationNode("node", "distance", "player"), 10);
 
     private static final File FILE = new File(PublicTransit.getPlugin().getConfigFolder(),
                                               "config." + TranslateCore.getPlatform().getConfigFormat().getFileType()[0]);
@@ -41,10 +36,6 @@ public class PublicTransitConfig implements Config {
                 this.setDefaultValue(node);
             }
         });
-    }
-
-    private <T> void setDefaultValue(ConfigNode<T> node){
-        node.setValue(this.config, node.defaultValue());
     }
 
     @Override
@@ -73,10 +64,14 @@ public class PublicTransitConfig implements Config {
     }
 
     public double getPlayerDistanceFromNode() {
-        return PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);
+        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);
     }
 
     public void setPlayerDistanceFromNode(double amount) {
-        PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);
+        PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);
+    }
+
+    private <T> void setDefaultValue(ConfigNode<T> node) {
+        node.setValue(this.config, node.defaultValue());
     }
 }
