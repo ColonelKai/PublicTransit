@@ -10,6 +10,7 @@ version = "0.0.1"
 
 apply from: "buildGradle/buildCommon.gradle"
 apply from: "buildGradle/buildBukkit.gradle"
+apply from: "buildGradle/clearsetup.gradle"
 
 repositories {
     mavenCentral()
@@ -29,6 +30,8 @@ dependencies {
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.2'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.5.0'
+    testRuntimeOnly group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.5.0'
 }
 
 javadoc {

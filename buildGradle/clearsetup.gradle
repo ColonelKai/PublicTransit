@@ -1,0 +1,8 @@
+tasks.register("clearSetup") {
+    group = "Translate Core"
+    description = "Removes Translate Core"
+    doLast {
+        file("CoreToFolia").deleteDir()
+        file("TranslateCore").deleteDir()
+    }
+}
