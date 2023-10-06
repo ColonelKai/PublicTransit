@@ -47,10 +47,7 @@ public class PublicTransitConfig implements Config {
     @Override
     public Stream<? extends ConfigNode<?>> getNodes() {
         return Stream
-                .of(PublicTransitConfig.class.getDeclaredFields())
-                .filter(field -> Modifier.isPrivate(field.getModifiers()))
-                .filter(field -> Modifier.isStatic(field.getModifiers()))
-                .filter(field -> Modifier.isFinal(field.getModifiers()))
+                .of(PublicTransitConfigNodes.class.getDeclaredFields())
                 .filter(field -> field.getType().isAssignableFrom(ConfigNode.class))
                 .map(field -> {
                     try {
