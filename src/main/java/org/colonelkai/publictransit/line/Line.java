@@ -57,28 +57,6 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.validate(this.nodes);
     }
 
-    public List<Node> getNodesBetween(Node start, Node end) {
-        int startIndex = this.nodes.indexOf(start);
-        int endIndex = this.nodes.indexOf(end);
-        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
-    }
-
-    public double getCost() {
-        return this.cost;
-    }
-
-    public CostType getCostType() {
-        return this.costType;
-    }
-
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    public List<Node> getNodes() {
-        return Collections.unmodifiableList(this.nodes);
-    }
-
     public void addNode(Node node) {
         Collection<Node> nodes = new ArrayList<>(this.nodes);
         nodes.add(node);
@@ -94,6 +72,43 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     @Override
     public void save(File file) throws Exception {
         PublicTransit.getPlugin().getNodeManager().save(this, file);
+    }
+
+    public double getCost() {
+        return this.cost;
+    }
+
+    public CostType getCostType() {
+        return this.costType;
+    }
+
+    public Component getName(){
+        return this.name;
+    }
+
+    public LineDirection getDirection() {
+        return this.direction;
+    }
+
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    public List<Node> getNodes() {
+        return Collections.unmodifiableList(this.nodes);
+    }
+
+    public List<Node> getNodesBetween(Node start, Node end){
+        return this.getNodesBetween(start, end, true);
+    }
+
+    public List<Node> getNodesBetween(Node start, Node end, boolean includeEnd) {
+        int startIndex = this.nodes.indexOf(start);
+        int endIndex = this.nodes.indexOf(end);
+        if(includeEnd){
+            endIndex++;
+        }
+        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
     }
 
     public double getPrice() {
