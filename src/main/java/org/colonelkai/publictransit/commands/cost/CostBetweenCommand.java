@@ -1,29 +1,26 @@
 package org.colonelkai.publictransit.commands.cost;
 
-import org.colonelkai.publictransit.NodeManager;
+import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
 import org.colonelkai.publictransit.commands.arguments.NodeArgument;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeType;
-import org.core.adventureText.AText;
+import org.core.TranslateCore;
 import org.core.command.argument.ArgumentCommand;
 import org.core.command.argument.CommandArgument;
-import org.core.command.argument.CommandArgumentResult;
-import org.core.command.argument.ParseCommandArgument;
 import org.core.command.argument.arguments.operation.ExactArgument;
-import org.core.command.argument.arguments.operation.MappedArgumentWrapper;
 import org.core.command.argument.arguments.operation.OptionalArgument;
 import org.core.command.argument.context.CommandContext;
-import org.core.exceptions.NotEnoughArguments;
+import org.core.eco.Currency;
 import org.core.permission.Permission;
 import org.core.source.command.CommandSource;
-import org.core.source.viewer.CommandViewer;
-import org.core.world.position.Positionable;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CostBetweenCommand implements ArgumentCommand {
@@ -52,6 +49,9 @@ public class CostBetweenCommand implements ArgumentCommand {
         }, stream -> stream.filter(node -> NodeType.STOP == node.getNodeType()));
     }
 
+    private Component createCostMessage(Currency currency, double price) {
+        return Component.text("Your journey will cost ").append(currency.asDisplay(price));
+    }
 
     @Override
     public List<CommandArgument<?>> getArguments() {
@@ -69,11 +69,9 @@ public class CostBetweenCommand implements ArgumentCommand {
     }
 
     @Override
-    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
-        if (!(commandContext.getSource() instanceof CommandViewer source)) {
-            return false;
-        }
-        String currency = ""; //bukkit vault doesnt supports currencies ....
+    public boolean run(CommandContext commandContext, String... args) {
+        CommandSource source = commandContext.getSource();
+        Currency currency = TranslateCore.getCurrencyManager().getDefaultCurrency();
         Node node = commandContext.getArgument(this, this.firstArgument);
         Node compare = commandContext.getArgument(this, this.lastArgument);
         if (node.equals(compare)) {
@@ -92,9 +90,5 @@ public class CostBetweenCommand implements ArgumentCommand {
 
         source.sendMessage(this.createCostMessage(currency, price));
         return true;
-    }
-
-    private AText createCostMessage(String currency, double price) {
-        return AText.ofPlain("Your journey will cost " + currency + price);
     }
 }

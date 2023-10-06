@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.command.cost;
 
+import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.NodeManager;
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.commands.cost.CostBetweenCommand;
@@ -10,10 +11,14 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
+import org.core.TranslateCore;
+import org.core.adventureText.AText;
 import org.core.command.argument.ArgumentCommand;
+import org.core.eco.Currency;
+import org.core.eco.CurrencyManager;
 import org.core.source.command.ConsoleSource;
+import org.core.utils.ComponentUtils;
 import org.core.world.WorldExtent;
-import org.core.world.position.block.entity.commandblock.CommandBlock;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,17 +26,18 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import java.io.IOException;
-
 public class CostBetweenCommandTests {
 
+    CurrencyManager currencyManager;
     NodeManager manager;
     PublicTransit plugin;
     MockedStatic<PublicTransit> pluginStatic;
+    MockedStatic<TranslateCore> translateCoreStatic;
 
     @AfterEach
     public void end() {
         this.pluginStatic.close();
+        this.translateCoreStatic.close();
     }
 
     @Test
@@ -57,6 +63,12 @@ public class CostBetweenCommandTests {
     @Test
     public void runCommandValid() {
         //setup
+        Currency defaultCurrency = Mockito.mock(Currency.class);
+        Mockito.when(this.currencyManager.getDefaultCurrency()).thenReturn(defaultCurrency);
+        Mockito.when(defaultCurrency.asDisplay(Mockito.anyDouble())).thenAnswer(invocation -> {
+            double num = invocation.getArgument(0);
+            return Component.text(num + "");
+        });
         ConsoleSource consoleSource = Mockito.mock(ConsoleSource.class);
         ArgumentCommand argcCmd = new CostBetweenCommand();
 
@@ -65,8 +77,8 @@ public class CostBetweenCommandTests {
 
         //assert
         Assertions.assertTrue(result);
-        Mockito.verify(consoleSource, Mockito.atLeast(1)).sendMessage(Mockito.argThat(argument -> {
-            String message = argument.toPlain();
+        Mockito.verify(consoleSource, Mockito.atLeast(1)).sendMessage(Mockito.argThat((Component argument) -> {
+            String message = ComponentUtils.toPlain(argument);
             return message.equals("Your journey will cost 1.0");
         }));
     }
@@ -74,6 +86,13 @@ public class CostBetweenCommandTests {
     @Test
     public void runCommandValidSameNode() {
         //setup
+        Currency defaultCurrency = Mockito.mock(Currency.class);
+        Mockito.when(this.currencyManager.getDefaultCurrency()).thenReturn(defaultCurrency);
+        Mockito.when(defaultCurrency.asDisplay(Mockito.anyDouble())).thenAnswer(invocation -> {
+            double num = invocation.getArgument(0);
+            return Component.text(num + "");
+        });
+
         ConsoleSource consoleSource = Mockito.mock(ConsoleSource.class);
         ArgumentCommand argcCmd = new CostBetweenCommand();
 
@@ -82,20 +101,23 @@ public class CostBetweenCommandTests {
 
         //assert
         Assertions.assertTrue(result);
-        Mockito.verify(consoleSource, Mockito.atLeast(1)).sendMessage(Mockito.argThat(argument -> {
-            String message = argument.toPlain();
+        Mockito.verify(consoleSource, Mockito.atLeast(1)).sendMessage(Mockito.argThat((Component argument) -> {
+            String message = ComponentUtils.toPlain(argument);
             return message.equals("Your journey will cost 0.0");
         }));
     }
 
     @BeforeEach
     public void setup() {
+        this.translateCoreStatic = Mockito.mockStatic(TranslateCore.class);
+        this.currencyManager = Mockito.mock(CurrencyManager.class);
         this.pluginStatic = Mockito.mockStatic(PublicTransit.class);
         this.plugin = Mockito.mock(PublicTransit.class);
-        this.manager = new NodeManager();
 
         this.pluginStatic.when(PublicTransit::getPlugin).thenReturn(this.plugin);
+        this.translateCoreStatic.when(TranslateCore::getCurrencyManager).thenReturn(this.currencyManager);
 
+        this.manager = new NodeManager();
         Mockito.when(this.plugin.getNodeManager()).thenReturn(this.manager);
 
         WorldExtent world = Mockito.mock(WorldExtent.class);
