@@ -40,7 +40,7 @@ public class CostTypePerStopTests extends AbstractCostTypeTests {
 
     @Test
     public void testMaxCost() {
-        double cost = Double.MAX_VALUE;
+        double cost = Integer.MAX_VALUE;
 
         Line line = this.buildLine(builder -> builder.setCost(cost).setCostType(TYPE), builder -> {
             ExactPosition position = Mockito.mock(SyncExactPosition.class);

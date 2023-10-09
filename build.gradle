@@ -1,5 +1,6 @@
 import java.awt.Desktop
 import java.nio.file.Files
+import java.awt.*
 
 plugins {
     id "java-library"
@@ -48,6 +49,10 @@ dependencies {
     implementation project(":TranslateCore")
     implementation group: 'org.jetbrains', name: 'annotations', version: '24.0.1'
     implementation group: 'com.github.mosemister', name: 'EasyConfig', version: 'master-SNAPSHOT'
+    implementation group: 'net.kyori', name: 'adventure-api', version: '4.12.0' //some reason this isnt picked up from translateCore
+
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.2.0'
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '5.2.0'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.2'

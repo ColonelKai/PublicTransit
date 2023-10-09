@@ -10,6 +10,7 @@ import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.serializers.Serializers;
 import org.core.TranslateCore;
 import org.core.platform.PlatformServer;
+import org.core.utils.ComponentUtils;
 import org.core.vector.type.Vector3;
 import org.core.world.WorldExtent;
 import org.core.world.position.impl.sync.SyncExactPosition;
@@ -82,7 +83,7 @@ public class LineSerializerTests {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(1, result.getCost());
         Assertions.assertEquals(CostType.FLAT_RATE, result.getCostType());
-        Assertions.assertEquals("Name", result.getName().toPlain());
+        Assertions.assertEquals("Name", ComponentUtils.toPlain(result.getName()));
         Assertions.assertEquals(LineDirection.POSITIVE, result.getDirection());
     }
 
