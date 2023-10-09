@@ -20,35 +20,35 @@ public class LineArgument implements CommandArgument&lt;Line&gt; {
     private final Function&lt;Stream&lt;Line&gt;, Stream&lt;Line&gt;&gt; filters;
 
     public LineArgument(@NotNull String id) {
-<span class="nc" id="L23">        this(id, s -&gt; s);</span>
-<span class="nc" id="L24">    }</span>
+<span class="fc" id="L23">        this(id, s -&gt; s);</span>
+<span class="fc" id="L24">    }</span>
 
-<span class="nc" id="L26">    public LineArgument(@NotNull String id, Function&lt;Stream&lt;Line&gt;, Stream&lt;Line&gt;&gt; filters) {</span>
-<span class="nc" id="L27">        this.id = id;</span>
-<span class="nc" id="L28">        this.filters = filters;</span>
-<span class="nc" id="L29">    }</span>
+<span class="fc" id="L26">    public LineArgument(@NotNull String id, Function&lt;Stream&lt;Line&gt;, Stream&lt;Line&gt;&gt; filters) {</span>
+<span class="fc" id="L27">        this.id = id;</span>
+<span class="fc" id="L28">        this.filters = filters;</span>
+<span class="fc" id="L29">    }</span>
 
     @Override
     public String getId() {
-<span class="nc" id="L33">        return this.id;</span>
+<span class="fc" id="L33">        return this.id;</span>
     }
 
     @Override
     public CommandArgumentResult&lt;Line&gt; parse(CommandContext context, CommandArgumentContext&lt;Line&gt; argument) throws IOException {
-<span class="nc" id="L38">        var arg = context.getCommand()[argument.getFirstArgument()];</span>
-<span class="nc" id="L39">        var nodeManager = PublicTransit.getPlugin().getNodeManager();</span>
-<span class="nc" id="L40">        var stream = nodeManager.getLines().stream().filter(line -&gt; line.getIdentifier().equalsIgnoreCase(arg));</span>
-<span class="nc" id="L41">        var result = this.filters.apply(stream).findAny().orElseThrow(() -&gt; new IOException(&quot;Unknown node&quot;));</span>
-<span class="nc" id="L42">        return CommandArgumentResult.from(argument, result);</span>
+<span class="fc" id="L38">        var arg = context.getCommand()[argument.getFirstArgument()];</span>
+<span class="fc" id="L39">        var nodeManager = PublicTransit.getPlugin().getNodeManager();</span>
+<span class="fc" id="L40">        var stream = nodeManager.getLines().stream().filter(line -&gt; line.getIdentifier().equalsIgnoreCase(arg));</span>
+<span class="fc" id="L41">        var result = this.filters.apply(stream).findAny().orElseThrow(() -&gt; new IOException(&quot;Unknown node&quot;));</span>
+<span class="fc" id="L42">        return CommandArgumentResult.from(argument, result);</span>
     }
 
     @Override
     public Collection&lt;String&gt; suggest(CommandContext commandContext, CommandArgumentContext&lt;Line&gt; argument) {
-<span class="nc" id="L47">        var peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
-<span class="nc" id="L48">        var nodeManager = PublicTransit.getPlugin().getNodeManager();</span>
-<span class="nc" id="L49">        var stream = nodeManager.getLines().stream().filter(line -&gt; line.getIdentifier().toLowerCase().startsWith(peek.toLowerCase()));</span>
-<span class="nc" id="L50">        stream = this.filters.apply(stream);</span>
-<span class="nc" id="L51">        return stream.map(Line::getIdentifier).sorted().collect(Collectors.toList());</span>
+<span class="fc" id="L47">        var peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
+<span class="fc" id="L48">        var nodeManager = PublicTransit.getPlugin().getNodeManager();</span>
+<span class="fc" id="L49">        var stream = nodeManager.getLines().stream().filter(line -&gt; line.getIdentifier().toLowerCase().startsWith(peek.toLowerCase()));</span>
+<span class="fc" id="L50">        stream = this.filters.apply(stream);</span>
+<span class="fc" id="L51">        return stream.map(Line::getIdentifier).sorted().collect(Collectors.toList());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

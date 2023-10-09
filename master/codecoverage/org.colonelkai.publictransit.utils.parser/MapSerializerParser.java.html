@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapSerializerParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.utils.parser</a> &gt; <span class="el_source">MapSerializerParser.java</span></div><h1>MapSerializerParser.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.utils.parser;
+
+import org.core.config.parser.Parser;
+import org.easy.config.Serializer;
+
+import java.util.Map;
+import java.util.Optional;
+
+class MapSerializerParser&lt;T&gt; implements Parser&lt;Map&lt;String, Object&gt;, T&gt; {
+
+    private final Serializer.KeyValue&lt;T&gt; serializer;
+
+<span class="nc" id="L13">    public MapSerializerParser(Serializer.KeyValue&lt;T&gt; serializer) {</span>
+<span class="nc" id="L14">        this.serializer = serializer;</span>
+<span class="nc" id="L15">    }</span>
+
+    @Override
+    public Optional&lt;T&gt; parse(Map&lt;String, Object&gt; original) {
+        try {
+<span class="nc" id="L20">            return Optional.of(this.serializer.deserialize(original));</span>
+<span class="nc" id="L21">        } catch (Exception e) {</span>
+<span class="nc" id="L22">            return Optional.empty();</span>
+        }
+    }
+
+    @Override
+    public Map&lt;String, Object&gt; unparse(T value) {
+        try {
+<span class="nc" id="L29">            return this.serializer.serialize(value);</span>
+<span class="nc" id="L30">        } catch (Exception e) {</span>
+<span class="nc" id="L31">            throw new RuntimeException(e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

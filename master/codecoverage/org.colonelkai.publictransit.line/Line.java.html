@@ -85,7 +85,7 @@ public class Line implements Buildable&lt;LineBuilder, Line&gt;, Savable {
     }
 
     public String getIdentifier() {
-<span class="nc" id="L88">        return this.identifier;</span>
+<span class="fc" id="L88">        return this.identifier;</span>
     }
 
     public AText getName() {
@@ -121,10 +121,10 @@ public class Line implements Buildable&lt;LineBuilder, Line&gt;, Savable {
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (!(obj instanceof Line line)) {</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (!(obj instanceof Line line)) {</span>
 <span class="nc" id="L125">            return false;</span>
         }
-<span class="nc" id="L127">        return line.identifier.equalsIgnoreCase(this.identifier);</span>
+<span class="fc" id="L127">        return line.identifier.equalsIgnoreCase(this.identifier);</span>
     }
 
     public boolean isActive() {

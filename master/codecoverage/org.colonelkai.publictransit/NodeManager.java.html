@@ -16,14 +16,14 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-<span class="nc" id="L19">public class NodeManager {</span>
+<span class="fc" id="L19">public class NodeManager {</span>
 
-<span class="nc" id="L21">    private final Collection&lt;Line&gt; lines = new LinkedTransferQueue&lt;&gt;();</span>
+<span class="fc" id="L21">    private final Collection&lt;Line&gt; lines = new LinkedTransferQueue&lt;&gt;();</span>
 
-<span class="nc" id="L23">    public static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(), &quot;data/lines&quot;);</span>
+<span class="fc" id="L23">    public static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(), &quot;data/lines&quot;);</span>
 
     public Collection&lt;Line&gt; getLines() {
-<span class="nc" id="L26">        return Collections.unmodifiableCollection(this.lines);</span>
+<span class="fc" id="L26">        return Collections.unmodifiableCollection(this.lines);</span>
     }
 
     public Stream&lt;Node&gt; getNodes() {
@@ -31,11 +31,11 @@ import java.util.stream.Stream;
     }
 
     public void register(@NotNull Line line) {
-<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (this.lines.stream().anyMatch(l -&gt; l.getIdentifier().equals(line.getIdentifier()))) {</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (this.lines.stream().anyMatch(l -&gt; l.getIdentifier().equals(line.getIdentifier()))) {</span>
 <span class="nc" id="L35">            throw new IllegalArgumentException(&quot;Line of '&quot; + line.getName() + &quot;' is already registered&quot;);</span>
         }
-<span class="nc" id="L37">        this.lines.add(line);</span>
-<span class="nc" id="L38">    }</span>
+<span class="fc" id="L37">        this.lines.add(line);</span>
+<span class="fc" id="L38">    }</span>
 
     public Stream&lt;Line&gt; loadAll() {
 <span class="nc" id="L41">        return this.loadAll(LINES_DATA_PATH);</span>
