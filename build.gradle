@@ -12,13 +12,13 @@ if(hasProperty("version") && !getProperty("version").toString().isBlank() && get
     var foundVersion = getProperty("version")
     version = foundVersion
 }else{
-    var headPath = file(".git/HEAD").toPath()
+    java.nio.file.Path headPath = ((File)file(".git/HEAD")).toPath()
     var currentBranch = Files
             .lines(headPath)
             .findAny()
             .map(path -> path.substring(5))
             .orElseThrow(() -> new RuntimeException("Project was not cloned. No .git folder. Please use git to clone the repo"))
-    var branchPath = file(".git/" + currentBranch).toPath();
+    java.nio.file.Path branchPath = ((File)file(".git/" + currentBranch)).toPath();
     var longHash = Files
             .lines(branchPath)
             .findAny()
