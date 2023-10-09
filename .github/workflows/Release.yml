@@ -31,11 +31,11 @@ jobs:
       - name: Setup with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: setup -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.ref_name }}
+          arguments: setup -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Build Bukkit
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: buildBukkit -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.ref_name }}
+          arguments: buildBukkit -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Upload Releases
         uses: softprops/action-gh-release@v1
         with:

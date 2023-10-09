@@ -30,11 +30,11 @@ jobs:
       - name: Setup with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: setup --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.ref_name }}
+          arguments: setup --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Test with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: test --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.ref_name }}
+          arguments: test --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
