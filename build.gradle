@@ -1,4 +1,5 @@
 import java.awt.Desktop
+import java.nio.file.Files
 
 plugins {
     id "java-library"
@@ -6,7 +7,31 @@ plugins {
 }
 
 group = "org.colonelkai"
-version = "0.0.1"
+
+if (hasProperty("version") && !getProperty("version").toString().isBlank() && getProperty("version").toString() != "unspecified") {
+    var foundVersion = getProperty("version")
+    version = foundVersion
+} else {
+    java.nio.file.Path headPath = ((File) file(".git/HEAD")).toPath()
+    var currentBranch = Files
+            .lines(headPath)
+            .findAny()
+            .map(path -> path.substring(5))
+            .orElseThrow(() -> new RuntimeException("Project was not cloned. No .git folder. Please use git to clone the repo"))
+    java.nio.file.Path branchPath = ((File) file(".git/" + currentBranch)).toPath();
+    var longHash = Files
+            .lines(branchPath)
+            .findAny()
+            .orElseThrow(() -> new RuntimeException("Branch file could not be found of '" + currentBranch + "'"))
+
+    var builder = new StringBuilder();
+    builder.append("Hash-")
+    builder.append(longHash.substring(0, 7))
+    builder.append("-Branch-")
+    builder.append(currentBranch.substring(11))
+    version = builder.toString()
+}
+
 
 apply from: "buildGradle/buildCommon.gradle"
 apply from: "buildGradle/buildBukkit.gradle"

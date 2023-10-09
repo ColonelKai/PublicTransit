@@ -20,11 +20,11 @@ jobs:
       - name: Setup with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: setup
+          arguments: setup -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Javadoc with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: :javadoc :test
+          arguments: :javadoc :test -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: clone pages branch
         uses: actions/checkout@v3
         with:

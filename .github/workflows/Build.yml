@@ -23,11 +23,11 @@ jobs:
       - name: Setup with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: setup
+          arguments: setup --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Build with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: buildBukkit
+          arguments: buildBukkit --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
       - name: Upload
         uses: actions/upload-artifact@v3
         with:

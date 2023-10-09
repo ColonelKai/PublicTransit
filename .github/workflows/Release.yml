@@ -5,15 +5,16 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
-name: Test
+name: Release
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
+  release:
+    published:
+  workflow_dispatch:
+
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -30,14 +31,15 @@ jobs:
       - name: Setup with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: setup --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
-      - name: Test with Gradle
+          arguments: setup -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
+      - name: Build Bukkit
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
         with:
-          arguments: test --stacktrace -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
-      - name: Upload
-        uses: actions/upload-artifact@v3
+          arguments: buildBukkit -Pversion=GithubRun-${{ github.run_id }}-Branch-${{ github.repository }}
+      - name: Upload Releases
+        uses: softprops/action-gh-release@v1
         with:
-          name: Code Coverage
-          path: build/reports/jacoco/test/html/
-          if-no-files-found: error
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            translate/bukkitPlugin.jar
+        
