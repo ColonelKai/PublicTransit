@@ -1,11 +1,9 @@
 package org.colonelkai.publictransit.line;
 
-import org.colonelkai.publictransit.node.Node;
+import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.utils.Builder;
-import org.core.adventureText.AText;
 import org.core.world.position.impl.ExactPosition;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,23 +13,14 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
 
     private Double cost;
     private CostType costType;
-    private String identifier;
     private LineDirection direction;
-    private AText name;
+    private String identifier;
     private boolean isBiDirectional;
+    private Component name;
     private List<NodeBuilder> nodes = new ArrayList<>();
 
     public LineBuilder addNodes(NodeBuilder... nodes) {
         this.nodes.addAll(Arrays.asList(nodes));
-        return this;
-    }
-
-    public boolean isBiDirectional() {
-        return this.isBiDirectional;
-    }
-
-    public LineBuilder setBiDirectional(boolean isBiDirectional) {
-        this.isBiDirectional = isBiDirectional;
         return this;
     }
 
@@ -59,20 +48,24 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this.costType;
     }
 
-    public String identifier() {
-        return this.identifier;
-    }
-
     public LineDirection direction() {
         return this.direction;
     }
 
-    public LineBuilder setDirection(LineDirection direction) {
-        this.direction = direction;
+    public String identifier() {
+        return this.identifier;
+    }
+
+    public boolean isBiDirectional() {
+        return this.isBiDirectional;
+    }
+
+    public LineBuilder setBiDirectional(boolean isBiDirectional) {
+        this.isBiDirectional = isBiDirectional;
         return this;
     }
 
-    public AText name() {
+    public Component name() {
         return this.name;
     }
 
@@ -95,12 +88,17 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
+    public LineBuilder setDirection(LineDirection direction) {
+        this.direction = direction;
+        return this;
+    }
+
     public LineBuilder setIdentifier(String identifier) {
         this.identifier = identifier;
         return this;
     }
 
-    public LineBuilder setName(AText name) {
+    public LineBuilder setName(Component name) {
         this.name = name;
         return this;
     }

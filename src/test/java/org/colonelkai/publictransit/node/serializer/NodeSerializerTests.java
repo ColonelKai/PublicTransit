@@ -7,6 +7,7 @@ import org.colonelkai.publictransit.utils.serializers.Serializers;
 import org.core.TranslateCore;
 import org.core.platform.PlatformServer;
 import org.core.world.WorldExtent;
+import org.core.world.position.impl.ExactPosition;
 import org.core.world.position.impl.sync.SyncExactPosition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -70,7 +71,7 @@ public class NodeSerializerTests {
     @Test
     public void canSerializeToMap() {
         var world = Mockito.mock(WorldExtent.class);
-        var position = Mockito.mock(SyncExactPosition.class);
+        ExactPosition position = Mockito.mock(SyncExactPosition.class);
         Mockito.when(position.getWorld()).thenReturn(world);
         Mockito.when(position.toExactPosition()).thenReturn(position);
 
@@ -88,7 +89,7 @@ public class NodeSerializerTests {
         //assert
         Assertions.assertEquals(asMap.size(), 4);
         Assertions.assertEquals(asMap.get("name"), "example");
-        Assertions.assertEquals(asMap.get("time"), null);
+        Assertions.assertNull(asMap.get("time"));
         Assertions.assertEquals(asMap.get("nodeType"), NodeType.STOP.name());
         Object positionObj = asMap.get("location");
         Assertions.assertInstanceOf(Map.class, positionObj);
