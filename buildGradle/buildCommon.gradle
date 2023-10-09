@@ -46,9 +46,16 @@ ext.downloadAll = { ->
 }
 
 ext.combined = { String translator, String translatorName, String exportPath, Consumer<ZipOutputStream> extra ->
-    var translatorJar = file(translator + "/build/libs").listFiles()[0]
-    var translatorApiJar = file("TranslateCore/build/libs").listFiles()[0]
-    var pluginJar = file("build/libs").listFiles()[0]
+    var jarFilter = new FilenameFilter() {
+        @Override
+        boolean accept(File dir, String name) {
+            return name.endsWith(".jar")
+        }
+    }
+
+    var translatorJar = ((File)file(translator + "/build/libs")).listFiles(jarFilter)[0]
+    var translatorApiJar = ((File)file("TranslateCore/build/libs")).listFiles(jarFilter)[0]
+    var pluginJar = ((File)file("build/libs")).listFiles(jarFilter)[0]
 
     var exportFile = file(exportPath)
 
