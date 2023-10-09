@@ -1,10 +1,10 @@
 package org.colonelkai.publictransit.line.costtype;
 
+import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.NodeBuilder;
-import org.core.adventureText.AText;
 import org.core.world.position.impl.ExactPosition;
 import org.mockito.Mockito;
 
@@ -21,7 +21,7 @@ class AbstractCostTypeTests {
     }
 
     public Line createTestingLine(Function<LineBuilder, LineBuilder> with) {
-        var line = new LineBuilder().setName(AText.ofPlain("Example Name")).setIdentifier("name").setBiDirectional(false).setDirection(LineDirection.POSITIVE);
+        var line = new LineBuilder().setName(Component.text("Example Name")).setIdentifier("name").setBiDirectional(false).setDirection(LineDirection.POSITIVE);
         line = with.apply(line);
         return line.build();
     }

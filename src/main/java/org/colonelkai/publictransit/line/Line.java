@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.line;
 
+import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.NodeManager;
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.node.Node;
@@ -7,7 +8,7 @@ import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.Savable;
-import org.core.adventureText.AText;
+import org.core.utils.ComponentUtils;
 import org.easy.config.auto.annotations.ConfigConstructor;
 import org.easy.config.auto.annotations.ConfigList;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,8 @@ import java.util.*;
 public class Line implements Buildable<LineBuilder, Line>, Savable {
 
     private final String identifier;
-    private final String name;
+
+    private final Component name;
 
     @ConfigList(ofType = Node.class)
     private final List<Node> nodes;
@@ -29,7 +31,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     private final LineDirection direction;
 
     @ConfigConstructor
-    private Line(String identifier, String name, List<Node> nodes, double cost, CostType costType, boolean isBiDirectional, LineDirection direction) {
+    private Line(String identifier, Component name, List<Node> nodes, double cost, CostType costType, boolean isBiDirectional, LineDirection direction) {
         this.identifier = identifier;
         this.name = name;
         this.costType = costType;
@@ -42,12 +44,12 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
 
     Line(@NotNull LineBuilder builder) {
         this.identifier = Objects.requireNonNull(builder.identifier());
-        this.name = Objects.requireNonNullElse((null == builder.name()) ? null : builder.name().toPlain(), this.identifier); //this needs fixing
+        this.name = Objects.requireNonNullElse((null == builder.name()) ? null : builder.name(), ComponentUtils.fromPlain(this.identifier));
         this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
         this.cost = Objects.requireNonNull(builder.cost());
         this.costType = Objects.requireNonNull(builder.costType());
         this.isBiDirectional = builder.isBiDirectional();
-        var direction = builder.direction();
+        LineDirection direction = builder.direction();
         if (!this.isBiDirectional && (null == direction)) {
             throw new IllegalStateException("direction must be set if bi-direction is disabled");
         }
@@ -80,6 +82,10 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.costType;
     }
 
+    public Component getName(){
+        return this.name;
+    }
+
     public LineDirection getDirection() {
         return this.direction;
     }
@@ -88,21 +94,20 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.identifier;
     }
 
-    public AText getName() {
-        return AText.ofPlain(this.name); //needs fixing
-    }
-
     public List<Node> getNodes() {
         return Collections.unmodifiableList(this.nodes);
     }
 
-    public List<Node> getNodesBetween(Node node, Node end) {
-        return getNodesBetween(node, end, true);
+    public List<Node> getNodesBetween(Node start, Node end){
+        return this.getNodesBetween(start, end, true);
     }
 
     public List<Node> getNodesBetween(Node start, Node end, boolean includeEnd) {
         int startIndex = this.nodes.indexOf(start);
-        int endIndex = this.nodes.indexOf(end) + (includeEnd ? 1 : 0);
+        int endIndex = this.nodes.indexOf(end);
+        if(includeEnd){
+            endIndex++;
+        }
         return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
     }
 
@@ -139,7 +144,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     public LineBuilder toBuilder() {
         return new LineBuilder()
                 .setIdentifier(this.identifier)
-                .setName(AText.ofPlain(this.name))
+                .setName(this.name)
                 .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())
                 .setCostType(this.costType)
                 .setCost(this.cost)
