@@ -53,9 +53,12 @@ ext.combined = { String translator, String translatorName, String exportPath, Co
         }
     }
 
-    var translatorJar = ((File)file(translator + "/build/libs")).listFiles(jarFilter)[0]
-    var translatorApiJar = ((File)file("TranslateCore/build/libs")).listFiles(jarFilter)[0]
-    var pluginJar = ((File)file("build/libs")).listFiles(jarFilter)[0]
+    var translatorJar = ((File) file(translator + "/build/libs")).listFiles(jarFilter)[0]
+    var translatorApiJar = ((File) file("TranslateCore/build/libs")).listFiles(jarFilter)[0]
+    var pluginJar = (File) file("build/libs/" + rootProject.name + "-" + version + ".jar")
+    if (!pluginJar.exists()) {
+        pluginJar = file("build/libs/" + rootProject.name + "-" + version + "/" + rootProject.name + ".jar")
+    }
 
     var exportFile = file(exportPath)
 
@@ -72,11 +75,11 @@ ext.combined = { String translator, String translatorName, String exportPath, Co
         var zipFile = new ZipFile(zipPath)
         zipFile.stream().forEach((ZipEntry entry) -> {
             var name = entry.getName()
-            if(name.contains("plugin.yml")){
+            if (name.contains("plugin.yml")) {
                 return
             }
-            if(entered.contains(name)){
-                if(!entry.isDirectory()) {
+            if (entered.contains(name)) {
+                if (!entry.isDirectory()) {
                     println(" > Found duplicate: " + name);
                 }
                 return
