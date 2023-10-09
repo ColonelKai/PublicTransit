@@ -7,6 +7,8 @@ import org.core.TranslateCore;
 import org.core.config.ConfigurationFormat;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
+import org.core.world.position.Positionable;
+import org.core.world.position.impl.Position;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -16,99 +18,117 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-<span class="fc" id="L19">public class NodeManager {</span>
-
-<span class="fc" id="L21">    private final Collection&lt;Line&gt; lines = new LinkedTransferQueue&lt;&gt;();</span>
+<span class="fc" id="L21">public class NodeManager {</span>
 
 <span class="fc" id="L23">    public static final File LINES_DATA_PATH = new File(PublicTransit.getPlugin().getConfigFolder(), &quot;data/lines&quot;);</span>
+<span class="fc" id="L24">    private final Collection&lt;Line&gt; lines = new LinkedTransferQueue&lt;&gt;();</span>
 
-    public Collection&lt;Line&gt; getLines() {
-<span class="fc" id="L26">        return Collections.unmodifiableCollection(this.lines);</span>
+    public Optional&lt;Node&gt; getClosestNode(Positionable&lt;?&gt; positionable) {
+<span class="nc" id="L27">        return this.getClosestNode(positionable.getPosition());</span>
     }
 
-    public Stream&lt;Node&gt; getNodes() {
-<span class="nc" id="L30">        return this.lines.stream().flatMap(node -&gt; node.getNodes().stream()).distinct();</span>
+    public Optional&lt;Node&gt; getClosestNode(Position&lt;?&gt; position) {
+<span class="nc" id="L31">        return this</span>
+<span class="nc" id="L32">                .getNodes()</span>
+<span class="nc" id="L33">                .filter(node -&gt; node.getPosition().getWorld().equals(position.getWorld()))</span>
+<span class="nc" id="L34">                .min(Comparator.comparing(node -&gt; node.getPosition().getPosition().distanceSquared(position.getPosition())));</span>
     }
-
-    public void register(@NotNull Line line) {
-<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (this.lines.stream().anyMatch(l -&gt; l.getIdentifier().equals(line.getIdentifier()))) {</span>
-<span class="nc" id="L35">            throw new IllegalArgumentException(&quot;Line of '&quot; + line.getName() + &quot;' is already registered&quot;);</span>
-        }
-<span class="fc" id="L37">        this.lines.add(line);</span>
-<span class="fc" id="L38">    }</span>
-
-    public Stream&lt;Line&gt; loadAll() {
-<span class="nc" id="L41">        return this.loadAll(LINES_DATA_PATH);</span>
-    }
-
-    public Stream&lt;Line&gt; loadAll(File folder) {
-<span class="nc" id="L45">        File[] files = folder.listFiles();</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (null == files) {</span>
-<span class="nc" id="L47">            return Stream.empty();</span>
-        }
-<span class="nc" id="L49">        return Arrays.stream(files).map(file -&gt; {</span>
-            try {
-<span class="nc" id="L51">                return this.load(file);</span>
-<span class="nc" id="L52">            } catch (Exception e) {</span>
-<span class="nc" id="L53">                e.printStackTrace();</span>
-<span class="nc" id="L54">                return null;</span>
-            }
-<span class="nc" id="L56">        }).filter(Objects::nonNull);</span>
-    }
-
-    public Line load(File file) throws Exception {
-<span class="nc" id="L60">        ConfigurationFormat format = this.getFormat(file.getName());</span>
-<span class="nc" id="L61">        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);</span>
-<span class="nc" id="L62">        Map&lt;String, Object&gt; map = config</span>
-<span class="nc" id="L63">                .getMap(new ConfigurationNode())</span>
-<span class="nc" id="L64">                .entrySet()</span>
-<span class="nc" id="L65">                .stream()</span>
-<span class="nc" id="L66">                .collect(Collectors.toMap(entry -&gt; entry.getKey().toString(), Map.Entry::getValue));</span>
-<span class="nc" id="L67">        return Serializers.LINE.deserialize(map);</span>
-    }
-
-    public void save(Line line, File to) throws Exception {
-<span class="nc" id="L71">        ConfigurationFormat format = TranslateCore.getPlatform().getConfigFormat();</span>
-<span class="nc" id="L72">        File file = new File(to, format.getFileType()[0]);</span>
-<span class="nc" id="L73">        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);</span>
-
-<span class="nc" id="L75">        Map&lt;String, Object&gt; map = Serializers.LINE.serialize(line);</span>
-<span class="nc" id="L76">        config.set(new ConfigurationNode(), map);</span>
-<span class="nc" id="L77">        config.save();</span>
-<span class="nc" id="L78">    }</span>
 
     private ConfigurationFormat getFormat(String name) {
-<span class="nc" id="L81">        return this</span>
-<span class="nc" id="L82">                .getFormats()</span>
-<span class="nc" id="L83">                .filter(format -&gt; Arrays.stream(format.getFileType()).anyMatch(t -&gt; name.toLowerCase().endsWith(t.toLowerCase())))</span>
-<span class="nc" id="L84">                .findAny()</span>
-<span class="nc" id="L85">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;No supported format for '&quot; + name + &quot;'&quot;));</span>
+<span class="nc" id="L38">        return this</span>
+<span class="nc" id="L39">                .getFormats()</span>
+<span class="nc" id="L40">                .filter(format -&gt; Arrays.stream(format.getFileType()).anyMatch(t -&gt; name.toLowerCase().endsWith(t.toLowerCase())))</span>
+<span class="nc" id="L41">                .findAny()</span>
+<span class="nc" id="L42">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;No supported format for '&quot; + name + &quot;'&quot;));</span>
     }
 
     private Stream&lt;ConfigurationFormat&gt; getFormats() {
-<span class="nc" id="L89">        return Arrays</span>
-<span class="nc" id="L90">                .stream(ConfigurationFormat.class.getDeclaredFields())</span>
-<span class="nc" id="L91">                .filter(field -&gt; Modifier.isFinal(field.getModifiers()))</span>
-<span class="nc" id="L92">                .filter(field -&gt; Modifier.isPublic(field.getModifiers()))</span>
-<span class="nc" id="L93">                .filter(field -&gt; Modifier.isStatic(field.getModifiers()))</span>
-<span class="nc" id="L94">                .filter(field -&gt; field.getType().isAssignableFrom(ConfigurationFormat.class))</span>
-<span class="nc" id="L95">                .map(field -&gt; {</span>
+<span class="nc" id="L46">        return Arrays</span>
+<span class="nc" id="L47">                .stream(ConfigurationFormat.class.getDeclaredFields())</span>
+<span class="nc" id="L48">                .filter(field -&gt; Modifier.isFinal(field.getModifiers()))</span>
+<span class="nc" id="L49">                .filter(field -&gt; Modifier.isPublic(field.getModifiers()))</span>
+<span class="nc" id="L50">                .filter(field -&gt; Modifier.isStatic(field.getModifiers()))</span>
+<span class="nc" id="L51">                .filter(field -&gt; field.getType().isAssignableFrom(ConfigurationFormat.class))</span>
+<span class="nc" id="L52">                .map(field -&gt; {</span>
                     try {
-<span class="nc" id="L97">                        return (ConfigurationFormat) field.get(null);</span>
-<span class="nc" id="L98">                    } catch (Throwable e) {</span>
+<span class="nc" id="L54">                        return (ConfigurationFormat) field.get(null);</span>
+<span class="nc" id="L55">                    } catch (Throwable e) {</span>
                         //should never hit
-<span class="nc" id="L100">                        e.printStackTrace();</span>
-<span class="nc" id="L101">                        return null;</span>
+<span class="nc" id="L57">                        e.printStackTrace();</span>
+<span class="nc" id="L58">                        return null;</span>
                     }
                 })
-<span class="nc" id="L104">                .filter(Objects::nonNull);</span>
+<span class="nc" id="L61">                .filter(Objects::nonNull);</span>
     }
 
+    public Collection&lt;Line&gt; getLines() {
+<span class="fc" id="L65">        return Collections.unmodifiableCollection(this.lines);</span>
+    }
+
+    public Stream&lt;Line&gt; getLinesFor(Node node) {
+<span class="nc" id="L69">        return this.lines.stream().filter(line -&gt; line.getNodes().contains(node));</span>
+    }
+
+    public Stream&lt;Line&gt; getLinesFor(Node... nodes) {
+<span class="fc" id="L73">        return this.lines.stream().filter(line -&gt; Stream.of(nodes).allMatch(node -&gt; line.getNodes().contains(node)));</span>
+    }
+
+    public Stream&lt;Node&gt; getNodes() {
+<span class="nc" id="L77">        return this.lines.stream().flatMap(node -&gt; node.getNodes().stream()).distinct();</span>
+    }
+
+    public Line load(File file) throws Exception {
+<span class="nc" id="L81">        ConfigurationFormat format = this.getFormat(file.getName());</span>
+<span class="nc" id="L82">        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);</span>
+<span class="nc" id="L83">        Map&lt;String, Object&gt; map = config</span>
+<span class="nc" id="L84">                .getMap(new ConfigurationNode())</span>
+<span class="nc" id="L85">                .entrySet()</span>
+<span class="nc" id="L86">                .stream()</span>
+<span class="nc" id="L87">                .collect(Collectors.toMap(entry -&gt; entry.getKey().toString(), Map.Entry::getValue));</span>
+<span class="nc" id="L88">        return Serializers.LINE.deserialize(map);</span>
+    }
+
+    public Stream&lt;Line&gt; loadAll() {
+<span class="nc" id="L92">        return this.loadAll(LINES_DATA_PATH);</span>
+    }
+
+    public Stream&lt;Line&gt; loadAll(File folder) {
+<span class="nc" id="L96">        File[] files = folder.listFiles();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (null == files) {</span>
+<span class="nc" id="L98">            return Stream.empty();</span>
+        }
+<span class="nc" id="L100">        return Arrays.stream(files).map(file -&gt; {</span>
+            try {
+<span class="nc" id="L102">                return this.load(file);</span>
+<span class="nc" id="L103">            } catch (Exception e) {</span>
+<span class="nc" id="L104">                e.printStackTrace();</span>
+<span class="nc" id="L105">                return null;</span>
+            }
+<span class="nc" id="L107">        }).filter(Objects::nonNull);</span>
+    }
+
+    public void register(@NotNull Line line) {
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (this.lines.stream().anyMatch(l -&gt; l.getIdentifier().equals(line.getIdentifier()))) {</span>
+<span class="nc" id="L112">            throw new IllegalArgumentException(&quot;Line of '&quot; + line.getName() + &quot;' is already registered&quot;);</span>
+        }
+<span class="fc" id="L114">        this.lines.add(line);</span>
+<span class="fc" id="L115">    }</span>
+
+    public void save(Line line, File to) throws Exception {
+<span class="nc" id="L118">        ConfigurationFormat format = TranslateCore.getPlatform().getConfigFormat();</span>
+<span class="nc" id="L119">        File file = new File(to, format.getFileType()[0]);</span>
+<span class="nc" id="L120">        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);</span>
+
+<span class="nc" id="L122">        Map&lt;String, Object&gt; map = Serializers.LINE.serialize(line);</span>
+<span class="nc" id="L123">        config.set(new ConfigurationNode(), map);</span>
+<span class="nc" id="L124">        config.save();</span>
+<span class="nc" id="L125">    }</span>
+
     public void update(@NotNull Line line) {
-<span class="nc" id="L108">        List&lt;Line&gt; toRemove = this.lines.stream().filter(l -&gt; l.getName().equals(line.getName())).toList();</span>
-<span class="nc" id="L109">        this.lines.removeAll(toRemove);</span>
-<span class="nc" id="L110">        this.lines.add(line);</span>
-<span class="nc" id="L111">    }</span>
+<span class="nc" id="L128">        List&lt;Line&gt; toRemove = this.lines.stream().filter(l -&gt; l.getName().equals(line.getName())).toList();</span>
+<span class="nc" id="L129">        this.lines.removeAll(toRemove);</span>
+<span class="nc" id="L130">        this.lines.add(line);</span>
+<span class="nc" id="L131">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

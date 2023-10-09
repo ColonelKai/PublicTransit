@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Serializers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.utils.serializers</a> &gt; <span class="el_source">Serializers.java</span></div><h1>Serializers.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.utils.serializers;
 
 import org.colonelkai.publictransit.line.Line;
-import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
-import org.colonelkai.publictransit.utils.serializers.CostTypeSerializer;
-import org.colonelkai.publictransit.utils.serializers.NodeTypeSerializer;
-import org.colonelkai.publictransit.utils.serializers.PositionSerializer;
 import org.easy.config.Serializer;
 import org.easy.config.auto.AutoSerializer;
 
@@ -21,20 +17,22 @@ public class Serializers {
     public static final NodeTypeSerializer NODE_TYPE;
     public static final CostTypeSerializer COST_TYPE;
     public static final LineDirectionSerializer LINE_DIRECTION;
+    public static final ComponentSerializer COMPONENT;
 
     static {
-<span class="fc" id="L26">        POSITION = new PositionSerializer();</span>
-<span class="fc" id="L27">        NODE_TYPE = new NodeTypeSerializer();</span>
-<span class="fc" id="L28">        COST_TYPE = new CostTypeSerializer();</span>
-<span class="fc" id="L29">        LINE_DIRECTION = new LineDirectionSerializer();</span>
+<span class="fc" id="L23">        POSITION = new PositionSerializer();</span>
+<span class="fc" id="L24">        NODE_TYPE = new NodeTypeSerializer();</span>
+<span class="fc" id="L25">        COST_TYPE = new CostTypeSerializer();</span>
+<span class="fc" id="L26">        LINE_DIRECTION = new LineDirectionSerializer();</span>
+<span class="fc" id="L27">        COMPONENT = new ComponentSerializer();</span>
 
-<span class="fc" id="L31">        Supplier&lt;Collection&lt;Serializer&lt;?, ?&gt;&gt;&gt; supplier = () -&gt; Arrays.asList(NODE_TYPE, COST_TYPE, POSITION, LINE_DIRECTION);</span>
-<span class="fc" id="L32">        LINE = new AutoSerializer&lt;&gt;(Line.class, supplier);</span>
-<span class="fc" id="L33">        NODE = new AutoSerializer&lt;&gt;(Node.class, supplier);</span>
-<span class="fc" id="L34">    }</span>
+<span class="fc" id="L29">        Supplier&lt;Collection&lt;Serializer&lt;?, ?&gt;&gt;&gt; supplier = () -&gt; Arrays.asList(NODE_TYPE, COST_TYPE, POSITION, LINE_DIRECTION, COMPONENT);</span>
+<span class="fc" id="L30">        LINE = new AutoSerializer&lt;&gt;(Line.class, supplier);</span>
+<span class="fc" id="L31">        NODE = new AutoSerializer&lt;&gt;(Node.class, supplier);</span>
+<span class="fc" id="L32">    }</span>
 
-<span class="nc" id="L36">    private Serializers(){</span>
-<span class="nc" id="L37">        throw new RuntimeException(&quot;Should not create&quot;);</span>
+<span class="nc" id="L34">    private Serializers(){</span>
+<span class="nc" id="L35">        throw new RuntimeException(&quot;Should not create&quot;);</span>
     }
 
 }

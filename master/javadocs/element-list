@@ -1,6 +1,7 @@
 org.colonelkai.publictransit
 org.colonelkai.publictransit.commands
 org.colonelkai.publictransit.commands.arguments
+org.colonelkai.publictransit.commands.cost
 org.colonelkai.publictransit.config
 org.colonelkai.publictransit.config.node
 org.colonelkai.publictransit.line

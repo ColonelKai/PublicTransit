@@ -117,14 +117,14 @@ implements <a href="../utils/Buildable.html" title="interface in org.colonelkai.
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getIdentifier()" class="member-name-link">getIdentifier</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://minecraft-ships.github.io/TranslateCore/org/core/adventureText/AText.html" title="class or interface in org.core.adventureText" class="external-link">AText</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.kyori.adventure.text.Component</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName()" class="member-name-link">getName</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNodes()" class="member-name-link">getNodes</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNodesBetween(org.colonelkai.publictransit.node.Node,org.colonelkai.publictransit.node.Node)" class="member-name-link">getNodesBetween</a><wbr>(<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&nbsp;node,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNodesBetween(org.colonelkai.publictransit.node.Node,org.colonelkai.publictransit.node.Node)" class="member-name-link">getNodesBetween</a><wbr>(<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&nbsp;start,
  <a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&nbsp;end)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&gt;</code></div>
@@ -216,6 +216,12 @@ implements <a href="../utils/Buildable.html" title="interface in org.colonelkai.
 </section>
 </li>
 <li>
+<section class="detail" id="getName()">
+<h3>getName</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.kyori.adventure.text.Component</span>&nbsp;<span class="element-name">getName</span>()</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getDirection()">
 <h3>getDirection</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="LineDirection.html" title="enum class in org.colonelkai.publictransit.line">LineDirection</a></span>&nbsp;<span class="element-name">getDirection</span>()</div>
@@ -228,12 +234,6 @@ implements <a href="../utils/Buildable.html" title="interface in org.colonelkai.
 </section>
 </li>
 <li>
-<section class="detail" id="getName()">
-<h3>getName</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://minecraft-ships.github.io/TranslateCore/org/core/adventureText/AText.html" title="class or interface in org.core.adventureText" class="external-link">AText</a></span>&nbsp;<span class="element-name">getName</span>()</div>
-</section>
-</li>
-<li>
 <section class="detail" id="getNodes()">
 <h3>getNodes</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&gt;</span>&nbsp;<span class="element-name">getNodes</span>()</div>
@@ -242,7 +242,7 @@ implements <a href="../utils/Buildable.html" title="interface in org.colonelkai.
 <li>
 <section class="detail" id="getNodesBetween(org.colonelkai.publictransit.node.Node,org.colonelkai.publictransit.node.Node)">
 <h3>getNodesBetween</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&gt;</span>&nbsp;<span class="element-name">getNodesBetween</span><wbr><span class="parameters">(<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&nbsp;node,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&gt;</span>&nbsp;<span class="element-name">getNodesBetween</span><wbr><span class="parameters">(<a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&nbsp;start,
  <a href="../node/Node.html" title="class in org.colonelkai.publictransit.node">Node</a>&nbsp;end)</span></div>
 </section>
 </li>
