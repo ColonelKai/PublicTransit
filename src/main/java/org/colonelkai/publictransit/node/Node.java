@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.node;
 
+import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.serializers.NodeTypeSerializer;
 import org.colonelkai.publictransit.utils.serializers.PositionSerializer;
@@ -79,7 +80,8 @@ public class Node implements Buildable<NodeBuilder, Node> {
             return false;
         }
         double distance = position.getPosition().distanceSquared(this.location.getPosition());
-        return 10 > distance;
+        double configDistance = PublicTransit.getPlugin().getConfig().getPlayerDistanceFromNode();
+        return distance < configDistance;
 
     }
 

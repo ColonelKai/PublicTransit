@@ -33,4 +33,8 @@ public class Serializers {
         NODE = new AutoSerializer<>(Node.class, supplier);
     }
 
+    private Serializers(){
+        throw new RuntimeException("Should not create");
+    }
+
 }
