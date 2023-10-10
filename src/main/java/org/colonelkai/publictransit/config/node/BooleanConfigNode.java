@@ -13,11 +13,11 @@ public class BooleanConfigNode extends AbstractConfigNode<Boolean> {
 
     @Override
     protected @NotNull Optional<Boolean> get(@NotNull ConfigurationStream stream) {
-        return stream.getString(this.getPath()).map(Boolean::valueOf); // I think?
+        return stream.getBoolean(this.getPath());
     }
 
     @Override
     protected void set(@NotNull ConfigurationStream stream, @NotNull Boolean value) {
-        stream.set(this.getPath(), value.toString());
+        stream.set(this.getPath(), value);
     }
 }
