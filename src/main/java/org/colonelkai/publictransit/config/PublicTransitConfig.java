@@ -6,7 +6,6 @@ import org.core.TranslateCore;
 import org.core.config.ConfigurationStream;
 
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -31,7 +30,7 @@ public class PublicTransitConfig implements Config {
     public void updateFile() {
         this.getNodes().forEach(node -> {
             try {
-                node.currentValue(this.config);
+                node.getRaw(this.config);
             } catch (Throwable e) {
                 this.setDefaultValue(node);
             }
@@ -61,7 +60,7 @@ public class PublicTransitConfig implements Config {
     }
 
     public double getPlayerDistanceFromNode() {
-        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);
+        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.getRaw(this.config);
     }
 
     public void setPlayerDistanceFromNode(double amount) {
