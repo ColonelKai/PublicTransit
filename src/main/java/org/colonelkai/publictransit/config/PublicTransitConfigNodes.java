@@ -1,9 +1,6 @@
 package org.colonelkai.publictransit.config;
 
-import org.colonelkai.publictransit.config.node.BooleanConfigNode;
-import org.colonelkai.publictransit.config.node.CostTypeConfigNode;
-import org.colonelkai.publictransit.config.node.DoubleConfigNode;
-import org.colonelkai.publictransit.config.node.ParserConfigNode;
+import org.colonelkai.publictransit.config.node.*;
 import org.colonelkai.publictransit.line.CostType;
 import org.core.config.ConfigurationNode;
 
@@ -24,4 +21,5 @@ interface PublicTransitConfigNodes {
     // Economy Settings
 
     BooleanConfigNode USE_DEPOSIT_ACCOUNT = new BooleanConfigNode(new ConfigurationNode("economy", "depositaccount", "use"), false);
+    StringConfigNode DEPOSIT_ACCOUNT = new StringConfigNode(new ConfigurationNode("economy", "depositaccount", "name"), "Government");
 }
