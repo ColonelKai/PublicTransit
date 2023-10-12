@@ -1,10 +1,15 @@
 package org.colonelkai.publictransit.config;
 
-import org.colonelkai.publictransit.config.node.DoubleConfigNode;
+import org.colonelkai.publictransit.config.node.ConfigNode;
+import org.colonelkai.publictransit.config.node.ConfigNodeBuilder;
+import org.colonelkai.publictransit.config.node.type.DoubleNodeType;
 import org.core.config.ConfigurationNode;
 
-interface PublicTransitConfigNodes {
+public interface PublicTransitConfigNodes {
 
-    DoubleConfigNode PLAYER_DISTANCE_FROM_NODE = new DoubleConfigNode(new ConfigurationNode("node", "distance", "player"), 10);
-
+    ConfigNode<Double> PLAYER_DISTANCE_FROM_NODE = new ConfigNodeBuilder()
+            .type(DoubleNodeType.class)
+            .setDefault(10)
+            .setPath("node", "distance", "player")
+            .build();
 }
