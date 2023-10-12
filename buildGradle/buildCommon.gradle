@@ -43,6 +43,7 @@ ext.download = { String repoName ->
 ext.downloadAll = { ->
     download("TranslateCore")
     download("CoreToFolia")
+    download("CoreToSponge")
 }
 
 ext.combined = { String translator, String translatorName, String exportPath, Consumer<ZipOutputStream> extra ->
@@ -75,7 +76,7 @@ ext.combined = { String translator, String translatorName, String exportPath, Co
         var zipFile = new ZipFile(zipPath)
         zipFile.stream().forEach((ZipEntry entry) -> {
             var name = entry.getName()
-            if (name.contains("plugin.yml")) {
+            if (name.contains("paper-plugin.yml")) {
                 return
             }
             if (entered.contains(name)) {
