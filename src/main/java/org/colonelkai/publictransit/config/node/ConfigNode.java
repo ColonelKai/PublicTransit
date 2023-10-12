@@ -12,9 +12,9 @@ public interface ConfigNode<V> {
 
     @NotNull V defaultValue();
 
-    @NotNull V getRaw(@NotNull ConfigurationStream stream);
+    @NotNull V getRaw();
 
-    @NotNull Optional<V> getParsed(@NotNull ConfigurationStream stream);
+    @NotNull Optional<V> getParsed();
 
     void reset();
 

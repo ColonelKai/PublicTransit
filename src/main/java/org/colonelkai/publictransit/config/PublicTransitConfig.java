@@ -30,7 +30,7 @@ public class PublicTransitConfig implements Config {
     public void updateFile() {
         this.getNodes().forEach(node -> {
             try {
-                node.getRaw(this.config);
+                node.getRaw();
             } catch (Throwable e) {
                 this.setDefaultValue(node);
             }
@@ -59,13 +59,6 @@ public class PublicTransitConfig implements Config {
                 .filter(Objects::nonNull);
     }
 
-    public double getPlayerDistanceFromNode() {
-        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.getRaw(this.config);
-    }
-
-    public void setPlayerDistanceFromNode(double amount) {
-        PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);
-    }
 
     private <T> void setDefaultValue(ConfigNode<T> node) {
         node.setValue(this.config, node.defaultValue());

@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.config.node;
 
+import org.colonelkai.publictransit.PublicTransit;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +43,9 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
     }
 
     @Override
-    public @NotNull T getRaw(@NotNull ConfigurationStream stream) {
+    public @NotNull T getRaw() {
+        ConfigurationStream stream = PublicTransit.getPlugin().getConfig().getFile();
+
         if (this.lastKnown == null) {
             this.lastKnown = this.get(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
         }
@@ -62,7 +65,7 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
     }
 
     @Override
-    public @NotNull Optional<T> getParsed(@NotNull ConfigurationStream stream) {
-        return this.parseFunc.apply(this.getRaw(stream));
+    public @NotNull Optional<T> getParsed() {
+        return this.parseFunc.apply(this.getRaw());
     }
 }
