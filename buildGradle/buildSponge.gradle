@@ -1,0 +1,64 @@
+import java.nio.charset.StandardCharsets
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
+tasks.register("buildSponge") {
+    group = "translate core"
+    description = "Build Sponge plugin"
+    dependsOn("setup")
+    dependsOn("TranslateCore:build")
+    dependsOn("CoreToSponge:build")
+    dependsOn("build")
+    doLast {
+        String exportPath = getProperty("exportToSponge")
+        combined("CoreToSponge", "Sponge", exportPath, (ZipOutputStream zos) -> {
+            var dependencies = Map.of("spongeapi", "8.0.0");
+            var name = "PublicTransit";
+            var id = name.toLowerCase()
+            var description = ""
+
+
+            var entry = new ZipEntry("META-INF/sponge_plugins.json")
+            zos.putNextEntry(entry)
+            var stringBuilder = new StringBuilder();
+            stringBuilder.append("{\n")
+            stringBuilder.append("\t\"loader\": {\n")
+            stringBuilder.append("\t\t\"name\": \"java_plain\",\n")
+            stringBuilder.append("\t\t\"version\": \"1.0\"\n")
+            stringBuilder.append("\t},\n")
+            stringBuilder.append("\t\"license\": \"All rights reserved\",\n")
+            stringBuilder.append("\t\"global\": {\n")
+            stringBuilder.append("\t\t\"version\": \"" + version + "\",\n")
+            stringBuilder.append("\t\t\"dependencies\": [\n")
+            dependencies.forEach((dependId, dependVersion) -> {
+                stringBuilder.append("\t\t\t{\n")
+                stringBuilder.append("\t\t\t\t\"id\": \"" + dependId + "\",\n")
+                stringBuilder.append("\t\t\t\t\"version\": \"" + dependVersion + "\"\n")
+                stringBuilder.append("\t\t\t}\n")
+            })
+            stringBuilder.append("\t\t]\n")
+            stringBuilder.append("\t},\n")
+            stringBuilder.append("\t\"plugins\": [\n")
+            stringBuilder.append("\t\t{\n")
+
+            stringBuilder.append("\t\t\t\"id\": \"" + id + "\",\n")
+            stringBuilder.append("\t\t\t\"name\": \"" + name + "\",\n")
+            stringBuilder.append("\t\t\t\"entrypoint\": \"org.core.implementation.sponge.platform.plugin.boot.TranslateCoreBoot\",\n")
+            stringBuilder.append("\t\t\t\"description\": \"" + description + "\"\n")
+
+            stringBuilder.append("\t\t}\n")
+            stringBuilder.append("\t]\n")
+            stringBuilder.append("}")
+
+            var byteIS = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))
+            byte[] bytes = new byte[1024];
+
+            int length;
+            while ((length = byteIS.read(bytes)) >= 0) {
+                zos.write(bytes, 0, length)
+            }
+            byteIS.close()
+            zos.closeEntry()
+        })
+    }
+}

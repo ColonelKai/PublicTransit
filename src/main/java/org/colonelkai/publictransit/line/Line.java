@@ -8,8 +8,15 @@ import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.Savable;
+import org.core.entity.Entity;
+import org.core.entity.InventoryHoldingEntity;
+import org.core.entity.living.human.player.Player;
+import org.core.inventory.Inventory;
+import org.core.inventory.item.stack.ItemStack;
+import org.core.inventory.parts.Slot;
 import org.core.utils.ComponentUtils;
 import org.easy.config.auto.annotations.ConfigConstructor;
+import org.easy.config.auto.annotations.ConfigField;
 import org.easy.config.auto.annotations.ConfigList;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,8 +37,18 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
     private final boolean isBiDirectional;
     private final LineDirection direction;
 
+    @ConfigField(optional = true)
+    private final Integer weight;
+
     @ConfigConstructor
-    private Line(String identifier, Component name, List<Node> nodes, double cost, CostType costType, boolean isBiDirectional, LineDirection direction) {
+    private Line(String identifier,
+                 Component name,
+                 List<Node> nodes,
+                 double cost,
+                 CostType costType,
+                 boolean isBiDirectional,
+                 LineDirection direction,
+                 Integer weight) {
         this.identifier = identifier;
         this.name = name;
         this.costType = costType;
@@ -40,6 +57,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.isBiDirectional = isBiDirectional;
         this.nodes = new ArrayList<>(nodes);
         this.validate(this.nodes);
+        this.weight = weight;
     }
 
     Line(@NotNull LineBuilder builder) {
@@ -54,6 +72,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
             throw new IllegalStateException("direction must be set if bi-direction is disabled");
         }
         this.direction = Objects.requireNonNullElse(direction, LineDirection.POSITIVE);
+        this.weight = builder.weight();
         this.validate(this.nodes);
     }
 
@@ -62,6 +81,33 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         nodes.add(node);
         this.validate(nodes);
         this.nodes.add(node);
+    }
+
+    public OptionalInt getWeight() {
+        if (null != this.weight) {
+            return OptionalInt.of(this.weight);
+        }
+        return PublicTransit.getPlugin().getConfig().getMaximumWeight();
+    }
+
+    public boolean isValidWeight(InventoryHoldingEntity<? extends Entity<?>> player) {
+        return this.isValidWeight(player.getInventory());
+    }
+
+    public boolean isValidWeight(Inventory inventory) {
+        OptionalInt opWeight = this.getWeight();
+        if (opWeight.isEmpty()) {
+            return true;
+        }
+        long currentWeight = inventory
+                .getSlots()
+                .stream()
+                .map(Slot::getItem)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .mapToInt(ItemStack::getQuantity)
+                .count();
+        return opWeight.getAsInt() > currentWeight;
     }
 
     @Override
@@ -82,7 +128,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.costType;
     }
 
-    public Component getName(){
+    public Component getName() {
         return this.name;
     }
 
@@ -98,14 +144,14 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return Collections.unmodifiableList(this.nodes);
     }
 
-    public List<Node> getNodesBetween(Node start, Node end){
+    public List<Node> getNodesBetween(Node start, Node end) {
         return this.getNodesBetween(start, end, true);
     }
 
     public List<Node> getNodesBetween(Node start, Node end, boolean includeEnd) {
         int startIndex = this.nodes.indexOf(start);
         int endIndex = this.nodes.indexOf(end);
-        if(includeEnd){
+        if (includeEnd) {
             endIndex++;
         }
         return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));
