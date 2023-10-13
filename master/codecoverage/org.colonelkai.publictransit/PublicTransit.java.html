@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PublicTransit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit</a> &gt; <span class="el_source">PublicTransit.java</span></div><h1>PublicTransit.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit;
 
-
 import org.colonelkai.publictransit.config.PublicTransitConfig;
-import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
 import org.core.platform.plugin.CorePlugin;
@@ -17,68 +15,68 @@ public class PublicTransit implements CorePlugin {
     private Object launcher;
     private Logger logger;
 
-<span class="nc" id="L20">    public PublicTransit() {</span>
-<span class="nc" id="L21">        plugin = this;</span>
-<span class="nc" id="L22">        this.nodeManager = new NodeManager();</span>
-<span class="nc" id="L23">        this.config = new PublicTransitConfig();</span>
-<span class="nc" id="L24">    }</span>
+<span class="nc" id="L18">    public PublicTransit() {</span>
+<span class="nc" id="L19">        plugin = this;</span>
+<span class="nc" id="L20">        this.nodeManager = new NodeManager();</span>
+<span class="nc" id="L21">        this.config = new PublicTransitConfig();</span>
+<span class="nc" id="L22">    }</span>
 
     public Logger getLogger() {
-<span class="nc" id="L27">        return this.logger;</span>
+<span class="nc" id="L25">        return this.logger;</span>
     }
 
     public PublicTransitConfig getConfig() {
-<span class="nc" id="L31">        return this.config;</span>
+<span class="nc" id="L29">        return this.config;</span>
     }
 
     public NodeManager getNodeManager() {
-<span class="nc" id="L35">        return this.nodeManager;</span>
+<span class="nc" id="L33">        return this.nodeManager;</span>
     }
 
     @Override
     public @NotNull String getPluginName() {
-<span class="nc" id="L40">        return &quot;PublicTransit&quot;;</span>
+<span class="nc" id="L38">        return &quot;PublicTransit&quot;;</span>
     }
 
     @Override
     public @NotNull String getPluginId() {
-<span class="nc" id="L45">        return &quot;public_transit&quot;;</span>
+<span class="nc" id="L43">        return &quot;public_transit&quot;;</span>
     }
 
     @Override
     public @NotNull Object getPlatformLauncher() {
-<span class="nc" id="L50">        return this.launcher;</span>
+<span class="nc" id="L48">        return this.launcher;</span>
     }
 
     @Override
     public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
-<span class="nc" id="L55">        this.launcher = pluginLauncher;</span>
-<span class="nc" id="L56">        this.logger = logger;</span>
-<span class="nc" id="L57">    }</span>
+<span class="nc" id="L53">        this.launcher = pluginLauncher;</span>
+<span class="nc" id="L54">        this.logger = logger;</span>
+<span class="nc" id="L55">    }</span>
 
     @Override
     public void onRegisterCommands(@NotNull CommandRegister register) {
 
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L60">    }</span>
 
     @Override
     public @NotNull String getLicence() {
-<span class="nc" id="L66">        return &quot;All Rights Reserved&quot;;</span>
+<span class="nc" id="L64">        return &quot;All Rights Reserved&quot;;</span>
     }
 
     @Override
     public @NotNull CorePluginVersion getPluginVersion() {
-<span class="nc" id="L71">        return new CorePluginVersion(0, 0, 1);</span>
+<span class="nc" id="L69">        return new CorePluginVersion(0, 0, 1);</span>
     }
 
     @Override
     public void onCoreReady() {
-<span class="nc" id="L76">        this.nodeManager.loadAll().forEach(this.nodeManager::register);</span>
-<span class="nc" id="L77">        this.logger.log(&quot;Loaded lines: &quot; + this.nodeManager.getLines().size());</span>
-<span class="nc" id="L78">    }</span>
+<span class="nc" id="L74">        this.nodeManager.loadAll().forEach(this.nodeManager::register);</span>
+<span class="nc" id="L75">        this.logger.log(&quot;Loaded lines: &quot; + this.nodeManager.getLines().size());</span>
+<span class="nc" id="L76">    }</span>
 
     public static PublicTransit getPlugin() {
-<span class="nc" id="L81">        return plugin;</span>
+<span class="nc" id="L79">        return plugin;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
