@@ -8,68 +8,72 @@ import org.core.config.ConfigurationStream;
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 public class PublicTransitConfig implements Config {
 
-<span class="nc" id="L15">    private static final File FILE = new File(PublicTransit.getPlugin().getConfigFolder(),</span>
-<span class="nc" id="L16">                                              &quot;config.&quot; + TranslateCore.getPlatform().getConfigFormat().getFileType()[0]);</span>
+<span class="nc" id="L16">    private static final File FILE = new File(PublicTransit.getPlugin().getConfigFolder(),</span>
+<span class="nc" id="L17">                                              &quot;config.&quot; + TranslateCore.getPlatform().getConfigFormat().getFileType()[0]);</span>
 
     private ConfigurationStream.ConfigurationFile config;
 
-<span class="nc" id="L20">    public PublicTransitConfig() {</span>
-<span class="nc" id="L21">        this.reloadFile();</span>
-<span class="nc" id="L22">        this.updateFile();</span>
-<span class="nc" id="L23">    }</span>
+<span class="nc" id="L21">    public PublicTransitConfig() {</span>
+<span class="nc" id="L22">        this.reloadFile();</span>
+<span class="nc" id="L23">        this.updateFile();</span>
+<span class="nc" id="L24">    }</span>
 
     @Override
     public ConfigurationStream.ConfigurationFile getFile() {
-<span class="nc" id="L27">        return this.config;</span>
+<span class="nc" id="L28">        return this.config;</span>
     }
 
     @Override
     public void updateFile() {
-<span class="nc" id="L32">        this.getNodes().forEach(node -&gt; {</span>
+<span class="nc" id="L33">        this.getNodes().forEach(node -&gt; {</span>
             try {
-<span class="nc" id="L34">                node.currentValue(this.config);</span>
-<span class="nc" id="L35">            } catch (Throwable e) {</span>
-<span class="nc" id="L36">                this.setDefaultValue(node);</span>
-<span class="nc" id="L37">            }</span>
-<span class="nc" id="L38">        });</span>
-<span class="nc" id="L39">    }</span>
+<span class="nc" id="L35">                node.currentValue(this.config);</span>
+<span class="nc" id="L36">            } catch (Throwable e) {</span>
+<span class="nc" id="L37">                this.setDefaultValue(node);</span>
+<span class="nc" id="L38">            }</span>
+<span class="nc" id="L39">        });</span>
+<span class="nc" id="L40">    }</span>
 
     @Override
     public void reloadFile() {
-<span class="nc" id="L43">        this.config = TranslateCore.createConfigurationFile(FILE, TranslateCore.getPlatform().getConfigFormat());</span>
-<span class="nc" id="L44">        this.getNodes().forEach(ConfigNode::reset);</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L44">        this.config = TranslateCore.createConfigurationFile(FILE, TranslateCore.getPlatform().getConfigFormat());</span>
+<span class="nc" id="L45">        this.getNodes().forEach(ConfigNode::reset);</span>
+<span class="nc" id="L46">    }</span>
 
     @Override
     public Stream&lt;? extends ConfigNode&lt;?&gt;&gt; getNodes() {
-<span class="nc" id="L49">        return Stream</span>
-<span class="nc" id="L50">                .of(PublicTransitConfigNodes.class.getDeclaredFields())</span>
-<span class="nc" id="L51">                .filter(field -&gt; field.getType().isAssignableFrom(ConfigNode.class))</span>
-<span class="nc" id="L52">                .map(field -&gt; {</span>
-                    try {
-<span class="nc" id="L54">                        return (ConfigNode&lt;?&gt;) field.get(null);</span>
-<span class="nc" id="L55">                    } catch (IllegalAccessException e) {</span>
-<span class="nc" id="L56">                        e.printStackTrace();</span>
-<span class="nc" id="L57">                        return null;</span>
-                    }
-                })
-<span class="nc" id="L60">                .filter(Objects::nonNull);</span>
+<span class="nc" id="L50">        return Stream.of(PublicTransitConfigNodes.class.getDeclaredFields()).filter(field -&gt; field.getType().isAssignableFrom(ConfigNode.class)).map(field -&gt; {</span>
+            try {
+<span class="nc" id="L52">                return (ConfigNode&lt;?&gt;) field.get(null);</span>
+<span class="nc" id="L53">            } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L54">                e.printStackTrace();</span>
+<span class="nc" id="L55">                return null;</span>
+            }
+<span class="nc" id="L57">        }).filter(Objects::nonNull);</span>
     }
 
     public double getPlayerDistanceFromNode() {
-<span class="nc" id="L64">        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);</span>
+<span class="nc" id="L61">        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);</span>
     }
 
     public void setPlayerDistanceFromNode(double amount) {
-<span class="nc" id="L68">        PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);</span>
-<span class="nc" id="L69">    }</span>
+<span class="nc" id="L65">        PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);</span>
+<span class="nc" id="L66">    }</span>
 
     private &lt;T&gt; void setDefaultValue(ConfigNode&lt;T&gt; node) {
-<span class="nc" id="L72">        node.setValue(this.config, node.defaultValue());</span>
-<span class="nc" id="L73">    }</span>
+<span class="nc" id="L69">        node.setValue(this.config, node.defaultValue());</span>
+<span class="nc" id="L70">    }</span>
+
+    public OptionalInt getMaximumWeight() {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (!PublicTransitConfigNodes.WEIGHT_ENABLED.currentValue(this.config)) {</span>
+<span class="nc" id="L74">            return OptionalInt.empty();</span>
+        }
+<span class="nc" id="L76">        return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.currentValue(this.config));</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -8,8 +8,15 @@ import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.Savable;
+import org.core.entity.Entity;
+import org.core.entity.InventoryHoldingEntity;
+import org.core.entity.living.human.player.Player;
+import org.core.inventory.Inventory;
+import org.core.inventory.item.stack.ItemStack;
+import org.core.inventory.parts.Slot;
 import org.core.utils.ComponentUtils;
 import org.easy.config.auto.annotations.ConfigConstructor;
+import org.easy.config.auto.annotations.ConfigField;
 import org.easy.config.auto.annotations.ConfigList;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,132 +37,171 @@ public class Line implements Buildable&lt;LineBuilder, Line&gt;, Savable {
     private final boolean isBiDirectional;
     private final LineDirection direction;
 
-    @ConfigConstructor
-<span class="fc" id="L34">    private Line(String identifier, Component name, List&lt;Node&gt; nodes, double cost, CostType costType, boolean isBiDirectional, LineDirection direction) {</span>
-<span class="fc" id="L35">        this.identifier = identifier;</span>
-<span class="fc" id="L36">        this.name = name;</span>
-<span class="fc" id="L37">        this.costType = costType;</span>
-<span class="fc" id="L38">        this.cost = cost;</span>
-<span class="fc" id="L39">        this.direction = direction;</span>
-<span class="fc" id="L40">        this.isBiDirectional = isBiDirectional;</span>
-<span class="fc" id="L41">        this.nodes = new ArrayList&lt;&gt;(nodes);</span>
-<span class="fc" id="L42">        this.validate(this.nodes);</span>
-<span class="fc" id="L43">    }</span>
+    @ConfigField(optional = true)
+    private final Integer weight;
 
-<span class="fc" id="L45">    Line(@NotNull LineBuilder builder) {</span>
-<span class="fc" id="L46">        this.identifier = Objects.requireNonNull(builder.identifier());</span>
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        this.name = Objects.requireNonNullElse((null == builder.name()) ? null : builder.name(), ComponentUtils.fromPlain(this.identifier));</span>
-<span class="fc" id="L48">        this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();</span>
-<span class="fc" id="L49">        this.cost = Objects.requireNonNull(builder.cost());</span>
-<span class="fc" id="L50">        this.costType = Objects.requireNonNull(builder.costType());</span>
-<span class="fc" id="L51">        this.isBiDirectional = builder.isBiDirectional();</span>
-<span class="fc" id="L52">        LineDirection direction = builder.direction();</span>
-<span class="pc bpc" id="L53" title="1 of 4 branches missed.">        if (!this.isBiDirectional &amp;&amp; (null == direction)) {</span>
-<span class="nc" id="L54">            throw new IllegalStateException(&quot;direction must be set if bi-direction is disabled&quot;);</span>
+    @ConfigConstructor
+    private Line(String identifier,
+                 Component name,
+                 List&lt;Node&gt; nodes,
+                 double cost,
+                 CostType costType,
+                 boolean isBiDirectional,
+                 LineDirection direction,
+<span class="fc" id="L51">                 Integer weight) {</span>
+<span class="fc" id="L52">        this.identifier = identifier;</span>
+<span class="fc" id="L53">        this.name = name;</span>
+<span class="fc" id="L54">        this.costType = costType;</span>
+<span class="fc" id="L55">        this.cost = cost;</span>
+<span class="fc" id="L56">        this.direction = direction;</span>
+<span class="fc" id="L57">        this.isBiDirectional = isBiDirectional;</span>
+<span class="fc" id="L58">        this.nodes = new ArrayList&lt;&gt;(nodes);</span>
+<span class="fc" id="L59">        this.validate(this.nodes);</span>
+<span class="fc" id="L60">        this.weight = weight;</span>
+<span class="fc" id="L61">    }</span>
+
+<span class="fc" id="L63">    Line(@NotNull LineBuilder builder) {</span>
+<span class="fc" id="L64">        this.identifier = Objects.requireNonNull(builder.identifier());</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        this.name = Objects.requireNonNullElse((null == builder.name()) ? null : builder.name(), ComponentUtils.fromPlain(this.identifier));</span>
+<span class="fc" id="L66">        this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();</span>
+<span class="fc" id="L67">        this.cost = Objects.requireNonNull(builder.cost());</span>
+<span class="fc" id="L68">        this.costType = Objects.requireNonNull(builder.costType());</span>
+<span class="fc" id="L69">        this.isBiDirectional = builder.isBiDirectional();</span>
+<span class="fc" id="L70">        LineDirection direction = builder.direction();</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (!this.isBiDirectional &amp;&amp; (null == direction)) {</span>
+<span class="nc" id="L72">            throw new IllegalStateException(&quot;direction must be set if bi-direction is disabled&quot;);</span>
         }
-<span class="fc" id="L56">        this.direction = Objects.requireNonNullElse(direction, LineDirection.POSITIVE);</span>
-<span class="fc" id="L57">        this.validate(this.nodes);</span>
-<span class="fc" id="L58">    }</span>
+<span class="fc" id="L74">        this.direction = Objects.requireNonNullElse(direction, LineDirection.POSITIVE);</span>
+<span class="fc" id="L75">        this.weight = builder.weight();</span>
+<span class="fc" id="L76">        this.validate(this.nodes);</span>
+<span class="fc" id="L77">    }</span>
 
     public void addNode(Node node) {
-<span class="nc" id="L61">        Collection&lt;Node&gt; nodes = new ArrayList&lt;&gt;(this.nodes);</span>
-<span class="nc" id="L62">        nodes.add(node);</span>
-<span class="nc" id="L63">        this.validate(nodes);</span>
-<span class="nc" id="L64">        this.nodes.add(node);</span>
-<span class="nc" id="L65">    }</span>
+<span class="nc" id="L80">        Collection&lt;Node&gt; nodes = new ArrayList&lt;&gt;(this.nodes);</span>
+<span class="nc" id="L81">        nodes.add(node);</span>
+<span class="nc" id="L82">        this.validate(nodes);</span>
+<span class="nc" id="L83">        this.nodes.add(node);</span>
+<span class="nc" id="L84">    }</span>
+
+    public OptionalInt getWeight() {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (null != this.weight) {</span>
+<span class="fc" id="L88">            return OptionalInt.of(this.weight);</span>
+        }
+<span class="nc" id="L90">        return PublicTransit.getPlugin().getConfig().getMaximumWeight();</span>
+    }
+
+    public boolean isValidWeight(InventoryHoldingEntity&lt;? extends Entity&lt;?&gt;&gt; player) {
+<span class="nc" id="L94">        return this.isValidWeight(player.getInventory());</span>
+    }
+
+    public boolean isValidWeight(Inventory inventory) {
+<span class="fc" id="L98">        OptionalInt opWeight = this.getWeight();</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (opWeight.isEmpty()) {</span>
+<span class="nc" id="L100">            return true;</span>
+        }
+<span class="fc" id="L102">        long currentWeight = inventory</span>
+<span class="fc" id="L103">                .getSlots()</span>
+<span class="fc" id="L104">                .stream()</span>
+<span class="fc" id="L105">                .map(Slot::getItem)</span>
+<span class="fc" id="L106">                .filter(Optional::isPresent)</span>
+<span class="fc" id="L107">                .map(Optional::get)</span>
+<span class="fc" id="L108">                .mapToInt(ItemStack::getQuantity)</span>
+<span class="fc" id="L109">                .count();</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        return opWeight.getAsInt() &gt; currentWeight;</span>
+    }
 
     @Override
     public File defaultFile() {
-<span class="nc" id="L69">        return new File(NodeManager.LINES_DATA_PATH, this.identifier);</span>
+<span class="nc" id="L115">        return new File(NodeManager.LINES_DATA_PATH, this.identifier);</span>
     }
 
     @Override
     public void save(File file) throws Exception {
-<span class="nc" id="L74">        PublicTransit.getPlugin().getNodeManager().save(this, file);</span>
-<span class="nc" id="L75">    }</span>
+<span class="nc" id="L120">        PublicTransit.getPlugin().getNodeManager().save(this, file);</span>
+<span class="nc" id="L121">    }</span>
 
     public double getCost() {
-<span class="fc" id="L78">        return this.cost;</span>
+<span class="fc" id="L124">        return this.cost;</span>
     }
 
     public CostType getCostType() {
-<span class="fc" id="L82">        return this.costType;</span>
+<span class="fc" id="L128">        return this.costType;</span>
     }
 
-    public Component getName(){
-<span class="fc" id="L86">        return this.name;</span>
+    public Component getName() {
+<span class="fc" id="L132">        return this.name;</span>
     }
 
     public LineDirection getDirection() {
-<span class="fc" id="L90">        return this.direction;</span>
+<span class="fc" id="L136">        return this.direction;</span>
     }
 
     public String getIdentifier() {
-<span class="fc" id="L94">        return this.identifier;</span>
+<span class="fc" id="L140">        return this.identifier;</span>
     }
 
     public List&lt;Node&gt; getNodes() {
-<span class="fc" id="L98">        return Collections.unmodifiableList(this.nodes);</span>
+<span class="fc" id="L144">        return Collections.unmodifiableList(this.nodes);</span>
     }
 
-    public List&lt;Node&gt; getNodesBetween(Node start, Node end){
-<span class="fc" id="L102">        return this.getNodesBetween(start, end, true);</span>
+    public List&lt;Node&gt; getNodesBetween(Node start, Node end) {
+<span class="fc" id="L148">        return this.getNodesBetween(start, end, true);</span>
     }
 
     public List&lt;Node&gt; getNodesBetween(Node start, Node end, boolean includeEnd) {
-<span class="fc" id="L106">        int startIndex = this.nodes.indexOf(start);</span>
-<span class="fc" id="L107">        int endIndex = this.nodes.indexOf(end);</span>
-<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if(includeEnd){</span>
-<span class="fc" id="L109">            endIndex++;</span>
+<span class="fc" id="L152">        int startIndex = this.nodes.indexOf(start);</span>
+<span class="fc" id="L153">        int endIndex = this.nodes.indexOf(end);</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (includeEnd) {</span>
+<span class="fc" id="L155">            endIndex++;</span>
         }
-<span class="fc" id="L111">        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));</span>
+<span class="fc" id="L157">        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));</span>
     }
 
     public double getPrice() {
-<span class="fc" id="L115">        return this.getPrice(this.nodes.get(0), this.nodes.get(this.nodes.size() - 1));</span>
+<span class="fc" id="L161">        return this.getPrice(this.nodes.get(0), this.nodes.get(this.nodes.size() - 1));</span>
     }
 
     public double getPrice(@NotNull Node start, @NotNull Node end) {
-<span class="fc" id="L119">        return this.costType.get(this, start, end);</span>
+<span class="fc" id="L165">        return this.costType.get(this, start, end);</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L124">        return this.identifier.hashCode();</span>
+<span class="nc" id="L170">        return this.identifier.hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (!(obj instanceof Line line)) {</span>
-<span class="nc" id="L130">            return false;</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if (!(obj instanceof Line line)) {</span>
+<span class="nc" id="L176">            return false;</span>
         }
-<span class="fc" id="L132">        return line.identifier.equalsIgnoreCase(this.identifier);</span>
+<span class="fc" id="L178">        return line.identifier.equalsIgnoreCase(this.identifier);</span>
     }
 
     public boolean isActive() {
-<span class="nc bnc" id="L136" title="All 4 branches missed.">        return 2 &lt;= this.nodes.stream().filter(node -&gt; NodeType.STOP == node.getNodeType()).count();</span>
+<span class="nc bnc" id="L182" title="All 4 branches missed.">        return 2 &lt;= this.nodes.stream().filter(node -&gt; NodeType.STOP == node.getNodeType()).count();</span>
     }
 
     public boolean isBiDirectional() {
-<span class="fc" id="L140">        return this.isBiDirectional;</span>
+<span class="fc" id="L186">        return this.isBiDirectional;</span>
     }
 
     @Override
     public LineBuilder toBuilder() {
-<span class="nc" id="L145">        return new LineBuilder()</span>
-<span class="nc" id="L146">                .setIdentifier(this.identifier)</span>
-<span class="nc" id="L147">                .setName(this.name)</span>
-<span class="nc" id="L148">                .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())</span>
-<span class="nc" id="L149">                .setCostType(this.costType)</span>
-<span class="nc" id="L150">                .setCost(this.cost)</span>
-<span class="nc" id="L151">                .setDirection(this.direction);</span>
+<span class="nc" id="L191">        return new LineBuilder()</span>
+<span class="nc" id="L192">                .setIdentifier(this.identifier)</span>
+<span class="nc" id="L193">                .setName(this.name)</span>
+<span class="nc" id="L194">                .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())</span>
+<span class="nc" id="L195">                .setCostType(this.costType)</span>
+<span class="nc" id="L196">                .setCost(this.cost)</span>
+<span class="nc" id="L197">                .setDirection(this.direction);</span>
     }
 
     private void validate(Collection&lt;Node&gt; nodes) {
-<span class="fc" id="L155">        Collection&lt;Node&gt; uniqueTest = new HashSet&lt;&gt;(nodes);</span>
-<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if (uniqueTest.size() != nodes.size()) {</span>
-<span class="nc" id="L157">            throw new IllegalStateException(&quot;Two or more nodes have the same position&quot;);</span>
+<span class="fc" id="L201">        Collection&lt;Node&gt; uniqueTest = new HashSet&lt;&gt;(nodes);</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (uniqueTest.size() != nodes.size()) {</span>
+<span class="nc" id="L203">            throw new IllegalStateException(&quot;Two or more nodes have the same position&quot;);</span>
         }
-<span class="fc" id="L159">    }</span>
+<span class="fc" id="L205">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
