@@ -36,6 +36,7 @@ if (hasProperty("version") && !getProperty("version").toString().isBlank() && ge
 
 apply from: "buildGradle/buildCommon.gradle"
 apply from: "buildGradle/buildBukkit.gradle"
+apply from: "buildGradle/buildSponge.gradle"
 apply from: "buildGradle/clearsetup.gradle"
 
 repositories {

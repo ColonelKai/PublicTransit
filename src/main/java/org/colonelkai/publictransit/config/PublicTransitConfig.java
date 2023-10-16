@@ -7,6 +7,7 @@ import org.core.config.ConfigurationStream;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 public class PublicTransitConfig implements Config {
@@ -45,22 +46,25 @@ public class PublicTransitConfig implements Config {
 
     @Override
     public Stream<? extends ConfigNode<?>> getNodes() {
-        return Stream
-                .of(PublicTransitConfigNodes.class.getDeclaredFields())
-                .filter(field -> field.getType().isAssignableFrom(ConfigNode.class))
-                .map(field -> {
-                    try {
-                        return (ConfigNode<?>) field.get(null);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull);
+        return Stream.of(PublicTransitConfigNodes.class.getDeclaredFields()).filter(field -> field.getType().isAssignableFrom(ConfigNode.class)).map(field -> {
+            try {
+                return (ConfigNode<?>) field.get(null);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).filter(Objects::nonNull);
     }
 
 
     private <T> void setDefaultValue(ConfigNode<T> node) {
         node.setValue(this.config, node.defaultValue());
+    }
+
+    public OptionalInt getMaximumWeight() {
+        if (!PublicTransitConfigNodes.WEIGHT_ENABLED.currentValue(this.config)) {
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.currentValue(this.config));
     }
 }
