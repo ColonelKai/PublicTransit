@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParserConfigNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.config.node</a> &gt; <span class="el_source">ParserConfigNode.java</span></div><h1>ParserConfigNode.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.config.node;
 
+import org.colonelkai.publictransit.config.Config;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
@@ -8,24 +9,24 @@ import java.util.Optional;
 
 public class ParserConfigNode&lt;P, T&gt; extends AbstractConfigNode&lt;T&gt; {
 
-    public ParserConfigNode(ConfigurationNode.KnownParser.SingleKnown&lt;T&gt; path, T defaultValue) {
-<span class="nc" id="L12">        super(path, defaultValue);</span>
-<span class="nc" id="L13">    }</span>
+    public ParserConfigNode(ConfigurationNode.KnownParser.SingleKnown&lt;T&gt; path, T defaultValue, Config config) {
+<span class="nc" id="L13">        super(path, defaultValue, config);</span>
+<span class="nc" id="L14">    }</span>
 
     @Override
     @NotNull
     public ConfigurationNode.KnownParser.SingleKnown&lt;T&gt; getPath() {
-<span class="nc" id="L18">        return (ConfigurationNode.KnownParser.SingleKnown&lt;T&gt;) super.getPath();</span>
+<span class="nc" id="L19">        return (ConfigurationNode.KnownParser.SingleKnown&lt;T&gt;) super.getPath();</span>
     }
 
     @Override
-    protected @NotNull Optional&lt;T&gt; get(@NotNull ConfigurationStream stream) {
-<span class="nc" id="L23">        return stream.parse(getPath());</span>
+    protected @NotNull Optional&lt;T&gt; getRaw(@NotNull ConfigurationStream stream) {
+<span class="nc" id="L24">        return stream.parse(getPath());</span>
     }
 
     @Override
     public void set(@NotNull ConfigurationStream stream, @NotNull T value) {
-<span class="nc" id="L28">        stream.set(getPath(), value);</span>
-<span class="nc" id="L29">    }</span>
+<span class="nc" id="L29">        stream.set(getPath(), value);</span>
+<span class="nc" id="L30">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

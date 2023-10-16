@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractConfigNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.config.node</a> &gt; <span class="el_source">AbstractConfigNode.java</span></div><h1>AbstractConfigNode.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.config.node;
 
+import org.colonelkai.publictransit.config.Config;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 abstract class AbstractConfigNode&lt;T&gt; implements ConfigNode&lt;T&gt; {
 
@@ -12,43 +14,62 @@ abstract class AbstractConfigNode&lt;T&gt; implements ConfigNode&lt;T&gt; {
     private final T defaultValue;
     private T lastKnown;
 
-<span class="nc" id="L15">    AbstractConfigNode(ConfigurationNode path, T defaultValue) {</span>
-<span class="nc" id="L16">        this.path = path;</span>
-<span class="nc" id="L17">        this.defaultValue = defaultValue;</span>
-<span class="nc" id="L18">    }</span>
+    private Config config;
 
-    protected abstract @NotNull Optional&lt;T&gt; get(@NotNull ConfigurationStream stream);
+    Function&lt;T, T&gt; parseFunc;
+
+<span class="nc" id="L21">    AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config, Function &lt;T, T&gt; parseFunc) {</span>
+<span class="nc" id="L22">        this.path = path;</span>
+<span class="nc" id="L23">        this.defaultValue = defaultValue;</span>
+<span class="nc" id="L24">        this.config = config;</span>
+<span class="nc" id="L25">        this.parseFunc = parseFunc;</span>
+<span class="nc" id="L26">    }</span>
+
+<span class="nc" id="L28">    protected AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config) {</span>
+<span class="nc" id="L29">        this.path = path;</span>
+<span class="nc" id="L30">        this.defaultValue = defaultValue;</span>
+<span class="nc" id="L31">        this.parseFunc = (t-&gt;t); // if no parseFunc is given, just return optional of.</span>
+<span class="nc" id="L32">        this.config = config;</span>
+<span class="nc" id="L33">    }</span>
+
+    protected abstract @NotNull Optional&lt;T&gt; getRaw(@NotNull ConfigurationStream stream);
 
     protected abstract void set(@NotNull ConfigurationStream stream, @NotNull T value);
 
     @Override
     public @NotNull ConfigurationNode getPath() {
-<span class="nc" id="L26">        return this.path;</span>
+<span class="nc" id="L41">        return this.path;</span>
     }
 
     @Override
     public @NotNull T defaultValue() {
-<span class="nc" id="L31">        return this.defaultValue;</span>
+<span class="nc" id="L46">        return this.defaultValue;</span>
     }
 
-    @Override
-    public @NotNull T currentValue(@NotNull ConfigurationStream stream) {
-<span class="nc bnc" id="L36" title="All 2 branches missed.">        if (this.lastKnown == null) {</span>
-<span class="nc" id="L37">            this.lastKnown = this.get(stream).orElseThrow(() -&gt; new IllegalStateException(&quot;Unable to read '&quot; + String.join(&quot;;&quot;, getPath().getPath()) + &quot;'&quot;));</span>
+    public @NotNull T getRaw() {
+<span class="nc" id="L50">        ConfigurationStream stream = this.config.getFile();</span>
+
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (this.lastKnown == null) {</span>
+<span class="nc" id="L53">            this.lastKnown = this.getRaw(stream).orElseThrow(() -&gt; new IllegalStateException(&quot;Unable to read '&quot; + String.join(&quot;;&quot;, getPath().getPath()) + &quot;'&quot;));</span>
         }
-<span class="nc" id="L39">        return this.lastKnown;</span>
+<span class="nc" id="L55">        return this.lastKnown;</span>
     }
 
     @Override
     public void reset() {
-<span class="nc" id="L44">        this.lastKnown = null;</span>
-<span class="nc" id="L45">    }</span>
+<span class="nc" id="L60">        this.lastKnown = null;</span>
+<span class="nc" id="L61">    }</span>
 
     @Override
     public void setValue(@NotNull ConfigurationStream stream, @NotNull T value) {
-<span class="nc" id="L49">        this.lastKnown = value;</span>
-<span class="nc" id="L50">        this.set(stream, value);</span>
-<span class="nc" id="L51">        stream.save();</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L65">        this.lastKnown = value;</span>
+<span class="nc" id="L66">        this.set(stream, value);</span>
+<span class="nc" id="L67">        stream.save();</span>
+<span class="nc" id="L68">    }</span>
+
+    @Override
+    public @NotNull T get() {
+<span class="nc" id="L72">        return this.parseFunc.apply(this.getRaw());</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
