@@ -24,6 +24,23 @@ public interface PublicTransitConfigNodes {
     CostTypeConfigNode DEFAULT_LINE_COST_TYPE = new CostTypeConfigNode(new ConfigurationNode(
             "line", "default", "costtype"), CostType.FLAT_RATE, PublicTransit.getPlugin().getConfig());
 
+    // Weight System Settings
+
+    BooleanConfigNode WEIGHT_ENABLED = new BooleanConfigNode(new ConfigurationNode(
+            "weight", "enabled"), false, PublicTransit.getPlugin().getConfig()
+    );
+
+    IntegerConfigNode WEIGHT_MAXIMUM_DEFAULT = new IntegerConfigNode(new ConfigurationNode(
+            "weight", "maximum"), Integer.MAX_VALUE, PublicTransit.getPlugin().getConfig(), (t->{
+        if(PublicTransitConfigNodes.WEIGHT_ENABLED.get()) {
+            return t;
+        }
+        else {
+            return Integer.MAX_VALUE;
+        }
+    })
+    );
+
     // Economy Settings
 
     BooleanConfigNode USE_DEPOSIT_ACCOUNT = new BooleanConfigNode(new ConfigurationNode(

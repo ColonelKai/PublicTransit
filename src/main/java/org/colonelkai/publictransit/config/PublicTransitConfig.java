@@ -62,9 +62,10 @@ public class PublicTransitConfig implements Config {
     }
 
     public OptionalInt getMaximumWeight() {
-        if (!PublicTransitConfigNodes.WEIGHT_ENABLED.currentValue(this.config)) {
+        if(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get()==Integer.MAX_VALUE) {
             return OptionalInt.empty();
+        } else {
+            return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get());
         }
-        return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.currentValue(this.config));
     }
 }
