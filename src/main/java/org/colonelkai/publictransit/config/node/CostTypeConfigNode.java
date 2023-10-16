@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.config.node;
 
+import org.colonelkai.publictransit.config.Config;
 import org.colonelkai.publictransit.line.CostType;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
@@ -9,8 +10,8 @@ import java.util.Optional;
 
 public class CostTypeConfigNode extends AbstractConfigNode<CostType> {
 
-    public CostTypeConfigNode(ConfigurationNode path, CostType defaultValue) {
-        super(path, defaultValue);
+    public CostTypeConfigNode(ConfigurationNode path, CostType defaultValue, Config config) {
+        super(path, defaultValue, config);
     }
 
     @Override

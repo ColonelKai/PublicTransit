@@ -1,6 +1,7 @@
 package org.colonelkai.publictransit.config.node;
 
 import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.config.Config;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +15,8 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
     private final T defaultValue;
     private T lastKnown;
 
+    private Config config;
+
     Function<T, Optional<T>> parseFunc;
 
     AbstractConfigNode(ConfigurationNode path, T defaultValue, Function <T, Optional<T>> parseFunc) {
@@ -22,10 +25,11 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         this.parseFunc = parseFunc;
     }
 
-    protected AbstractConfigNode(ConfigurationNode path, T defaultValue) {
+    protected AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config) {
         this.path = path;
         this.defaultValue = defaultValue;
         this.parseFunc = (Optional::of); // if no parseFunc is given, just return optional of.
+        this.config = config;
     }
 
     protected abstract @NotNull Optional<T> get(@NotNull ConfigurationStream stream);
@@ -44,7 +48,7 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
 
     @Override
     public @NotNull T getRaw() {
-        ConfigurationStream stream = PublicTransit.getPlugin().getConfig().getFile();
+        ConfigurationStream stream = this.config.getFile();
 
         if (this.lastKnown == null) {
             this.lastKnown = this.get(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
