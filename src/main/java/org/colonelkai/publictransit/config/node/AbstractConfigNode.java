@@ -69,7 +69,7 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
     }
 
     @Override
-    public @NotNull Optional<T> getParsed() {
+    public @NotNull Optional<T> get() {
         return this.parseFunc.apply(this.getRaw());
     }
 }
