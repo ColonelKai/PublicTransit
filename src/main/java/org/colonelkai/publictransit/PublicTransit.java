@@ -1,6 +1,9 @@
 package org.colonelkai.publictransit;
 
+
+import org.colonelkai.publictransit.commands.PublicTransitCommandLauncher;
 import org.colonelkai.publictransit.config.PublicTransitConfig;
+import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
 import org.core.platform.plugin.CorePlugin;
@@ -56,7 +59,7 @@ public class PublicTransit implements CorePlugin {
 
     @Override
     public void onRegisterCommands(@NotNull CommandRegister register) {
-
+        register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.PUBLIC_TRANSIT));
     }
 
     @Override
