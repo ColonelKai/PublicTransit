@@ -1,6 +1,5 @@
 package org.colonelkai.publictransit.config.node;
 
-import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.config.Config;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
@@ -17,22 +16,23 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
 
     private Config config;
 
-    Function<T, Optional<T>> parseFunc;
+    Function<T, T> parseFunc;
 
-    AbstractConfigNode(ConfigurationNode path, T defaultValue, Function <T, Optional<T>> parseFunc) {
+    AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config, Function <T, T> parseFunc) {
         this.path = path;
         this.defaultValue = defaultValue;
+        this.config = config;
         this.parseFunc = parseFunc;
     }
 
     protected AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config) {
         this.path = path;
         this.defaultValue = defaultValue;
-        this.parseFunc = (Optional::of); // if no parseFunc is given, just return optional of.
+        this.parseFunc = (t->t); // if no parseFunc is given, just return optional of.
         this.config = config;
     }
 
-    protected abstract @NotNull Optional<T> get(@NotNull ConfigurationStream stream);
+    protected abstract @NotNull Optional<T> getRaw(@NotNull ConfigurationStream stream);
 
     protected abstract void set(@NotNull ConfigurationStream stream, @NotNull T value);
 
@@ -51,7 +51,7 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         ConfigurationStream stream = this.config.getFile();
 
         if (this.lastKnown == null) {
-            this.lastKnown = this.get(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
+            this.lastKnown = this.getRaw(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
         }
         return this.lastKnown;
     }
@@ -69,7 +69,7 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
     }
 
     @Override
-    public @NotNull Optional<T> get() {
+    public @NotNull T get() {
         return this.parseFunc.apply(this.getRaw());
     }
 }

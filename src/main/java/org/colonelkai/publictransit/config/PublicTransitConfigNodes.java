@@ -5,7 +5,7 @@ import org.colonelkai.publictransit.config.node.*;
 import org.colonelkai.publictransit.line.CostType;
 import org.core.config.ConfigurationNode;
 
-interface PublicTransitConfigNodes {
+public interface PublicTransitConfigNodes {
 
 
     // General Settings

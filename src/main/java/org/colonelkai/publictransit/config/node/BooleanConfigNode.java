@@ -13,7 +13,7 @@ public class BooleanConfigNode extends AbstractConfigNode<Boolean> {
     }
 
     @Override
-    protected @NotNull Optional<Boolean> get(@NotNull ConfigurationStream stream) {
+    protected @NotNull Optional<Boolean> getRaw(@NotNull ConfigurationStream stream) {
         return stream.getBoolean(this.getPath());
     }
 

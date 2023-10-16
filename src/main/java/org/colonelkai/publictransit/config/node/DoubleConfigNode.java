@@ -14,7 +14,7 @@ public class DoubleConfigNode extends AbstractConfigNode<Double> {
     }
 
     @Override
-    protected @NotNull Optional<Double> get(@NotNull ConfigurationStream stream) {
+    protected @NotNull Optional<Double> getRaw(@NotNull ConfigurationStream stream) {
         return stream.getDouble(this.getPath());
     }
 

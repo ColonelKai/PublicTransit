@@ -20,7 +20,7 @@ public class ParserConfigNode<P, T> extends AbstractConfigNode<T> {
     }
 
     @Override
-    protected @NotNull Optional<T> get(@NotNull ConfigurationStream stream) {
+    protected @NotNull Optional<T> getRaw(@NotNull ConfigurationStream stream) {
         return stream.parse(getPath());
     }
 

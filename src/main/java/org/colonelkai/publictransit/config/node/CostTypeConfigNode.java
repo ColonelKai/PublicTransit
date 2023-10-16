@@ -15,7 +15,7 @@ public class CostTypeConfigNode extends AbstractConfigNode<CostType> {
     }
 
     @Override
-    protected @NotNull Optional<CostType> get(@NotNull ConfigurationStream stream) {
+    protected @NotNull Optional<CostType> getRaw(@NotNull ConfigurationStream stream) {
         return stream.getString(this.getPath()).map(CostType::valueOf); // is this about to anger mose?
     }
 

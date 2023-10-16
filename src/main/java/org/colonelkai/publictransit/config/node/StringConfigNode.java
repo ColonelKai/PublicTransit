@@ -13,7 +13,7 @@ public class StringConfigNode extends AbstractConfigNode<String> {
     }
 
     @Override
-    protected @NotNull Optional<String> get(@NotNull ConfigurationStream stream) {
+    protected @NotNull Optional<String> getRaw(@NotNull ConfigurationStream stream) {
         return stream.getString(this.getPath());
     }
 
