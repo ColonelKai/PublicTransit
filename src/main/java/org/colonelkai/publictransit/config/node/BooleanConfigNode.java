@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.config.node;
 
+import org.colonelkai.publictransit.config.Config;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
@@ -7,13 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public class BooleanConfigNode extends AbstractConfigNode<Boolean> {
-
-    public BooleanConfigNode(ConfigurationNode path, boolean defaultValue) {
-        super(path, defaultValue);
+    public BooleanConfigNode(ConfigurationNode path, Boolean defaultValue, Config config) {
+        super(path, defaultValue, config);
     }
 
     @Override
-    protected @NotNull Optional<Boolean> get(@NotNull ConfigurationStream stream) {
+    protected @NotNull Optional<Boolean> getRaw(@NotNull ConfigurationStream stream) {
         return stream.getBoolean(this.getPath());
     }
 

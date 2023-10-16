@@ -6,7 +6,6 @@ import org.core.TranslateCore;
 import org.core.config.ConfigurationStream;
 
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
@@ -32,7 +31,7 @@ public class PublicTransitConfig implements Config {
     public void updateFile() {
         this.getNodes().forEach(node -> {
             try {
-                node.currentValue(this.config);
+                node.get();
             } catch (Throwable e) {
                 this.setDefaultValue(node);
             }
@@ -57,22 +56,16 @@ public class PublicTransitConfig implements Config {
         }).filter(Objects::nonNull);
     }
 
-    public double getPlayerDistanceFromNode() {
-        return PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.currentValue(this.config);
-    }
-
-    public void setPlayerDistanceFromNode(double amount) {
-        PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.setValue(this.config, amount);
-    }
 
     private <T> void setDefaultValue(ConfigNode<T> node) {
         node.setValue(this.config, node.defaultValue());
     }
 
     public OptionalInt getMaximumWeight() {
-        if (!PublicTransitConfigNodes.WEIGHT_ENABLED.currentValue(this.config)) {
+        if(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get()==Integer.MAX_VALUE) {
             return OptionalInt.empty();
+        } else {
+            return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get());
         }
-        return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.currentValue(this.config));
     }
 }

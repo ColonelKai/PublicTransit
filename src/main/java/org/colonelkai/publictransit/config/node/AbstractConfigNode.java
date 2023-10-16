@@ -1,10 +1,12 @@
 package org.colonelkai.publictransit.config.node;
 
+import org.colonelkai.publictransit.config.Config;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 abstract class AbstractConfigNode<T> implements ConfigNode<T> {
 
@@ -12,12 +14,25 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
     private final T defaultValue;
     private T lastKnown;
 
-    AbstractConfigNode(ConfigurationNode path, T defaultValue) {
+    private Config config;
+
+    Function<T, T> parseFunc;
+
+    AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config, Function <T, T> parseFunc) {
         this.path = path;
         this.defaultValue = defaultValue;
+        this.config = config;
+        this.parseFunc = parseFunc;
     }
 
-    protected abstract @NotNull Optional<T> get(@NotNull ConfigurationStream stream);
+    protected AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config) {
+        this.path = path;
+        this.defaultValue = defaultValue;
+        this.parseFunc = (t->t); // if no parseFunc is given, just return optional of.
+        this.config = config;
+    }
+
+    protected abstract @NotNull Optional<T> getRaw(@NotNull ConfigurationStream stream);
 
     protected abstract void set(@NotNull ConfigurationStream stream, @NotNull T value);
 
@@ -31,10 +46,11 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         return this.defaultValue;
     }
 
-    @Override
-    public @NotNull T currentValue(@NotNull ConfigurationStream stream) {
+    public @NotNull T getRaw() {
+        ConfigurationStream stream = this.config.getFile();
+
         if (this.lastKnown == null) {
-            this.lastKnown = this.get(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
+            this.lastKnown = this.getRaw(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
         }
         return this.lastKnown;
     }
@@ -49,5 +65,10 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         this.lastKnown = value;
         this.set(stream, value);
         stream.save();
+    }
+
+    @Override
+    public @NotNull T get() {
+        return this.parseFunc.apply(this.getRaw());
     }
 }
