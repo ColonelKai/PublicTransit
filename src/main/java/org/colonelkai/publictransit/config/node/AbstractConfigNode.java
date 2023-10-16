@@ -46,7 +46,6 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         return this.defaultValue;
     }
 
-    @Override
     public @NotNull T getRaw() {
         ConfigurationStream stream = this.config.getFile();
 

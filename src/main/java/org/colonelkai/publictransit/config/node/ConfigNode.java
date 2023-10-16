@@ -12,8 +12,6 @@ public interface ConfigNode<V> {
 
     @NotNull V defaultValue();
 
-    @NotNull V getRaw();
-
     @NotNull V get();
 
     void reset();

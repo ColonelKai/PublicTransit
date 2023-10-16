@@ -30,7 +30,7 @@ public class PublicTransitConfig implements Config {
     public void updateFile() {
         this.getNodes().forEach(node -> {
             try {
-                node.getRaw();
+                node.get();
             } catch (Throwable e) {
                 this.setDefaultValue(node);
             }
