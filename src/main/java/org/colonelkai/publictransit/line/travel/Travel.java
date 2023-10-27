@@ -4,12 +4,16 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Buildable;
+import org.core.entity.living.human.player.LivePlayer;
+import org.core.entity.living.human.player.Player;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Travel implements Buildable<TravelBuilder, Travel> {
 
+    private UUID player;
     private final Line travellingOn;
     private final Node currentNode;
     private final Node endingNode;
@@ -72,6 +76,10 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
 
     public Node getEndingNode() {
         return this.endingNode;
+    }
+
+    public UUID getPlayer() {
+        return this.player;
     }
 
     public LineDirection getTravellingDirection() {

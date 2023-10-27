@@ -4,10 +4,14 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Builder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class TravelBuilder implements Builder<TravelBuilder, Travel> {
 
+    private UUID player;
     private Line travellingOn;
     private Node currentNode;
     private Node endingNode;
@@ -46,6 +50,15 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
 
     public TravelBuilder setTravellingDirection(@Nullable LineDirection ridingReversed) {
         this.travellingDirection = ridingReversed;
+        return this;
+    }
+
+    public UUID player() {
+        return this.player;
+    }
+
+    public TravelBuilder setPlayer(@NotNull UUID player) {
+        this.player = player;
         return this;
     }
 
