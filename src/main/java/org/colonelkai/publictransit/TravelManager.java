@@ -88,9 +88,10 @@ public class TravelManager {
                                .setDelay(travel.getCurrentNode().getTime())
                                .setRunner(scheduler -> {
                                    Scheduler newScheduler = this.scheduleNextTravel(travel);
-                                   PublicTransit.getPlugin().getTravelManager().updateScheduler(
-                                           travel, newScheduler
-                                   ); // this replaces the new Scheuler to keep the travelMap updated.
+                                   PublicTransit // this replaces the new Scheduler to keep the travelMap updated.
+                                           .getPlugin()
+                                           .getTravelManager()
+                                           .updateScheduler(travel, newScheduler);
                                })
                                .buildDelayed(PublicTransit.getPlugin())
                 ).buildDelayed(PublicTransit.getPlugin());
