@@ -14,16 +14,6 @@ import java.util.function.Consumer;
 public class TravelManager {
     private final HashMap<Travel, Scheduler> travelMap = new HashMap<>();
 
-    private final Consumer<Scheduler> consumer = (Scheduler s) -> {
-        // check if we're still on the list, or if we've been removed.
-        Optional<Travel> optionalTravel = PublicTransit.getPlugin().getTravelManager().getTravelFromScheduler(s);
-        if (optionalTravel.isEmpty()) {
-            s.cancel(); // double tapping
-        } else {
-            optionalTravel.get().travelToNext();
-        }
-    };
-
     public Optional<Travel> getTravelFromPlayer(UUID uuid) {
         return this.travelMap
                 .keySet()
