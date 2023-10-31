@@ -41,7 +41,7 @@ public class TravelManager {
     private Optional<Travel> getTravelFromScheduler(Scheduler scheduler) {
         return this.travelMap.entrySet()
                 .parallelStream()
-                .filter((e) -> {return e.getValue().equals(scheduler);})
+                .filter((e) -> e.getValue().equals(scheduler))
                 .map(Map.Entry::getKey)
                 .findAny();
     }
