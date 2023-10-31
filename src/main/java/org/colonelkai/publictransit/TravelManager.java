@@ -108,7 +108,7 @@ public class TravelManager {
 
     // start any travel
     private void startTravel(Travel travel) {
-        Scheduler scheduler = scheduleNextTravel(travel);
+        Scheduler scheduler = this.scheduleNextTravel(travel);
         this.travelMap.put(travel, scheduler);
     }
 
