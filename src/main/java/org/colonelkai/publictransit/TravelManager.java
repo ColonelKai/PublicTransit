@@ -77,9 +77,9 @@ public class TravelManager {
                             Optional<Travel> optionalTravel = PublicTransit.getPlugin().getTravelManager().getTravelFromScheduler(s);
                             if (optionalTravel.isEmpty()) {
                                 s.cancel(); // double tapping
-                            } else {
-                                optionalTravel.get().travelToNext();
+                                return;
                             }
+                                optionalTravel.get().travelToNext();
                         }
 
                 // RUN AFTER-ER
