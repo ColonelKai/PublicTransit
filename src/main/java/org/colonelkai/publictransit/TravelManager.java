@@ -2,13 +2,19 @@ package org.colonelkai.publictransit;
 
 import org.colonelkai.publictransit.line.travel.Travel;
 import org.core.TranslateCore;
+import org.core.entity.living.human.player.LivePlayer;
 import org.core.entity.living.human.player.User;
 import org.core.schedule.Scheduler;
+import org.core.schedule.unit.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 public class TravelManager {
@@ -46,7 +52,27 @@ public class TravelManager {
 
     public void stopTravel(Travel travel, boolean returnToOriginal) {
         this.travelMap.remove(travel);
-        // TODO implement returning to original if needed.
+
+        if(returnToOriginal) {
+            TranslateCore.getScheduleManager().schedule()
+                    .setDelay(5)
+                    .setDelayUnit(TimeUnit.MINECRAFT_TICKS)
+                    .setRunner(scheduler -> {
+                        Optional<LivePlayer> optionalLivePlayer
+                                = TranslateCore.getServer().getOnlinePlayers()
+                                .parallelStream()
+                                .filter(p -> p.getUniqueId().equals(travel.getPlayer()))
+                                .findAny();
+                        if(optionalLivePlayer.isEmpty()) {
+                            return;
+                        }
+                        LivePlayer player = optionalLivePlayer.get();
+
+                        player.setPosition(travel.getStartingNode().getPosition());
+                        scheduler.cancel();
+                    })
+                    .buildRepeating(PublicTransit.getPlugin());
+        }
     }
 
     // The Scheduler Loop (So cool it'll make your head spin! It's also probably bad code.)
@@ -69,7 +95,7 @@ public class TravelManager {
     private Scheduler scheduleNextTravel(Travel travel) {
         return TranslateCore.getScheduleManager().schedule()
                 .setDelay(travel.getCurrentNode().getTime())
-
+                .setDelayUnit(TimeUnit.SECONDS)
                 // RUNNER
                 .setRunner(
                         (Scheduler scheduler) -> {
@@ -85,7 +111,7 @@ public class TravelManager {
                 // RUN AFTER-ER
                 ).setToRunAfter(
                        TranslateCore.getScheduleManager().schedule()
-                               .setDelay(travel.getCurrentNode().getTime())
+                               .setDelay(0)
                                .setRunner(scheduler -> {
                                    Scheduler newScheduler = this.scheduleNextTravel(travel);
                                    PublicTransit // this replaces the new Scheduler to keep the travelMap updated.

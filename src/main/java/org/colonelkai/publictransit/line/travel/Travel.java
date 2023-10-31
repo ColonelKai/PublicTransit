@@ -17,10 +17,12 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
     private final Line travellingOn;
     private final Node currentNode;
     private final Node endingNode;
+    private final Node startingNode;
     private final LineDirection travellingDirection;
 
     Travel(TravelBuilder builder) {
         this.currentNode = Objects.requireNonNull(builder.currentNode());
+        this.startingNode = Objects.requireNonNull(builder.currentNode());
         this.endingNode = Objects.requireNonNull(builder.endingNode());
         this.travellingOn = Objects.requireNonNull(builder.travellingOn());
         this.travellingDirection = Objects.requireNonNullElse(builder.travellingDirection(), this.travellingOn.getDirection());
@@ -76,6 +78,10 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
 
     public Node getEndingNode() {
         return this.endingNode;
+    }
+
+    public Node getStartingNode() {
+        return this.startingNode;
     }
 
     public UUID getPlayer() {
