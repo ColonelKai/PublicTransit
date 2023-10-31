@@ -14,6 +14,7 @@ public class PublicTransit implements CorePlugin {
 
     static PublicTransit plugin;
     private final NodeManager nodeManager;
+    private final TravelManager travelManager;
     private final PublicTransitConfig config;
     private Object launcher;
     private Logger logger;
@@ -21,6 +22,7 @@ public class PublicTransit implements CorePlugin {
     public PublicTransit() {
         plugin = this;
         this.nodeManager = new NodeManager();
+        this.travelManager = new TravelManager();
         this.config = new PublicTransitConfig();
     }
 
@@ -34,6 +36,10 @@ public class PublicTransit implements CorePlugin {
 
     public NodeManager getNodeManager() {
         return this.nodeManager;
+    }
+
+    public TravelManager getTravelManager() {
+        return this.travelManager;
     }
 
     @Override

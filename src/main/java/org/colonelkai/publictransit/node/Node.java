@@ -65,11 +65,11 @@ public class Node implements Buildable<NodeBuilder, Node> {
         return this.location;
     }
 
-    public OptionalInt getTime() {
+    public int getTime() {
         if (null == this.time) {
-            return OptionalInt.empty();
+            return PublicTransitConfigNodes.DEFAULT_NODE_TIME.get().intValue();
         }
-        return OptionalInt.of(this.time);
+        return this.time;
     }
 
     public boolean isWithin(Positionable<? extends Position<?>> positionable) {
