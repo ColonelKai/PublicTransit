@@ -72,11 +72,11 @@ public class TravelManager {
 
                 // RUNNER
                 .setRunner(
-                        (Scheduler s) -> {
+                        (Scheduler scheduler) -> {
                             // check if we're still on the list, or if we've been removed.
-                            Optional<Travel> optionalTravel = PublicTransit.getPlugin().getTravelManager().getTravelFromScheduler(s);
+                            Optional<Travel> optionalTravel = PublicTransit.getPlugin().getTravelManager().getTravelFromScheduler(scheduler);
                             if (optionalTravel.isEmpty()) {
-                                s.cancel(); // double tapping
+                                scheduler.cancel(); // double tapping
                                 return;
                             }
                                 optionalTravel.get().travelToNext();
