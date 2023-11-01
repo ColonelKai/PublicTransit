@@ -105,7 +105,7 @@ public class TravelManager {
                                 scheduler.cancel(); // double tapping
                                 return;
                             }
-                                optionalTravel.get().travelToNext();
+                            optionalTravel.get().travelToNext();
                         }
 
                 // RUN AFTER-ER
