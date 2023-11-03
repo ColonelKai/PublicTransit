@@ -124,7 +124,7 @@ public class NodeManager {
         ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);
 
         Map<String, Object> map = Serializers.LINE.serialize(line);
-        config.set(new ConfigurationNode(), map);
+        config.set(new ConfigurationNode("Line"), map);
         config.save();
     }
 

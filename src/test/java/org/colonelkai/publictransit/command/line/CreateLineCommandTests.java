@@ -8,7 +8,10 @@ import org.colonelkai.publictransit.fake.CommandLine;
 import org.colonelkai.publictransit.line.Line;
 import org.core.TranslateCore;
 import org.core.command.argument.ArgumentCommand;
+import org.core.config.ConfigurationFormat;
+import org.core.config.ConfigurationStream;
 import org.core.eco.CurrencyManager;
+import org.core.platform.Platform;
 import org.core.source.command.ConsoleSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -26,6 +29,7 @@ public class CreateLineCommandTests {
     private MockedStatic<TranslateCore> translateCoreStatic;
 
     private NodeManager nodeManager;
+    private Platform platform;
 
     @AfterEach
     public void end() {
@@ -44,7 +48,11 @@ public class CreateLineCommandTests {
         this.pluginStatic.when(PublicTransit::getPlugin).thenReturn(mockedPlugin);
         nodeManager = new NodeManager();
         Mockito.when(mockedPlugin.getNodeManager()).thenReturn(nodeManager);
-
+        platform = Mockito.mock(Platform.class);
+        this.translateCoreStatic.when(TranslateCore::getPlatform).thenReturn(platform);
+        Mockito.when(platform.getConfigFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
+        ConfigurationStream.ConfigurationFile configFile = Mockito.mock(ConfigurationStream.ConfigurationFile.class);
+        translateCoreStatic.when(() -> TranslateCore.createConfigurationFile(Mockito.any(), Mockito.any())).thenReturn(configFile);
     }
 
     @Test
