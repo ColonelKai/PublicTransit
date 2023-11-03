@@ -1,9 +1,11 @@
 package org.colonelkai.publictransit.line;
 
 import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.utils.Builder;
 import org.core.world.position.impl.ExactPosition;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,6 +25,11 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
 
     public LineBuilder addNodes(NodeBuilder... nodes) {
         this.nodes.addAll(Arrays.asList(nodes));
+        return this;
+    }
+
+    public LineBuilder addNodeAt(int position, NodeBuilder builder) {
+        this.nodes.add(position, builder);
         return this;
     }
 
@@ -88,8 +95,13 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this.nodes;
     }
 
-    public LineBuilder removeNode(ExactPosition position) {
+    public LineBuilder removeNode(@NotNull ExactPosition position) {
         this.nodes.stream().filter(node -> null != node.position()).filter(node -> node.position().equals(position)).forEach(n -> this.nodes.remove(n));
+        return this;
+    }
+
+    public LineBuilder removeNode(@NotNull Node node) {
+        this.nodes.remove(node);
         return this;
     }
 

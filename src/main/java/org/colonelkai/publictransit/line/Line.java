@@ -64,8 +64,8 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.identifier = Objects.requireNonNull(builder.identifier());
         this.name = Objects.requireNonNullElse((null == builder.name()) ? null : builder.name(), ComponentUtils.fromPlain(this.identifier));
         this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();
-        this.cost = Objects.requireNonNull(builder.cost());
-        this.costType = Objects.requireNonNull(builder.costType());
+        this.cost = Objects.requireNonNullElse(builder.cost(), 10.0);
+        this.costType = Objects.requireNonNullElse(builder.costType(), CostType.PER_NODE);
         this.isBiDirectional = builder.isBiDirectional();
         LineDirection direction = builder.direction();
         if (!this.isBiDirectional && (null == direction)) {

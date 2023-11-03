@@ -34,6 +34,10 @@ public class NodeManager {
                 .min(Comparator.comparing(node -> node.getPosition().getPosition().distanceSquared(position.getPosition())));
     }
 
+    public Optional<Line> getLine(String identifier) {
+        return this.lines.stream().filter(line -> line.getIdentifier().equalsIgnoreCase(identifier)).findAny();
+    }
+
     private ConfigurationFormat getFormat(String name) {
         return this
                 .getFormats()
@@ -122,6 +126,11 @@ public class NodeManager {
         Map<String, Object> map = Serializers.LINE.serialize(line);
         config.set(new ConfigurationNode(), map);
         config.save();
+    }
+
+    public void unregister(Line line) {
+        this.lines.remove(line);
+        line.defaultFile().delete();
     }
 
     public void update(@NotNull Line line) {

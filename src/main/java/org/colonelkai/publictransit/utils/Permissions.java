@@ -1,0 +1,16 @@
+package org.colonelkai.publictransit.utils;
+
+import org.core.permission.CorePermission;
+
+public class Permissions {
+
+    public static final CorePermission CREATE_LINE = new CorePermission(false, "publictransit", "cmd", "line", "create");
+    public static final CorePermission DELETE_LINE = new CorePermission(false, "publictransit", "cmd", "line", "delete");
+
+    public static final CorePermission COST_VIEW = new CorePermission(true, "publictransit", "cmd", "line", "cost", "view");
+    public static final CorePermission DIRECTION_VIEW = new CorePermission(true, "publictransit", "cmd", "line", "direction", "view");
+    public static final CorePermission WEIGHT_VIEW = new CorePermission(true, "publictransit", "cmd", "line", "weight", "view");
+
+    public static final CorePermission CREATE_NODE = new CorePermission(false, "publictransit", "cmd", "node", "create");
+    public static final CorePermission DELETE_NODE = new CorePermission(false, "publictransit", "cmd", "node", "delete");
+}
