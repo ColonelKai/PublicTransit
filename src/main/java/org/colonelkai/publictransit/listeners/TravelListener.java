@@ -7,7 +7,9 @@ import org.core.entity.living.human.player.LivePlayer;
 import org.core.event.EventListener;
 import org.core.event.HEvent;
 import org.core.event.events.connection.ClientConnectionEvent;
+import org.core.event.events.entity.EntityDeathEvent;
 import org.core.event.events.entity.EntityEvent;
+import org.core.event.events.entity.EntityMoveEvent;
 import org.core.world.position.impl.Position;
 
 import java.util.HashMap;
@@ -58,9 +60,14 @@ public class TravelListener implements EventListener {
             return;
         }
         Travel travel = opTravel.get();
-        if (travel.getLastKnownPosition().toBlockPosition().equals(event.getEntity().getPosition().toBlockPosition())) {
+        if (travel.getLastKnownPosition().toBlockPosition().equals(event.getAfterPosition().toBlockPosition())) {
             return;
         }
         event.setCancelled(true);
+    }
+
+    @HEvent
+    public void onPlayerDeathEvent(EntityDeathEvent<LivePlayer> player) {
+        PublicTransit.getPlugin().getTravelManager().cancel(player.getEntity().getUniqueId());
     }
 }

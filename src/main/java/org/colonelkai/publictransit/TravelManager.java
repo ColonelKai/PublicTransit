@@ -28,6 +28,16 @@ public class TravelManager {
         return this.getTravelFromPlayer(player.getUniqueId());
     }
 
+    public void cancel(@NotNull UUID uuid) {
+        TranslateCore
+                .getScheduleManager()
+                .getSchedules()
+                .parallelStream()
+                .filter(scheduler -> scheduler.getRunner() instanceof TravelSchedule)
+                .filter(scheduler -> ((TravelSchedule) scheduler.getRunner()).getTravel().getPlayerId().equals(uuid))
+                .forEach(Scheduler::cancel);
+    }
+
     public void cancelLine(Line line) {
         TranslateCore
                 .getScheduleManager()
