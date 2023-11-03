@@ -1,6 +1,7 @@
 package org.colonelkai.publictransit;
 
 import org.colonelkai.publictransit.line.travel.Travel;
+import org.colonelkai.publictransit.utils.PlayerReturner;
 import org.core.TranslateCore;
 import org.core.entity.living.human.player.LivePlayer;
 import org.core.entity.living.human.player.User;
@@ -54,24 +55,7 @@ public class TravelManager {
         this.travelMap.remove(travel);
 
         if(returnToOriginal) {
-            TranslateCore.getScheduleManager().schedule()
-                    .setDelay(5)
-                    .setDelayUnit(TimeUnit.MINECRAFT_TICKS)
-                    .setRunner(scheduler -> {
-                        Optional<LivePlayer> optionalLivePlayer
-                                = TranslateCore.getServer().getOnlinePlayers()
-                                .parallelStream()
-                                .filter(p -> p.getUniqueId().equals(travel.getPlayer()))
-                                .findAny();
-                        if(optionalLivePlayer.isEmpty()) {
-                            return;
-                        }
-                        LivePlayer player = optionalLivePlayer.get();
-
-                        player.setPosition(travel.getStartingNode().getPosition());
-                        scheduler.cancel();
-                    })
-                    .buildRepeating(PublicTransit.getPlugin());
+            PlayerReturner.sendBackThePlayer(travel.getPlayer(), travel.getStartingNode().getPosition());
         }
     }
 
