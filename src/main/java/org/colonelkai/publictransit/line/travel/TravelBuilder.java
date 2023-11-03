@@ -4,6 +4,8 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Builder;
+import org.core.entity.living.human.player.Player;
+import org.core.world.position.impl.Position;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +15,8 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
 
     private UUID player;
     private Line travellingOn;
+    private Position<?> originalPosition;
+    private Position<?> lastKnownLocation;
     private Node currentNode;
     private Node endingNode;
     private LineDirection travellingDirection;
@@ -23,6 +27,24 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
 
     public TravelBuilder setTravellingOn(Line travellingOn) {
         this.travellingOn = travellingOn;
+        return this;
+    }
+
+    public Position<?> lastKnownPosition() {
+        return this.lastKnownLocation;
+    }
+
+    public TravelBuilder setLastKnownPosition(Position<?> lastKnownLocation) {
+        this.lastKnownLocation = lastKnownLocation;
+        return this;
+    }
+
+    public Position<?> originalPosition() {
+        return this.originalPosition;
+    }
+
+    public TravelBuilder setOriginalPosition(Position<?> currentNode) {
+        this.originalPosition = currentNode;
         return this;
     }
 
@@ -53,12 +75,18 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
         return this;
     }
 
-    public UUID player() {
+    public UUID playerId() {
         return this.player;
     }
 
-    public TravelBuilder setPlayer(@NotNull UUID player) {
+    public TravelBuilder setPlayerId(@NotNull UUID player) {
         this.player = player;
+        return this;
+    }
+
+    public TravelBuilder setPlayer(@NotNull Player<?> player) {
+        this.player = player.getUniqueId();
+        this.originalPosition = player.getPosition();
         return this;
     }
 
@@ -71,7 +99,7 @@ public class TravelBuilder implements Builder<TravelBuilder, Travel> {
     public TravelBuilder from(TravelBuilder travelBuilder) {
         this.travellingOn = travelBuilder.travellingOn;
         this.travellingDirection = travelBuilder.travellingDirection;
-        this.currentNode = travelBuilder.currentNode;
+        this.originalPosition = travelBuilder.originalPosition;
         this.endingNode = travelBuilder.endingNode;
         return this;
     }

@@ -3,6 +3,7 @@ package org.colonelkai.publictransit;
 
 import org.colonelkai.publictransit.commands.PublicTransitCommandLauncher;
 import org.colonelkai.publictransit.config.PublicTransitConfig;
+import org.colonelkai.publictransit.listeners.TravelListener;
 import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class PublicTransit implements CorePlugin {
 
-    static PublicTransit plugin;
+    private static PublicTransit plugin;
     private final NodeManager nodeManager;
     private final TravelManager travelManager;
     private final PublicTransitConfig config;
@@ -80,6 +81,7 @@ public class PublicTransit implements CorePlugin {
 
     @Override
     public void onCoreReady() {
+        TranslateCore.getEventManager().register(this, new TravelListener());
         this.nodeManager.loadAll().forEach(this.nodeManager::register);
         this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
     }
