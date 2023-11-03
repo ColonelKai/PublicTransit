@@ -10,4 +10,5 @@
 rootProject.name = 'PublicTransit'
 
 include "CoreToFolia"
+include "CoreToSponge"
 include "TranslateCore"

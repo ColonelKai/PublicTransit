@@ -7,19 +7,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class DoubleConfigNode extends AbstractConfigNode<Double> {
-
-    public DoubleConfigNode(ConfigurationNode path, double defaultValue, Config config) {
+public class BooleanConfigNode extends AbstractConfigNode<Boolean> {
+    public BooleanConfigNode(ConfigurationNode path, Boolean defaultValue, Config config) {
         super(path, defaultValue, config);
     }
 
     @Override
-    protected @NotNull Optional<Double> getRaw(@NotNull ConfigurationStream stream) {
-        return stream.getDouble(this.getPath());
+    protected @NotNull Optional<Boolean> getRaw(@NotNull ConfigurationStream stream) {
+        return stream.getBoolean(this.getPath());
     }
 
     @Override
-    protected void set(@NotNull ConfigurationStream stream, @NotNull Double value) {
+    protected void set(@NotNull ConfigurationStream stream, @NotNull Boolean value) {
         stream.set(this.getPath(), value);
     }
 }

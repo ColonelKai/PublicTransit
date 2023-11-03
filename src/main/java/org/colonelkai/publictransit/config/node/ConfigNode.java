@@ -3,7 +3,8 @@ package org.colonelkai.publictransit.config.node;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public interface ConfigNode<V> {
 
@@ -11,7 +12,7 @@ public interface ConfigNode<V> {
 
     @NotNull V defaultValue();
 
-    @NotNull V currentValue(@NotNull ConfigurationStream stream);
+    @NotNull V get();
 
     void reset();
 

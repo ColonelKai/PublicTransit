@@ -1,9 +1,8 @@
 package org.colonelkai.publictransit.commands;
 
+import org.colonelkai.publictransit.commands.cost.CostBetweenCommand;
 
-public class Commands {
-    public static void register() {
+interface Commands {
 
-
-    }
+    CostBetweenCommand COST_BETWEEN = new CostBetweenCommand();
 }

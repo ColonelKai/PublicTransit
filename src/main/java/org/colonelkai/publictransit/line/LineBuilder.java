@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.utils.Builder;
 import org.core.world.position.impl.ExactPosition;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,10 +19,24 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
     private boolean isBiDirectional;
     private Component name;
     private List<NodeBuilder> nodes = new ArrayList<>();
+    private Integer weight;
 
     public LineBuilder addNodes(NodeBuilder... nodes) {
         this.nodes.addAll(Arrays.asList(nodes));
         return this;
+    }
+
+    public @Nullable Integer weight() {
+        return this.weight;
+    }
+
+    public LineBuilder setWeight(@Nullable Integer weight) {
+        this.weight = weight;
+        return this;
+    }
+
+    public LineBuilder setDefaultWeight() {
+        return setWeight(null);
     }
 
     @Override

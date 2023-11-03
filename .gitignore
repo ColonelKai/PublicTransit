@@ -9,4 +9,5 @@ gradle.properties
 githubPage
 CoreToBukkit
 CoreToFolia
+CoreToSponge
 TranslateCore

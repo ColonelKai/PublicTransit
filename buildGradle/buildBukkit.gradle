@@ -12,14 +12,14 @@ tasks.register("buildBukkit") {
     doLast {
         String exportPath = getProperty("exportToBukkit")
         combined("CoreToFolia", "Folia", exportPath, (ZipOutputStream zos) -> {
-            var entry = new ZipEntry("plugin.yml")
+            var entry = new ZipEntry("paper-plugin.yml")
             zos.putNextEntry(entry)
 
             var stringBuilder = new StringBuilder();
             stringBuilder.append("name: PublicTransit\n")
             stringBuilder.append("version: " + version + "\n")
             stringBuilder.append("main: org.core.implementation.folia.platform.plugin.boot.TranslateCoreBoot\n")
-            stringBuilder.append("api-version: 1.20\n")
+            stringBuilder.append("api-version: '1.20'\n")
             stringBuilder.append("softdepend: [ Vault ]\n")
 
             var byteIS = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8))
