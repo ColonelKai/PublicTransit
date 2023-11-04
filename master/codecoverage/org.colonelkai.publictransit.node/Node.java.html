@@ -62,14 +62,14 @@ public class Node implements Buildable&lt;NodeBuilder, Node&gt; {
     }
 
     public ExactPosition getPosition() {
-<span class="nc" id="L65">        return this.location;</span>
+<span class="fc" id="L65">        return this.location;</span>
     }
 
-    public OptionalInt getTime() {
+    public int getTime() {
 <span class="nc bnc" id="L69" title="All 2 branches missed.">        if (null == this.time) {</span>
-<span class="nc" id="L70">            return OptionalInt.empty();</span>
+<span class="nc" id="L70">            return PublicTransitConfigNodes.DEFAULT_NODE_TIME.get().intValue();</span>
         }
-<span class="nc" id="L72">        return OptionalInt.of(this.time);</span>
+<span class="nc" id="L72">        return this.time;</span>
     }
 
     public boolean isWithin(Positionable&lt;? extends Position&lt;?&gt;&gt; positionable) {

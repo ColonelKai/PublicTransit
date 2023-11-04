@@ -3,6 +3,7 @@
 
 import org.colonelkai.publictransit.commands.PublicTransitCommandLauncher;
 import org.colonelkai.publictransit.config.PublicTransitConfig;
+import org.colonelkai.publictransit.listeners.TravelListener;
 import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
@@ -12,74 +13,81 @@ import org.jetbrains.annotations.NotNull;
 
 public class PublicTransit implements CorePlugin {
 
-    static PublicTransit plugin;
+    private static PublicTransit plugin;
     private final NodeManager nodeManager;
+    private final TravelManager travelManager;
     private final PublicTransitConfig config;
     private Object launcher;
     private Logger logger;
 
-<span class="nc" id="L21">    public PublicTransit() {</span>
-<span class="nc" id="L22">        plugin = this;</span>
-<span class="nc" id="L23">        this.nodeManager = new NodeManager();</span>
-<span class="nc" id="L24">        this.config = new PublicTransitConfig();</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc" id="L23">    public PublicTransit() {</span>
+<span class="nc" id="L24">        plugin = this;</span>
+<span class="nc" id="L25">        this.nodeManager = new NodeManager();</span>
+<span class="nc" id="L26">        this.travelManager = new TravelManager();</span>
+<span class="nc" id="L27">        this.config = new PublicTransitConfig();</span>
+<span class="nc" id="L28">    }</span>
 
     public Logger getLogger() {
-<span class="nc" id="L28">        return this.logger;</span>
+<span class="nc" id="L31">        return this.logger;</span>
     }
 
     public PublicTransitConfig getConfig() {
-<span class="nc" id="L32">        return this.config;</span>
+<span class="nc" id="L35">        return this.config;</span>
     }
 
     public NodeManager getNodeManager() {
-<span class="nc" id="L36">        return this.nodeManager;</span>
+<span class="nc" id="L39">        return this.nodeManager;</span>
+    }
+
+    public TravelManager getTravelManager() {
+<span class="nc" id="L43">        return this.travelManager;</span>
     }
 
     @Override
     public @NotNull String getPluginName() {
-<span class="nc" id="L41">        return &quot;PublicTransit&quot;;</span>
+<span class="nc" id="L48">        return &quot;PublicTransit&quot;;</span>
     }
 
     @Override
     public @NotNull String getPluginId() {
-<span class="nc" id="L46">        return &quot;public_transit&quot;;</span>
+<span class="nc" id="L53">        return &quot;public_transit&quot;;</span>
     }
 
     @Override
     public @NotNull Object getPlatformLauncher() {
-<span class="nc" id="L51">        return this.launcher;</span>
+<span class="nc" id="L58">        return this.launcher;</span>
     }
 
     @Override
     public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
-<span class="nc" id="L56">        this.launcher = pluginLauncher;</span>
-<span class="nc" id="L57">        this.logger = logger;</span>
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L63">        this.launcher = pluginLauncher;</span>
+<span class="nc" id="L64">        this.logger = logger;</span>
+<span class="nc" id="L65">    }</span>
 
     @Override
     public void onRegisterCommands(@NotNull CommandRegister register) {
-<span class="nc" id="L62">        register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.PUBLIC_TRANSIT));</span>
-<span class="nc" id="L63">    }</span>
+<span class="nc" id="L69">        register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.PUBLIC_TRANSIT));</span>
+<span class="nc" id="L70">    }</span>
 
     @Override
     public @NotNull String getLicence() {
-<span class="nc" id="L67">        return &quot;All Rights Reserved&quot;;</span>
+<span class="nc" id="L74">        return &quot;All Rights Reserved&quot;;</span>
     }
 
     @Override
     public @NotNull CorePluginVersion getPluginVersion() {
-<span class="nc" id="L72">        return new CorePluginVersion(0, 0, 1);</span>
+<span class="nc" id="L79">        return new CorePluginVersion(0, 0, 1);</span>
     }
 
     @Override
     public void onCoreReady() {
-<span class="nc" id="L77">        this.nodeManager.loadAll().forEach(this.nodeManager::register);</span>
-<span class="nc" id="L78">        this.logger.log(&quot;Loaded lines: &quot; + this.nodeManager.getLines().size());</span>
-<span class="nc" id="L79">    }</span>
+<span class="nc" id="L84">        TranslateCore.getEventManager().register(this, new TravelListener());</span>
+<span class="nc" id="L85">        this.nodeManager.loadAll().forEach(this.nodeManager::register);</span>
+<span class="nc" id="L86">        this.logger.log(&quot;Loaded lines: &quot; + this.nodeManager.getLines().size());</span>
+<span class="nc" id="L87">    }</span>
 
     public static PublicTransit getPlugin() {
-<span class="nc" id="L82">        return plugin;</span>
+<span class="nc" id="L90">        return plugin;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

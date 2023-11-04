@@ -4,78 +4,104 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Buildable;
+import org.core.world.position.impl.Position;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Travel implements Buildable&lt;TravelBuilder, Travel&gt; {
 
+    private UUID playerId;
     private final Line travellingOn;
     private final Node currentNode;
     private final Node endingNode;
+    private final Position&lt;?&gt; originalPosition;
+    private final Position&lt;?&gt; lastKnownLocation;
     private final LineDirection travellingDirection;
 
-<span class="fc" id="L18">    Travel(TravelBuilder builder) {</span>
-<span class="fc" id="L19">        this.currentNode = Objects.requireNonNull(builder.currentNode());</span>
-<span class="fc" id="L20">        this.endingNode = Objects.requireNonNull(builder.endingNode());</span>
-<span class="fc" id="L21">        this.travellingOn = Objects.requireNonNull(builder.travellingOn());</span>
-<span class="fc" id="L22">        this.travellingDirection = Objects.requireNonNullElse(builder.travellingDirection(), this.travellingOn.getDirection());</span>
+<span class="fc" id="L23">    Travel(TravelBuilder builder) {</span>
+<span class="fc" id="L24">        this.currentNode = Objects.requireNonNull(builder.currentNode());</span>
+<span class="fc" id="L25">        this.originalPosition = Objects.requireNonNull(builder.originalPosition());</span>
+<span class="fc" id="L26">        this.endingNode = Objects.requireNonNull(builder.endingNode());</span>
+<span class="fc" id="L27">        this.travellingOn = Objects.requireNonNull(builder.travellingOn());</span>
+<span class="fc" id="L28">        this.travellingDirection = Objects.requireNonNullElse(builder.travellingDirection(),</span>
+<span class="fc" id="L29">                                                              this.travellingOn.getDirection());</span>
+<span class="fc" id="L30">        this.playerId = Objects.requireNonNull(builder.playerId());</span>
+<span class="fc" id="L31">        this.lastKnownLocation = Objects.requireNonNullElse(builder.lastKnownPosition(),</span>
+<span class="fc" id="L32">                                                            this.currentNode.getPosition());</span>
 
-<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        if (!this.travellingOn.getNodes().contains(this.currentNode)) {</span>
-<span class="nc" id="L25">            throw new IllegalStateException(&quot;Travelling On must contain the current node&quot;);</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if (!this.travellingOn.getNodes().contains(this.currentNode)) {</span>
+<span class="nc" id="L35">            throw new IllegalStateException(&quot;Travelling On must contain the current node&quot;);</span>
         }
-<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (!this.travellingOn.getNodes().contains(this.endingNode)) {</span>
-<span class="nc" id="L28">            throw new IllegalStateException(&quot;Travelling On must contain the ending node&quot;);</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (!this.travellingOn.getNodes().contains(this.endingNode)) {</span>
+<span class="nc" id="L38">            throw new IllegalStateException(&quot;Travelling On must contain the ending node&quot;);</span>
         }
-<span class="fc bfc" id="L30" title="All 4 branches covered.">        if (!this.travellingOn.isBiDirectional() &amp;&amp; (this.travellingOn.getDirection() != this.travellingDirection)) {</span>
-<span class="fc" id="L31">            throw new IllegalStateException(&quot;Cannot ride backwards on a one way Line&quot;);</span>
+<span class="fc bfc" id="L40" title="All 4 branches covered.">        if (!this.travellingOn.isBiDirectional() &amp;&amp; (this.travellingOn.getDirection() != this.travellingDirection)) {</span>
+<span class="fc" id="L41">            throw new IllegalStateException(&quot;Cannot ride backwards on a one way Line&quot;);</span>
         }
-<span class="fc" id="L33">    }</span>
+<span class="fc" id="L43">    }</span>
 
     public boolean hasArrived() {
-<span class="fc" id="L36">        return this.currentNode.equals(this.endingNode);</span>
+<span class="fc" id="L46">        return this.currentNode.equals(this.endingNode);</span>
+    }
+
+    public Position&lt;?&gt; getLastKnownPosition() {
+<span class="nc" id="L50">        return this.lastKnownLocation;</span>
     }
 
     @Override
     public TravelBuilder toBuilder() {
-<span class="fc" id="L41">        return new TravelBuilder()</span>
-<span class="fc" id="L42">                .setTravellingOn(this.travellingOn)</span>
-<span class="fc" id="L43">                .setEndingNode(this.endingNode)</span>
-<span class="fc" id="L44">                .setCurrentNode(this.currentNode)</span>
-<span class="fc" id="L45">                .setTravellingDirection(this.travellingDirection);</span>
+<span class="fc" id="L55">        return new TravelBuilder()</span>
+<span class="fc" id="L56">                .setTravellingOn(this.travellingOn)</span>
+<span class="fc" id="L57">                .setEndingNode(this.endingNode)</span>
+<span class="fc" id="L58">                .setCurrentNode(this.currentNode)</span>
+<span class="fc" id="L59">                .setOriginalPosition(this.originalPosition)</span>
+<span class="fc" id="L60">                .setPlayerId(this.playerId)</span>
+<span class="fc" id="L61">                .setLastKnownPosition(this.lastKnownLocation)</span>
+<span class="fc" id="L62">                .setTravellingDirection(this.travellingDirection);</span>
     }
 
     public Optional&lt;Travel&gt; travelToNext() {
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        if (this.hasArrived()) {</span>
-<span class="nc" id="L50">            return Optional.empty();</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (this.hasArrived()) {</span>
+<span class="nc" id="L67">            return Optional.empty();</span>
         }
-<span class="fc" id="L52">        int index = this.travellingOn.getNodes().indexOf(this.currentNode);</span>
-<span class="fc" id="L53">        LineDirection nextIsReversed = this.travellingDirection;</span>
-<span class="pc bpc" id="L54" title="1 of 4 branches missed.">        if (this.travellingOn.isBiDirectional() &amp;&amp; nextIsReversed.isAtEndOfLine(index, this.travellingOn.getNodes())) {</span>
-<span class="nc" id="L55">            nextIsReversed = nextIsReversed.getOpposite();</span>
+<span class="fc" id="L69">        int index = this.travellingOn.getNodes().indexOf(this.currentNode);</span>
+<span class="fc" id="L70">        LineDirection nextIsReversed = this.travellingDirection;</span>
+<span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (this.travellingOn.isBiDirectional() &amp;&amp; nextIsReversed.isAtEndOfLine(index, this.travellingOn.getNodes())) {</span>
+<span class="nc" id="L72">            nextIsReversed = nextIsReversed.getOpposite();</span>
         }
-<span class="fc" id="L57">        Optional&lt;Node&gt; opNext = nextIsReversed.getNextNode(index, this.travellingOn.getNodes());</span>
-<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (opNext.isPresent()) {</span>
-<span class="fc" id="L59">            final LineDirection finalNextIsReversed = nextIsReversed;</span>
-<span class="fc" id="L60">            return opNext.map(node -&gt; this.toBuilder().setCurrentNode(node).setTravellingDirection(finalNextIsReversed).build());</span>
+<span class="fc" id="L74">        Optional&lt;Node&gt; opNext = nextIsReversed.getNextNode(index, this.travellingOn.getNodes());</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (opNext.isPresent()) {</span>
+<span class="fc" id="L76">            final LineDirection finalNextIsReversed = nextIsReversed;</span>
+<span class="fc" id="L77">            return opNext.map(</span>
+<span class="fc" id="L78">                    node -&gt; this.toBuilder().setCurrentNode(node).setTravellingDirection(finalNextIsReversed).build());</span>
         }
-<span class="nc" id="L62">        return Optional.empty();</span>
+<span class="nc" id="L80">        return Optional.empty();</span>
     }
 
     public Line getTravellingOn() {
-<span class="nc" id="L66">        return this.travellingOn;</span>
+<span class="nc" id="L84">        return this.travellingOn;</span>
     }
 
     public Node getCurrentNode() {
-<span class="fc" id="L70">        return this.currentNode;</span>
+<span class="fc" id="L88">        return this.currentNode;</span>
     }
 
     public Node getEndingNode() {
-<span class="nc" id="L74">        return this.endingNode;</span>
+<span class="nc" id="L92">        return this.endingNode;</span>
+    }
+
+    public UUID getPlayerId() {
+<span class="nc" id="L96">        return this.playerId;</span>
+    }
+
+    public Position&lt;?&gt; getOriginalPosition() {
+<span class="nc" id="L100">        return this.originalPosition;</span>
     }
 
     public LineDirection getTravellingDirection() {
-<span class="nc" id="L78">        return this.travellingDirection;</span>
+<span class="nc" id="L104">        return this.travellingDirection;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

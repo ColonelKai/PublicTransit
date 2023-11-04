@@ -4,63 +4,104 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Builder;
+import org.core.entity.living.human.player.Player;
+import org.core.world.position.impl.Position;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-<span class="fc" id="L9">public class TravelBuilder implements Builder&lt;TravelBuilder, Travel&gt; {</span>
+import java.util.UUID;
 
+<span class="fc" id="L14">public class TravelBuilder implements Builder&lt;TravelBuilder, Travel&gt; {</span>
+
+    private UUID player;
     private Line travellingOn;
+    private Position&lt;?&gt; originalPosition;
+    private Position&lt;?&gt; lastKnownLocation;
     private Node currentNode;
     private Node endingNode;
     private LineDirection travellingDirection;
 
     public Line travellingOn() {
-<span class="fc" id="L17">        return this.travellingOn;</span>
+<span class="fc" id="L25">        return this.travellingOn;</span>
     }
 
     public TravelBuilder setTravellingOn(Line travellingOn) {
-<span class="fc" id="L21">        this.travellingOn = travellingOn;</span>
-<span class="fc" id="L22">        return this;</span>
+<span class="fc" id="L29">        this.travellingOn = travellingOn;</span>
+<span class="fc" id="L30">        return this;</span>
+    }
+
+    public Position&lt;?&gt; lastKnownPosition() {
+<span class="fc" id="L34">        return this.lastKnownLocation;</span>
+    }
+
+    public TravelBuilder setLastKnownPosition(Position&lt;?&gt; lastKnownLocation) {
+<span class="fc" id="L38">        this.lastKnownLocation = lastKnownLocation;</span>
+<span class="fc" id="L39">        return this;</span>
+    }
+
+    public Position&lt;?&gt; originalPosition() {
+<span class="fc" id="L43">        return this.originalPosition;</span>
+    }
+
+    public TravelBuilder setOriginalPosition(Position&lt;?&gt; currentNode) {
+<span class="fc" id="L47">        this.originalPosition = currentNode;</span>
+<span class="fc" id="L48">        return this;</span>
     }
 
     public Node currentNode() {
-<span class="fc" id="L26">        return this.currentNode;</span>
+<span class="fc" id="L52">        return this.currentNode;</span>
     }
 
     public TravelBuilder setCurrentNode(Node currentNode) {
-<span class="fc" id="L30">        this.currentNode = currentNode;</span>
-<span class="fc" id="L31">        return this;</span>
+<span class="fc" id="L56">        this.currentNode = currentNode;</span>
+<span class="fc" id="L57">        return this;</span>
     }
 
     public Node endingNode() {
-<span class="fc" id="L35">        return this.endingNode;</span>
+<span class="fc" id="L61">        return this.endingNode;</span>
     }
 
     public TravelBuilder setEndingNode(Node endingNode) {
-<span class="fc" id="L39">        this.endingNode = endingNode;</span>
-<span class="fc" id="L40">        return this;</span>
+<span class="fc" id="L65">        this.endingNode = endingNode;</span>
+<span class="fc" id="L66">        return this;</span>
     }
 
     public LineDirection travellingDirection() {
-<span class="fc" id="L44">        return this.travellingDirection;</span>
+<span class="fc" id="L70">        return this.travellingDirection;</span>
     }
 
     public TravelBuilder setTravellingDirection(@Nullable LineDirection ridingReversed) {
-<span class="fc" id="L48">        this.travellingDirection = ridingReversed;</span>
-<span class="fc" id="L49">        return this;</span>
+<span class="fc" id="L74">        this.travellingDirection = ridingReversed;</span>
+<span class="fc" id="L75">        return this;</span>
+    }
+
+    public UUID playerId() {
+<span class="fc" id="L79">        return this.player;</span>
+    }
+
+    public TravelBuilder setPlayerId(@NotNull UUID player) {
+<span class="fc" id="L83">        this.player = player;</span>
+<span class="fc" id="L84">        return this;</span>
+    }
+
+    public TravelBuilder setPlayer(@NotNull Player&lt;?&gt; player) {
+<span class="nc" id="L88">        this.player = player.getUniqueId();</span>
+<span class="nc" id="L89">        this.originalPosition = player.getPosition();</span>
+<span class="nc" id="L90">        return this;</span>
     }
 
     @Override
     public Travel build() {
-<span class="fc" id="L54">        return new Travel(this);</span>
+<span class="fc" id="L95">        return new Travel(this);</span>
     }
 
     @Override
     public TravelBuilder from(TravelBuilder travelBuilder) {
-<span class="nc" id="L59">        this.travellingOn = travelBuilder.travellingOn;</span>
-<span class="nc" id="L60">        this.travellingDirection = travelBuilder.travellingDirection;</span>
-<span class="nc" id="L61">        this.currentNode = travelBuilder.currentNode;</span>
-<span class="nc" id="L62">        this.endingNode = travelBuilder.endingNode;</span>
-<span class="nc" id="L63">        return this;</span>
+<span class="nc" id="L100">        this.travellingOn = travelBuilder.travellingOn;</span>
+<span class="nc" id="L101">        this.travellingDirection = travelBuilder.travellingDirection;</span>
+<span class="nc" id="L102">        this.originalPosition = travelBuilder.originalPosition;</span>
+<span class="nc" id="L103">        this.endingNode = travelBuilder.endingNode;</span>
+<span class="nc" id="L104">        return this;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
