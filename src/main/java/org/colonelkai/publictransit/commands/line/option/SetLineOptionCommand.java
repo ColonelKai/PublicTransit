@@ -1,10 +1,11 @@
 package org.colonelkai.publictransit.commands.line.option;
 
 import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
-import org.colonelkai.publictransit.commands.node.option.ViewNodeOptionCommand;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
+import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.options.CommandOptionBuilder;
 import org.colonelkai.publictransit.utils.Permissions;
 import org.core.command.argument.ArgumentCommand;
@@ -24,25 +25,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ViewLineOptionCommand implements ArgumentCommand {
+public class SetLineOptionCommand implements ArgumentCommand {
 
     private final ExactArgument LINE_ARGUMENT = new ExactArgument("line");
     private final ExactArgument VIEW_ARGUMENT = new ExactArgument("view");
-    private final Method getter;
     private final ExactArgument nameArgument;
     private final LineArgument lineArgument;
+    private final CommandArgument<?> valueArgument;
+    private final Method setter;
 
 
-    public ViewLineOptionCommand(ExactArgument argument, Method getter) {
+    public SetLineOptionCommand(ExactArgument argument, CommandArgument<?> valueArgument, Method setter) {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename");
-        this.getter = getter;
+        this.valueArgument = valueArgument;
+        this.setter = setter;
     }
 
-    public ViewLineOptionCommand(ExactArgument argument, Method method, Function<Stream<Line>, Stream<Line>> filter) {
+    public SetLineOptionCommand(ExactArgument argument, CommandArgument<?> valueArgument, Method setter, Function<Stream<Line>, Stream<Line>> filter) {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename", filter);
-        this.getter = method;
+        this.valueArgument = valueArgument;
+        this.setter = setter;
     }
 
     @Override
@@ -52,33 +56,46 @@ public class ViewLineOptionCommand implements ArgumentCommand {
 
     @Override
     public String getDescription() {
-        return "view the " + this.nameArgument.getId() + " of a line";
+        return "set the " + this.nameArgument.getId() + " of a node";
     }
 
     @Override
     public Optional<Permission> getPermissionNode() {
-        return Optional.of(Permissions.VIEW_LINE_OPTION);
+        return Optional.of(Permissions.SET_LINE_OPTION);
     }
 
     @Override
     public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+        return runCommand(commandContext, args);
+    }
+
+    private <T> boolean runCommand(CommandContext commandContext, String... args) throws NotEnoughArguments {
         Line line = commandContext.getArgument(this, this.lineArgument);
-        Object value;
+        LineBuilder builder = line.toBuilder();
+        T value = (T) commandContext.getArgument(this, this.valueArgument);
+        NodeBuilder nodeBuilder;
         try {
-            value = this.getter.invoke(line.toBuilder());
+            builder = ((LineBuilder) this.setter.invoke(builder, value));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        String stringValue = ViewNodeOptionCommand.toString(value).orElse(value.toString());
-        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ":" + stringValue));
+        Line updated = builder.build();
+
+        PublicTransit.getPlugin().getNodeManager().update(updated);
+        try {
+            updated.save();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        commandContext.getSource().sendMessage(Component.text("updated line"));
         return true;
     }
 
-    public static Collection<ViewLineOptionCommand> createViewCommands() {
+    public static Collection<SetLineOptionCommand> createSetCommands() {
         return CommandOptionBuilder
                 .buildFrom(LineBuilder.class)
                 .stream()
-                .map(meta -> new ViewLineOptionCommand(meta.nameArgument(), meta.getter()))
+                .map(meta -> new SetLineOptionCommand(meta.nameArgument(), meta.setterArgument(), meta.setter()))
                 .collect(Collectors.toList());
     }
 }

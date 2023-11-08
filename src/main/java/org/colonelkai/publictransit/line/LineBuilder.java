@@ -3,6 +3,7 @@ package org.colonelkai.publictransit.line;
 import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
+import org.colonelkai.publictransit.options.CommandOption;
 import org.colonelkai.publictransit.utils.Builder;
 import org.core.world.position.impl.ExactPosition;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +34,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
+    @CommandOption
     public @Nullable Integer weight() {
         return this.weight;
     }
@@ -62,14 +64,17 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
+    @CommandOption
     public Double cost() {
         return this.cost;
     }
 
+    @CommandOption
     public CostType costType() {
         return this.costType;
     }
 
+    @CommandOption
     public LineDirection direction() {
         return this.direction;
     }
@@ -78,6 +83,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this.identifier;
     }
 
+    @CommandOption(setter = "setBiDirectional")
     public boolean isBiDirectional() {
         return this.isBiDirectional;
     }
@@ -87,6 +93,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
+    @CommandOption
     public Component name() {
         return this.name;
     }

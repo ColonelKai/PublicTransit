@@ -1,8 +1,7 @@
-package org.colonelkai.publictransit.commands.line.option;
+package org.colonelkai.publictransit.commands.node.option;
 
 import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
-import org.colonelkai.publictransit.commands.node.option.ViewNodeOptionCommand;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
 import org.colonelkai.publictransit.options.CommandOptionBuilder;
@@ -24,7 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ViewLineOptionCommand implements ArgumentCommand {
+public class ViewNodeOptionCommand implements ArgumentCommand {
 
     private final ExactArgument LINE_ARGUMENT = new ExactArgument("line");
     private final ExactArgument VIEW_ARGUMENT = new ExactArgument("view");
@@ -33,13 +32,13 @@ public class ViewLineOptionCommand implements ArgumentCommand {
     private final LineArgument lineArgument;
 
 
-    public ViewLineOptionCommand(ExactArgument argument, Method getter) {
+    public ViewNodeOptionCommand(ExactArgument argument, Method getter) {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename");
         this.getter = getter;
     }
 
-    public ViewLineOptionCommand(ExactArgument argument, Method method, Function<Stream<Line>, Stream<Line>> filter) {
+    public ViewNodeOptionCommand(ExactArgument argument, Method method, Function<Stream<Line>, Stream<Line>> filter) {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename", filter);
         this.getter = method;
@@ -57,7 +56,7 @@ public class ViewLineOptionCommand implements ArgumentCommand {
 
     @Override
     public Optional<Permission> getPermissionNode() {
-        return Optional.of(Permissions.VIEW_LINE_OPTION);
+        return Optional.of(Permissions.VIEW_NODE_OPTION);
     }
 
     @Override
@@ -69,16 +68,23 @@ public class ViewLineOptionCommand implements ArgumentCommand {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        String stringValue = ViewNodeOptionCommand.toString(value).orElse(value.toString());
+        String stringValue = toString(value).orElse(value.toString());
         commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ":" + stringValue));
         return true;
     }
 
-    public static Collection<ViewLineOptionCommand> createViewCommands() {
+    public static Collection<ViewNodeOptionCommand> createViewCommands() {
         return CommandOptionBuilder
                 .buildFrom(LineBuilder.class)
                 .stream()
-                .map(meta -> new ViewLineOptionCommand(meta.nameArgument(), meta.getter()))
+                .map(meta -> new ViewNodeOptionCommand(meta.nameArgument(), meta.getter()))
                 .collect(Collectors.toList());
+    }
+
+    public static Optional<String> toString(Object obj) {
+        if (obj instanceof Optional<?> optional) {
+            return Optional.of(optional.flatMap(ViewNodeOptionCommand::toString).orElse("none"));
+        }
+        return Optional.empty();
     }
 }
