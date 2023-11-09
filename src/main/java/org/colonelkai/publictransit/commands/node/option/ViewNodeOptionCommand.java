@@ -82,6 +82,9 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
     }
 
     public static Optional<String> toString(Object obj) {
+        if (obj == null) {
+            return Optional.of("none");
+        }
         if (obj instanceof Optional<?> optional) {
             return Optional.of(optional.flatMap(ViewNodeOptionCommand::toString).orElse("none"));
         }
