@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.node;
 
+import org.colonelkai.publictransit.options.CommandOption;
 import org.colonelkai.publictransit.utils.Builder;
 import org.core.world.position.impl.Position;
 
@@ -28,6 +29,7 @@ public class NodeBuilder implements Builder<NodeBuilder, Node> {
         return position;
     }
 
+    @CommandOption
     public String name() {
         return name;
     }
@@ -52,6 +54,7 @@ public class NodeBuilder implements Builder<NodeBuilder, Node> {
         return this;
     }
 
+    @CommandOption
     public Integer time() {
         return time;
     }

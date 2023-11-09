@@ -2,8 +2,10 @@ package org.colonelkai.publictransit.commands.node.option;
 
 import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.commands.arguments.NodeArgument;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
+import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.options.CommandOptionBuilder;
 import org.colonelkai.publictransit.utils.Permissions;
 import org.core.command.argument.ArgumentCommand;
@@ -30,23 +32,30 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
     private final Method getter;
     private final ExactArgument nameArgument;
     private final LineArgument lineArgument;
+    private final NodeArgument nodeArgument;
 
 
     public ViewNodeOptionCommand(ExactArgument argument, Method getter) {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename");
+        this.nodeArgument = new NodeArgument("nodename", (commandContext, nodeCommandArgumentContext) -> commandContext
+                .getArgument(ViewNodeOptionCommand.this, lineArgument)
+                .getNodes());
         this.getter = getter;
     }
 
     public ViewNodeOptionCommand(ExactArgument argument, Method method, Function<Stream<Line>, Stream<Line>> filter) {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename", filter);
+        this.nodeArgument = new NodeArgument("nodename", (commandContext, nodeCommandArgumentContext) -> commandContext
+                .getArgument(ViewNodeOptionCommand.this, lineArgument)
+                .getNodes());
         this.getter = method;
     }
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(this.LINE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nameArgument);
+        return Arrays.asList(this.LINE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nodeArgument, this.nameArgument);
     }
 
     @Override
@@ -61,15 +70,15 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
 
     @Override
     public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
-        Line line = commandContext.getArgument(this, this.lineArgument);
+        Node node = commandContext.getArgument(this, this.nodeArgument);
         Object value;
         try {
-            value = this.getter.invoke(line.toBuilder());
+            value = this.getter.invoke(node.toBuilder());
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        String stringValue = toString(value).orElse(value.toString());
-        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ":" + stringValue));
+        String stringValue = toString(value).orElseGet(() -> value.toString());
+        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ": " + stringValue));
         return true;
     }
 

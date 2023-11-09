@@ -5,7 +5,6 @@ import org.colonelkai.publictransit.NodeManager;
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.commands.line.option.ViewLineOptionCommand;
 import org.colonelkai.publictransit.fake.CommandLine;
-import org.colonelkai.publictransit.fake.CommandLineBuilder;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
 import org.colonelkai.publictransit.options.CommandOptionBuilder;
@@ -27,13 +26,29 @@ import org.mockito.Mockito;
 
 import java.util.Collection;
 
-public class ViewCommandTests {
-
-    private MockedStatic<PublicTransit> pluginStatic;
-    private MockedStatic<TranslateCore> translateCoreStatic;
+public class ViewLineOptionsCommandTests {
 
     private NodeManager nodeManager;
     private Platform platform;
+    private MockedStatic<PublicTransit> pluginStatic;
+    private MockedStatic<TranslateCore> translateCoreStatic;
+
+    @Test
+    public void canRunViewCommand() throws NoSuchMethodException {
+        Line line = new LineBuilder().setIdentifier("lines").setBiDirectional(true).build();
+        PublicTransit.getPlugin().getNodeManager().register(line);
+        ConsoleSource consoleSource = Mockito.mock(ConsoleSource.class);
+        var order = Mockito.inOrder(consoleSource);
+        ViewLineOptionCommand viewLineOptionCommand = new ViewLineOptionCommand(new ExactArgument("weight"), LineBuilder.class.getDeclaredMethod("weight"));
+
+        boolean run = CommandLine.run(viewLineOptionCommand, consoleSource, "line", "view", "lines", "weight");
+
+        Assertions.assertTrue(run, "Failed to run command");
+        order.verify(consoleSource, Mockito.calls(1)).sendMessage(Mockito.argThat((ArgumentMatcher<Component>) argument -> {
+            String message = ComponentUtils.toPlain(argument);
+            return message.equals("weight: none");
+        }));
+    }
 
     @AfterEach
     public void end() {
@@ -42,6 +57,15 @@ public class ViewCommandTests {
         }
         this.pluginStatic.close();
         this.translateCoreStatic.close();
+    }
+
+    @Test
+    public void lineBuilderCount() {
+        //act
+        Collection<? extends CommandOptionMeta<?>> meta = CommandOptionBuilder.buildFrom(LineBuilder.class);
+
+        //assert
+        Assertions.assertEquals(6, meta.size());
     }
 
     @BeforeEach
@@ -57,35 +81,6 @@ public class ViewCommandTests {
         Mockito.when(this.platform.getConfigFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
         ConfigurationStream.ConfigurationFile configFile = Mockito.mock(ConfigurationStream.ConfigurationFile.class);
         this.translateCoreStatic.when(() -> TranslateCore.createConfigurationFile(Mockito.any(), Mockito.any())).thenReturn(configFile);
-    }
-
-    @Test
-    public void lineBuilderCount(){
-        //act
-        Collection<? extends CommandOptionMeta<?>> meta = CommandOptionBuilder.buildFrom(LineBuilder.class);
-
-        //assert
-        Assertions.assertEquals(6, meta.size());
-    }
-
-    @Test
-    public void canRunViewCommand() throws NoSuchMethodException {
-        Line line = new LineBuilder().setIdentifier("lines").setBiDirectional(true).build();
-        PublicTransit.getPlugin().getNodeManager().register(line);
-        ConsoleSource consoleSource = Mockito.mock(ConsoleSource.class);
-        var order = Mockito.inOrder(consoleSource);
-        ViewLineOptionCommand viewLineOptionCommand = new ViewLineOptionCommand(new ExactArgument("weight"), LineBuilder.class.getDeclaredMethod("weight"));
-
-        boolean run = CommandLine.run(viewLineOptionCommand, consoleSource, "line", "view", "lines", "weight");
-
-        Assertions.assertTrue(run, "Failed to run command");
-        order.verify(consoleSource, Mockito.calls(1)).sendMessage(Mockito.argThat(new ArgumentMatcher<Component>() {
-            @Override
-            public boolean matches(Component argument) {
-                String message = ComponentUtils.toPlain(argument);
-                return message.equals("weight: none");
-            }
-        }));
     }
 
 
