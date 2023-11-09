@@ -1,6 +1,8 @@
 package org.colonelkai.publictransit.commands;
 
 import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.commands.line.option.SetLineOptionCommand;
+import org.colonelkai.publictransit.commands.line.option.ViewLineOptionCommand;
 import org.colonelkai.publictransit.commands.node.option.SetNodeOptionCommand;
 import org.colonelkai.publictransit.commands.node.option.ViewNodeOptionCommand;
 import org.core.command.ArgumentLauncher;
@@ -42,6 +44,8 @@ public class PublicTransitCommandLauncher implements ArgumentLauncher, CommandLa
             }).filter(cmd -> cmd instanceof ArgumentCommand).map(cmd -> (ArgumentCommand) cmd).collect(Collectors.toSet());
             commands = new HashSet<>(commands);
             if(this.name.equals(PUBLIC_TRANSIT)){
+                commands.addAll(ViewLineOptionCommand.createViewCommands());
+                commands.addAll(SetLineOptionCommand.createSetCommands());
                 commands.addAll(ViewNodeOptionCommand.createViewCommands());
                 commands.addAll(SetNodeOptionCommand.createSetCommands());
             }

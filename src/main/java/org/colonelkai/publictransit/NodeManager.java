@@ -38,33 +38,6 @@ public class NodeManager {
         return this.lines.stream().filter(line -> line.getIdentifier().equalsIgnoreCase(identifier)).findAny();
     }
 
-    private ConfigurationFormat getFormat(String name) {
-        return this
-                .getFormats()
-                .filter(format -> Arrays.stream(format.getFileType()).anyMatch(t -> name.toLowerCase().endsWith(t.toLowerCase())))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No supported format for '" + name + "'"));
-    }
-
-    private Stream<ConfigurationFormat> getFormats() {
-        return Arrays
-                .stream(ConfigurationFormat.class.getDeclaredFields())
-                .filter(field -> Modifier.isFinal(field.getModifiers()))
-                .filter(field -> Modifier.isPublic(field.getModifiers()))
-                .filter(field -> Modifier.isStatic(field.getModifiers()))
-                .filter(field -> field.getType().isAssignableFrom(ConfigurationFormat.class))
-                .map(field -> {
-                    try {
-                        return (ConfigurationFormat) field.get(null);
-                    } catch (Throwable e) {
-                        //should never hit
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull);
-    }
-
     public Collection<Line> getLines() {
         return Collections.unmodifiableCollection(this.lines);
     }
@@ -82,8 +55,7 @@ public class NodeManager {
     }
 
     public Line load(File file) throws Exception {
-        ConfigurationFormat format = this.getFormat(file.getName());
-        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);
+        ConfigurationStream.ConfigurationFile config = TranslateCore.getConfigManager().read(file);
         Map<String, Object> map = config
                 .getMap(new ConfigurationNode())
                 .entrySet()

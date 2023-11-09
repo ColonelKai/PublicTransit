@@ -16,7 +16,6 @@ import org.core.command.argument.ParseCommandArgument;
 import org.core.command.argument.arguments.operation.ExactArgument;
 import org.core.command.argument.arguments.operation.OptionalArgument;
 import org.core.command.argument.arguments.position.ExactPositionArgument;
-import org.core.command.argument.arguments.simple.StringArgument;
 import org.core.command.argument.arguments.simple.number.IntegerArgument;
 import org.core.command.argument.context.CommandArgumentContext;
 import org.core.command.argument.context.CommandContext;
@@ -29,12 +28,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public class CreateTransitionalNodeCommand implements ArgumentCommand {
 
     private LineArgument lineArgument = new LineArgument("line");
-    private IntegerArgument positionArgument = new IntegerArgument("position");
     private OptionalArgument<ExactPosition> locationArgument = new OptionalArgument<>(new ExactPositionArgument("location"), new ParseCommandArgument<>() {
         @Override
         public CommandArgumentResult<ExactPosition> parse(CommandContext context, CommandArgumentContext<ExactPosition> argument) throws IOException {
@@ -46,10 +43,11 @@ public class CreateTransitionalNodeCommand implements ArgumentCommand {
             return CommandArgumentResult.from(argument, 0, position);
         }
     });
+    private IntegerArgument positionArgument = new IntegerArgument("position");
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(new ExactArgument("create"), new ExactArgument("node"), new ExactArgument("transitional"), lineArgument, positionArgument,
+        return Arrays.asList(new ExactArgument("node"), new ExactArgument("create"), new ExactArgument("transitional"), lineArgument, positionArgument,
                              locationArgument);
     }
 

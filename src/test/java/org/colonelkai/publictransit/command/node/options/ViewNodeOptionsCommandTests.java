@@ -14,6 +14,7 @@ import org.colonelkai.publictransit.options.CommandOptionBuilder;
 import org.colonelkai.publictransit.options.CommandOptionMeta;
 import org.core.TranslateCore;
 import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.config.ConfigManager;
 import org.core.config.ConfigurationFormat;
 import org.core.config.ConfigurationStream;
 import org.core.platform.Platform;
@@ -50,7 +51,7 @@ public class ViewNodeOptionsCommandTests {
         var order = Mockito.inOrder(consoleSource);
         ViewNodeOptionCommand viewLineOptionCommand = new ViewNodeOptionCommand(new ExactArgument("time"), NodeBuilder.class.getDeclaredMethod("time"));
 
-        boolean run = CommandLine.run(viewLineOptionCommand, consoleSource, "line", "view", "lines", "0", "time");
+        boolean run = CommandLine.run(viewLineOptionCommand, consoleSource, "node", "view", "lines", "0", "time");
 
         Assertions.assertTrue(run, "Failed to run command");
         order.verify(consoleSource, Mockito.calls(1)).sendMessage(Mockito.argThat(new ArgumentMatcher<Component>() {
@@ -93,6 +94,10 @@ public class ViewNodeOptionsCommandTests {
         Mockito.when(this.platform.getConfigFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
         ConfigurationStream.ConfigurationFile configFile = Mockito.mock(ConfigurationStream.ConfigurationFile.class);
         this.translateCoreStatic.when(() -> TranslateCore.createConfigurationFile(Mockito.any(), Mockito.any())).thenReturn(configFile);
+        ConfigManager config = Mockito.mock(ConfigManager.class);
+        Mockito.when(config.getDefaultFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
+        Mockito.when(config.read(Mockito.any())).thenReturn(configFile);
+        translateCoreStatic.when(TranslateCore::getConfigManager).thenReturn(config);
     }
 
 

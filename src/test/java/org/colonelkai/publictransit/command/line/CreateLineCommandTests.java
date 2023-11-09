@@ -8,6 +8,7 @@ import org.colonelkai.publictransit.fake.CommandLine;
 import org.colonelkai.publictransit.line.Line;
 import org.core.TranslateCore;
 import org.core.command.argument.ArgumentCommand;
+import org.core.config.ConfigManager;
 import org.core.config.ConfigurationFormat;
 import org.core.config.ConfigurationStream;
 import org.core.eco.CurrencyManager;
@@ -53,6 +54,10 @@ public class CreateLineCommandTests {
         Mockito.when(platform.getConfigFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
         ConfigurationStream.ConfigurationFile configFile = Mockito.mock(ConfigurationStream.ConfigurationFile.class);
         translateCoreStatic.when(() -> TranslateCore.createConfigurationFile(Mockito.any(), Mockito.any())).thenReturn(configFile);
+
+        ConfigManager config = Mockito.mock(ConfigManager.class);
+        Mockito.when(config.getDefaultFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
+        translateCoreStatic.when(TranslateCore::getConfigManager).thenReturn(config);
     }
 
     @Test

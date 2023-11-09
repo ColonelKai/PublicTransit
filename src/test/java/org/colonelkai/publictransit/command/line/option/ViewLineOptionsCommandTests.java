@@ -11,6 +11,7 @@ import org.colonelkai.publictransit.options.CommandOptionBuilder;
 import org.colonelkai.publictransit.options.CommandOptionMeta;
 import org.core.TranslateCore;
 import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.config.ConfigManager;
 import org.core.config.ConfigurationFormat;
 import org.core.config.ConfigurationStream;
 import org.core.platform.Platform;
@@ -80,7 +81,11 @@ public class ViewLineOptionsCommandTests {
         this.translateCoreStatic.when(TranslateCore::getPlatform).thenReturn(this.platform);
         Mockito.when(this.platform.getConfigFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
         ConfigurationStream.ConfigurationFile configFile = Mockito.mock(ConfigurationStream.ConfigurationFile.class);
-        this.translateCoreStatic.when(() -> TranslateCore.createConfigurationFile(Mockito.any(), Mockito.any())).thenReturn(configFile);
+
+        ConfigManager config = Mockito.mock(ConfigManager.class);
+        Mockito.when(config.getDefaultFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
+        Mockito.when(config.read(Mockito.any())).thenReturn(configFile);
+        translateCoreStatic.when(TranslateCore::getConfigManager).thenReturn(config);
     }
 
 

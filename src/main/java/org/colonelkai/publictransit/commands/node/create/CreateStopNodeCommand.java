@@ -9,7 +9,6 @@ import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Permissions;
-import org.core.TranslateCore;
 import org.core.command.argument.ArgumentCommand;
 import org.core.command.argument.CommandArgument;
 import org.core.command.argument.CommandArgumentResult;
@@ -17,7 +16,6 @@ import org.core.command.argument.ParseCommandArgument;
 import org.core.command.argument.arguments.operation.ExactArgument;
 import org.core.command.argument.arguments.operation.OptionalArgument;
 import org.core.command.argument.arguments.position.ExactPositionArgument;
-import org.core.command.argument.arguments.position.PositionArgument;
 import org.core.command.argument.arguments.simple.StringArgument;
 import org.core.command.argument.arguments.simple.number.IntegerArgument;
 import org.core.command.argument.context.CommandArgumentContext;
@@ -35,8 +33,6 @@ import java.util.Optional;
 public class CreateStopNodeCommand implements ArgumentCommand {
 
     private LineArgument lineArgument = new LineArgument("line");
-    private IntegerArgument positionArgument = new IntegerArgument("position");
-    private StringArgument nameArgument = new StringArgument("name");
     private OptionalArgument<ExactPosition> locationArgument = new OptionalArgument<>(new ExactPositionArgument("location"), new ParseCommandArgument<>() {
         @Override
         public CommandArgumentResult<ExactPosition> parse(CommandContext context, CommandArgumentContext<ExactPosition> argument) throws IOException {
@@ -48,10 +44,12 @@ public class CreateStopNodeCommand implements ArgumentCommand {
             return CommandArgumentResult.from(argument, 0, position);
         }
     });
+    private StringArgument nameArgument = new StringArgument("name");
+    private IntegerArgument positionArgument = new IntegerArgument("position");
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(new ExactArgument("create"), new ExactArgument("node"), new ExactArgument("stop"), lineArgument, positionArgument, nameArgument,
+        return Arrays.asList(new ExactArgument("node"), new ExactArgument("create"), new ExactArgument("stop"), lineArgument, positionArgument, nameArgument,
                              locationArgument);
     }
 

@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 public class ViewNodeOptionCommand implements ArgumentCommand {
 
-    private final ExactArgument LINE_ARGUMENT = new ExactArgument("line");
+    private final ExactArgument NODE_ARGUMENT = new ExactArgument("node");
     private final ExactArgument VIEW_ARGUMENT = new ExactArgument("view");
     private final Method getter;
     private final ExactArgument nameArgument;
@@ -55,7 +55,7 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(this.LINE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nodeArgument, this.nameArgument);
+        return Arrays.asList(this.NODE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nodeArgument, this.nameArgument);
     }
 
     @Override

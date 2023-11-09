@@ -8,9 +8,9 @@ import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.Savable;
+import org.core.TranslateCore;
 import org.core.entity.Entity;
 import org.core.entity.InventoryHoldingEntity;
-import org.core.entity.living.human.player.Player;
 import org.core.inventory.Inventory;
 import org.core.inventory.item.stack.ItemStack;
 import org.core.inventory.parts.Slot;
@@ -83,36 +83,9 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         this.nodes.add(node);
     }
 
-    public OptionalInt getWeight() {
-        if (null != this.weight) {
-            return OptionalInt.of(this.weight);
-        }
-        return PublicTransit.getPlugin().getConfig().getMaximumWeight();
-    }
-
-    public boolean isValidWeight(InventoryHoldingEntity<? extends Entity<?>> player) {
-        return this.isValidWeight(player.getInventory());
-    }
-
-    public boolean isValidWeight(Inventory inventory) {
-        OptionalInt opWeight = this.getWeight();
-        if (opWeight.isEmpty()) {
-            return true;
-        }
-        long currentWeight = inventory
-                .getSlots()
-                .stream()
-                .map(Slot::getItem)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .mapToInt(ItemStack::getQuantity)
-                .count();
-        return opWeight.getAsInt() > currentWeight;
-    }
-
     @Override
     public File defaultFile() {
-        return new File(NodeManager.LINES_DATA_PATH, this.identifier);
+        return new File(NodeManager.LINES_DATA_PATH, this.identifier + TranslateCore.getConfigManager().getDefaultFormat().getFileType()[0]);
     }
 
     @Override
@@ -128,16 +101,16 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.costType;
     }
 
-    public Component getName() {
-        return this.name;
-    }
-
     public LineDirection getDirection() {
         return this.direction;
     }
 
     public String getIdentifier() {
         return this.identifier;
+    }
+
+    public Component getName() {
+        return this.name;
     }
 
     public List<Node> getNodes() {
@@ -165,6 +138,13 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.costType.get(this, start, end);
     }
 
+    public OptionalInt getWeight() {
+        if (null != this.weight) {
+            return OptionalInt.of(this.weight);
+        }
+        return PublicTransit.getPlugin().getConfig().getMaximumWeight();
+    }
+
     @Override
     public int hashCode() {
         return this.identifier.hashCode();
@@ -184,6 +164,26 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
 
     public boolean isBiDirectional() {
         return this.isBiDirectional;
+    }
+
+    public boolean isValidWeight(InventoryHoldingEntity<? extends Entity<?>> player) {
+        return this.isValidWeight(player.getInventory());
+    }
+
+    public boolean isValidWeight(Inventory inventory) {
+        OptionalInt opWeight = this.getWeight();
+        if (opWeight.isEmpty()) {
+            return true;
+        }
+        long currentWeight = inventory
+                .getSlots()
+                .stream()
+                .map(Slot::getItem)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .mapToInt(ItemStack::getQuantity)
+                .count();
+        return opWeight.getAsInt() > currentWeight;
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.core.command.argument.arguments.operation.ExactArgument;
 import org.core.command.argument.context.CommandContext;
 import org.core.exceptions.NotEnoughArguments;
 import org.core.permission.Permission;
+import org.core.source.command.CommandSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,5 +54,13 @@ public class DeleteNodeCommand implements ArgumentCommand {
         Line updated = line.toBuilder().removeNode(node).build();
         PublicTransit.getPlugin().getNodeManager().update(updated);
         return true;
+    }
+
+    @Override
+    public boolean hasPermission(CommandSource source) {
+        if (PublicTransit.getPlugin().getNodeManager().getNodes().noneMatch(node -> true)) {
+            return false;
+        }
+        return ArgumentCommand.super.hasPermission(source);
     }
 }
