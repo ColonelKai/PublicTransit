@@ -4,7 +4,6 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.serializers.Serializers;
 import org.core.TranslateCore;
-import org.core.config.ConfigurationFormat;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.core.world.position.Positionable;
@@ -12,7 +11,6 @@ import org.core.world.position.impl.Position;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
@@ -57,7 +55,7 @@ public class NodeManager {
     public Line load(File file) throws Exception {
         ConfigurationStream.ConfigurationFile config = TranslateCore.getConfigManager().read(file);
         Map<String, Object> map = config
-                .getMap(new ConfigurationNode())
+                .getMap(new ConfigurationNode("Line"))
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(entry -> entry.getKey().toString(), Map.Entry::getValue));
@@ -90,10 +88,8 @@ public class NodeManager {
         this.lines.add(line);
     }
 
-    public void save(Line line, File to) throws Exception {
-        ConfigurationFormat format = TranslateCore.getPlatform().getConfigFormat();
-        File file = new File(to, format.getFileType()[0]);
-        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);
+    public void save(Line line, File file) throws Exception {
+        ConfigurationStream.ConfigurationFile config = TranslateCore.getConfigManager().read(file);
 
         Map<String, Object> map = Serializers.LINE.serialize(line);
         config.set(new ConfigurationNode("Line"), map);

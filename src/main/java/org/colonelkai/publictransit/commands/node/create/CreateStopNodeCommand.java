@@ -68,7 +68,14 @@ public class CreateStopNodeCommand implements ArgumentCommand {
         Line line = commandContext.getArgument(this, this.lineArgument);
         int nodePosition = commandContext.getArgument(this, this.positionArgument);
         String nodeName = commandContext.getArgument(this, this.nameArgument);
-        ExactPosition position = commandContext.getArgument(this, this.locationArgument);
+        ExactPosition position;
+        try {
+            position = commandContext.getArgument(this, this.locationArgument);
+        } catch (IllegalArgumentException e) {
+            //ill fix this later
+            commandContext.getSource().sendMessage(Component.text("Location must be specified"));
+            return false;
+        }
 
         if ((line.getNodes().size() < nodePosition) || (0 < nodePosition)) {
             commandContext

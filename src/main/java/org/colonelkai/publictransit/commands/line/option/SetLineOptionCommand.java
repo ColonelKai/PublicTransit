@@ -5,7 +5,6 @@ import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
-import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.options.CommandOptionBuilder;
 import org.colonelkai.publictransit.utils.Permissions;
 import org.core.command.argument.ArgumentCommand;
@@ -28,7 +27,7 @@ import java.util.stream.Stream;
 public class SetLineOptionCommand implements ArgumentCommand {
 
     private final ExactArgument LINE_ARGUMENT = new ExactArgument("line");
-    private final ExactArgument VIEW_ARGUMENT = new ExactArgument("view");
+    private final ExactArgument SET_ARGUMENT = new ExactArgument("set");
     private final ExactArgument nameArgument;
     private final LineArgument lineArgument;
     private final CommandArgument<?> valueArgument;
@@ -51,7 +50,7 @@ public class SetLineOptionCommand implements ArgumentCommand {
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(this.LINE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nameArgument);
+        return Arrays.asList(this.LINE_ARGUMENT, this.SET_ARGUMENT, this.lineArgument, this.nameArgument, this.valueArgument);
     }
 
     @Override
@@ -73,7 +72,6 @@ public class SetLineOptionCommand implements ArgumentCommand {
         Line line = commandContext.getArgument(this, this.lineArgument);
         LineBuilder builder = line.toBuilder();
         T value = (T) commandContext.getArgument(this, this.valueArgument);
-        NodeBuilder nodeBuilder;
         try {
             builder = ((LineBuilder) this.setter.invoke(builder, value));
         } catch (IllegalAccessException | InvocationTargetException e) {

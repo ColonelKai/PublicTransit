@@ -85,7 +85,7 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
 
     @Override
     public File defaultFile() {
-        return new File(NodeManager.LINES_DATA_PATH, this.identifier + TranslateCore.getConfigManager().getDefaultFormat().getFileType()[0]);
+        return new File(NodeManager.LINES_DATA_PATH, this.identifier + "." + TranslateCore.getConfigManager().getDefaultFormat().getFileType()[0]);
     }
 
     @Override

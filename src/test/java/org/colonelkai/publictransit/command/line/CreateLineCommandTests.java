@@ -56,8 +56,10 @@ public class CreateLineCommandTests {
         translateCoreStatic.when(() -> TranslateCore.createConfigurationFile(Mockito.any(), Mockito.any())).thenReturn(configFile);
 
         ConfigManager config = Mockito.mock(ConfigManager.class);
+        ConfigurationStream.ConfigurationFile mockedConfig = Mockito.mock(ConfigurationStream.ConfigurationFile.class);
         Mockito.when(config.getDefaultFormat()).thenReturn(ConfigurationFormat.FORMAT_YAML);
         translateCoreStatic.when(TranslateCore::getConfigManager).thenReturn(config);
+        Mockito.when(config.read(Mockito.any())).thenReturn(mockedConfig);
     }
 
     @Test
