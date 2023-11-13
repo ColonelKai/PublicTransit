@@ -1,16 +1,11 @@
 package org.colonelkai.publictransit.node;
 
-import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.config.PublicTransitConfigNodes;
 import org.colonelkai.publictransit.utils.Buildable;
-import org.colonelkai.publictransit.utils.serializers.NodeTypeSerializer;
 import org.colonelkai.publictransit.utils.serializers.PositionSerializer;
-import org.core.entity.Entity;
-import org.core.entity.living.human.player.Player;
 import org.core.world.position.Positionable;
 import org.core.world.position.impl.ExactPosition;
 import org.core.world.position.impl.Position;
-import org.core.world.position.impl.sync.SyncExactPosition;
 import org.easy.config.auto.annotations.ConfigConstructor;
 import org.easy.config.auto.annotations.ConfigField;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-public class Node implements Buildable<NodeBuilder, Node> {
+public class Node implements Buildable<NodeBuilder, Node>, Positionable<ExactPosition> {
 
     @ConfigField(serializer = PositionSerializer.class)
     private final ExactPosition location;
@@ -47,12 +42,6 @@ public class Node implements Buildable<NodeBuilder, Node> {
         this.validate();
     }
 
-    private void validate() {
-        if ((null == this.name) && (NodeType.STOP == this.nodeType)) {
-            throw new RuntimeException("A stop must have a name specified");
-        }
-    }
-
     public Optional<String> getName() {
         return Optional.ofNullable(this.name);
     }
@@ -61,6 +50,7 @@ public class Node implements Buildable<NodeBuilder, Node> {
         return this.nodeType;
     }
 
+    @Override
     public ExactPosition getPosition() {
         return this.location;
     }
@@ -70,20 +60,6 @@ public class Node implements Buildable<NodeBuilder, Node> {
             return OptionalInt.empty();
         }
         return OptionalInt.of(this.time);
-    }
-
-    public boolean isWithin(Positionable<? extends Position<?>> positionable) {
-        return this.isWithin(positionable.getPosition());
-    }
-
-    public boolean isWithin(Position<?> position) {
-        if (!position.getWorld().equals(this.location.getWorld())) {
-            return false;
-        }
-        double distance = position.getPosition().distanceSquared(this.location.getPosition());
-        double configDistance = PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.get();
-        return distance < configDistance;
-
     }
 
     @Override
@@ -99,8 +75,28 @@ public class Node implements Buildable<NodeBuilder, Node> {
         return node.location.equals(this.location);
     }
 
+    public boolean isWithin(Position<?> position) {
+        if (!position.getWorld().equals(this.location.getWorld())) {
+            return false;
+        }
+        double distance = position.getPosition().distanceSquared(this.location.getPosition());
+        double configDistance = PublicTransitConfigNodes.PLAYER_DISTANCE_FROM_NODE.get();
+        return distance < configDistance;
+
+    }
+
+    public boolean isWithin(Positionable<? extends Position<?>> positionable) {
+        return this.isWithin(positionable.getPosition());
+    }
+
     @Override
     public NodeBuilder toBuilder() {
         return new NodeBuilder().setPosition(this.location).setTime(this.time).setType(this.nodeType).setName(this.name);
+    }
+
+    private void validate() {
+        if ((null == this.name) && (NodeType.STOP == this.nodeType)) {
+            throw new RuntimeException("A stop must have a name specified");
+        }
     }
 }

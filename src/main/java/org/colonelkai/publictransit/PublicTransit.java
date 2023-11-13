@@ -3,7 +3,6 @@ package org.colonelkai.publictransit;
 
 import org.colonelkai.publictransit.commands.PublicTransitCommandLauncher;
 import org.colonelkai.publictransit.config.PublicTransitConfig;
-import org.core.TranslateCore;
 import org.core.command.CommandRegister;
 import org.core.logger.Logger;
 import org.core.platform.plugin.CorePlugin;
@@ -24,12 +23,12 @@ public class PublicTransit implements CorePlugin {
         this.config = new PublicTransitConfig();
     }
 
-    public Logger getLogger() {
-        return this.logger;
-    }
-
     public PublicTransitConfig getConfig() {
         return this.config;
+    }
+
+    public Logger getLogger() {
+        return this.logger;
     }
 
     public NodeManager getNodeManager() {
@@ -47,6 +46,12 @@ public class PublicTransit implements CorePlugin {
     }
 
     @Override
+    public void onCoreReady() {
+        this.nodeManager.loadAll().forEach(this.nodeManager::register);
+        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
+    }
+
+    @Override
     public @NotNull Object getPlatformLauncher() {
         return this.launcher;
     }
@@ -55,6 +60,7 @@ public class PublicTransit implements CorePlugin {
     public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
         this.launcher = pluginLauncher;
         this.logger = logger;
+        this.config.getFile().save();
     }
 
     @Override
@@ -70,12 +76,6 @@ public class PublicTransit implements CorePlugin {
     @Override
     public @NotNull CorePluginVersion getPluginVersion() {
         return new CorePluginVersion(0, 0, 1);
-    }
-
-    @Override
-    public void onCoreReady() {
-        this.nodeManager.loadAll().forEach(this.nodeManager::register);
-        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
     }
 
     public static PublicTransit getPlugin() {

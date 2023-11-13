@@ -24,7 +24,7 @@ public class DeleteLineCommand implements ArgumentCommand {
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(DELETE_ARGUMENT, LINE_ARGUMENT, LINE_NAME_ARGUMENT);
+        return Arrays.asList(LINE_ARGUMENT, DELETE_ARGUMENT, LINE_NAME_ARGUMENT);
     }
 
     @Override

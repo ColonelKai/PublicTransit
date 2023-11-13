@@ -15,6 +15,7 @@ import org.core.command.argument.CommandArgumentResult;
 import org.core.command.argument.ParseCommandArgument;
 import org.core.command.argument.arguments.operation.ExactArgument;
 import org.core.command.argument.arguments.operation.OptionalArgument;
+import org.core.command.argument.arguments.operation.SuggestionArgument;
 import org.core.command.argument.arguments.position.ExactPositionArgument;
 import org.core.command.argument.arguments.simple.StringArgument;
 import org.core.command.argument.arguments.simple.number.IntegerArgument;
@@ -27,8 +28,11 @@ import org.core.world.position.impl.ExactPosition;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CreateStopNodeCommand implements ArgumentCommand {
 
@@ -45,7 +49,14 @@ public class CreateStopNodeCommand implements ArgumentCommand {
         }
     });
     private StringArgument nameArgument = new StringArgument("name");
-    private IntegerArgument positionArgument = new IntegerArgument("position");
+    private SuggestionArgument<Integer> positionArgument = new SuggestionArgument<>(new IntegerArgument("position")) {
+        @Override
+        public Collection<String> suggest(CommandContext commandContext, CommandArgumentContext<Integer> argument) throws NotEnoughArguments {
+            int max = commandContext.getArgument(CreateStopNodeCommand.this, lineArgument).getNodes().size();
+            String command = commandContext.getCommand()[argument.getFirstArgument()];
+            return IntStream.range(0, max + 1).boxed().map(Object::toString).filter(v -> v.startsWith(command)).collect(Collectors.toList());
+        }
+    };
 
     @Override
     public List<CommandArgument<?>> getArguments() {
@@ -77,7 +88,7 @@ public class CreateStopNodeCommand implements ArgumentCommand {
             return false;
         }
 
-        if ((line.getNodes().size() < nodePosition) || (0 < nodePosition)) {
+        if ((line.getNodes().size() < nodePosition) || (0 > nodePosition)) {
             commandContext
                     .getSource()
                     .sendMessage(Component
@@ -110,8 +121,14 @@ public class CreateStopNodeCommand implements ArgumentCommand {
         }
         //cancel line
         NodeBuilder node = new NodeBuilder().setType(NodeType.STOP).setName(nodeName).setPosition(position);
-        line.toBuilder().addNodeAt(nodePosition, node);
+        line = line.toBuilder().addNodeAt(nodePosition, node).build();
         PublicTransit.getPlugin().getNodeManager().update(line);
+        try {
+            line.save();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        commandContext.getSource().sendMessage(Component.text("Created stop node of " + node.name()));
         return true;
     }
 }

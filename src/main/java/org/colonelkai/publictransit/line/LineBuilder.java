@@ -1,51 +1,38 @@
 package org.colonelkai.publictransit.line;
 
 import net.kyori.adventure.text.Component;
-import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.options.CommandOption;
 import org.colonelkai.publictransit.utils.Builder;
+import org.core.world.position.Positionable;
 import org.core.world.position.impl.ExactPosition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class LineBuilder implements Builder<LineBuilder, Line> {
 
+    private final List<NodeBuilder> nodes = new ArrayList<>();
     private Double cost;
     private CostType costType;
     private LineDirection direction;
     private String identifier;
     private boolean isBiDirectional;
     private Component name;
-    private List<NodeBuilder> nodes = new ArrayList<>();
     private Integer weight;
-
-    public LineBuilder addNodes(NodeBuilder... nodes) {
-        this.nodes.addAll(Arrays.asList(nodes));
-        return this;
-    }
 
     public LineBuilder addNodeAt(int position, NodeBuilder builder) {
         this.nodes.add(position, builder);
         return this;
     }
 
-    @CommandOption
-    public @Nullable Integer weight() {
-        return this.weight;
-    }
-
-    public LineBuilder setWeight(@Nullable Integer weight) {
-        this.weight = weight;
+    public LineBuilder addNodes(NodeBuilder... nodes) {
+        this.nodes.addAll(Arrays.asList(nodes));
         return this;
-    }
-
-    public LineBuilder setDefaultWeight() {
-        return setWeight(null);
     }
 
     @Override
@@ -55,7 +42,7 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
 
     @Override
     public LineBuilder from(LineBuilder lineBuilder) {
-        this.nodes = lineBuilder.nodes();
+        this.nodes.addAll(lineBuilder.nodes());
         this.cost = lineBuilder.cost();
         this.costType = lineBuilder.costType();
         this.name = lineBuilder.name();
@@ -103,13 +90,13 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
     }
 
     public LineBuilder removeNode(@NotNull ExactPosition position) {
-        this.nodes.stream().filter(node -> null != node.position()).filter(node -> node.position().equals(position)).forEach(n -> this.nodes.remove(n));
+        var toRemove = this.nodes.stream().filter(node -> null != node.position()).filter(node -> node.position().equals(position)).toList();
+        this.nodes.removeAll(toRemove);
         return this;
     }
 
-    public LineBuilder removeNode(@NotNull Node node) {
-        this.nodes.remove(node);
-        return this;
+    public LineBuilder removeNode(@NotNull Positionable<ExactPosition> node) {
+        return this.removeNode(node.getPosition());
     }
 
     public LineBuilder setCost(double cost) {
@@ -120,6 +107,10 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
     public LineBuilder setCostType(CostType costType) {
         this.costType = costType;
         return this;
+    }
+
+    public LineBuilder setDefaultWeight() {
+        return setWeight(null);
     }
 
     public LineBuilder setDirection(LineDirection direction) {
@@ -137,8 +128,19 @@ public class LineBuilder implements Builder<LineBuilder, Line> {
         return this;
     }
 
-    public LineBuilder setNodes(List<NodeBuilder> nodes) {
-        this.nodes = nodes;
+    public LineBuilder setNodes(Collection<NodeBuilder> nodes) {
+        this.nodes.clear();
+        this.nodes.addAll(nodes);
         return this;
+    }
+
+    public LineBuilder setWeight(@Nullable Integer weight) {
+        this.weight = weight;
+        return this;
+    }
+
+    @CommandOption
+    public @Nullable Integer weight() {
+        return this.weight;
     }
 }

@@ -4,8 +4,8 @@ import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
 import org.colonelkai.publictransit.commands.arguments.NodeArgument;
 import org.colonelkai.publictransit.line.Line;
-import org.colonelkai.publictransit.line.LineBuilder;
 import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.options.CommandOptionBuilder;
 import org.colonelkai.publictransit.utils.Permissions;
 import org.core.command.argument.ArgumentCommand;
@@ -84,7 +84,7 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
 
     public static Collection<ViewNodeOptionCommand> createViewCommands() {
         return CommandOptionBuilder
-                .buildFrom(LineBuilder.class)
+                .buildFrom(NodeBuilder.class)
                 .stream()
                 .map(meta -> new ViewNodeOptionCommand(meta.nameArgument(), meta.getter()))
                 .collect(Collectors.toList());

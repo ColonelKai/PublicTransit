@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public class SetNodeOptionCommand implements ArgumentCommand {
 
     private final ExactArgument NODE_ARGUMENT = new ExactArgument("node");
-    private final ExactArgument VIEW_ARGUMENT = new ExactArgument("view");
+    private final ExactArgument VIEW_ARGUMENT = new ExactArgument("set");
     private final ExactArgument nameArgument;
     private final LineArgument lineArgument;
     private final NodeArgument nodeArgument;
@@ -42,7 +42,7 @@ public class SetNodeOptionCommand implements ArgumentCommand {
         this.nameArgument = argument;
         this.lineArgument = new LineArgument("linename");
         this.valueArgument = valueArgument;
-        this.nodeArgument = new NodeArgument("node", (commandContext, nodeCommandArgumentContext) -> {
+        this.nodeArgument = new NodeArgument("nodevalue", (commandContext, nodeCommandArgumentContext) -> {
             Line line = commandContext.getArgument(SetNodeOptionCommand.this, SetNodeOptionCommand.this.lineArgument);
             return line.getNodes();
         });
@@ -62,7 +62,7 @@ public class SetNodeOptionCommand implements ArgumentCommand {
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(this.NODE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nameArgument);
+        return Arrays.asList(this.NODE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nodeArgument, this.nameArgument, this.valueArgument);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class SetNodeOptionCommand implements ArgumentCommand {
 
     public static Collection<SetNodeOptionCommand> createSetCommands() {
         return CommandOptionBuilder
-                .buildFrom(LineBuilder.class)
+                .buildFrom(NodeBuilder.class)
                 .stream()
                 .map(meta -> new SetNodeOptionCommand(meta.nameArgument(), meta.setterArgument(), meta.setter()))
                 .collect(Collectors.toList());

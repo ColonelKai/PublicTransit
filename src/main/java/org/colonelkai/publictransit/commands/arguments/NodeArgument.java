@@ -86,7 +86,7 @@ public class NodeArgument implements CommandArgument<Node> {
         if (peek.isEmpty()) {
             return toDisplay.apply(target);
         }
-        return toDisplay.apply(target).stream().filter(name -> name.toLowerCase().startsWith(peek.toLowerCase())).collect(Collectors.toList());
+        return toDisplay.apply(target).stream().filter(name -> name.toLowerCase().startsWith(peek.toLowerCase())).sorted().collect(Collectors.toList());
     }
 
     public static OptionalArgument<Node> nodeOrClosest(String id,

@@ -6,9 +6,10 @@ import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class StringConfigNode extends AbstractConfigNode<String> {
-    public StringConfigNode(ConfigurationNode path, String defaultValue, Config config) {
+    public StringConfigNode(ConfigurationNode path, String defaultValue, Supplier<Config> config) {
         super(path, defaultValue, config);
     }
 
