@@ -2,7 +2,7 @@ package org.colonelkai.publictransit.utils;
 
 import org.core.permission.CorePermission;
 
-public class Permissions {
+public final class Permissions {
 
     public static final CorePermission CREATE_LINE = new CorePermission(false, "publictransit", "cmd", "line", "create");
     public static final CorePermission DELETE_LINE = new CorePermission(false, "publictransit", "cmd", "line", "delete");
@@ -17,5 +17,9 @@ public class Permissions {
     public static final CorePermission DELETE_NODE = new CorePermission(false, "publictransit", "cmd", "node", "delete");
     public static final CorePermission MOVE_NODE = new CorePermission(false, "publictransit", "cmd", "node", "move");
     public static final CorePermission COPY_NODE = new CorePermission(false, "publictransit", "cmd", "node", "copy");
+    public static final CorePermission TRAVEL = new CorePermission(true, "publictransit", "cmd", "travel");
 
+    private Permissions() {
+        throw new RuntimeException("Should not run");
+    }
 }

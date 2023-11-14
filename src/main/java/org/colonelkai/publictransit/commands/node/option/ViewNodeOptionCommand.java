@@ -77,8 +77,8 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        String stringValue = toString(value).orElseGet(() -> value.toString());
-        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ": " + stringValue));
+        Component stringValue = toString(value).orElseGet(() -> Component.text(value.toString()));
+        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ": ").append(stringValue));
         return true;
     }
 
@@ -90,12 +90,15 @@ public class ViewNodeOptionCommand implements ArgumentCommand {
                 .collect(Collectors.toList());
     }
 
-    public static Optional<String> toString(Object obj) {
+    public static Optional<Component> toString(Object obj) {
         if (obj == null) {
-            return Optional.of("none");
+            return Optional.of(Component.text("none"));
         }
         if (obj instanceof Optional<?> optional) {
-            return Optional.of(optional.flatMap(ViewNodeOptionCommand::toString).orElse("none"));
+            return Optional.of(optional.flatMap(ViewNodeOptionCommand::toString).orElse(Component.text("none")));
+        }
+        if (obj instanceof Component component) {
+            return Optional.of(component);
         }
         return Optional.empty();
     }

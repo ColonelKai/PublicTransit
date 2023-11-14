@@ -69,8 +69,8 @@ public class ViewLineOptionCommand implements ArgumentCommand {
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        String stringValue = ViewNodeOptionCommand.toString(value).orElseGet(() -> value.toString());
-        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ": " + stringValue));
+        Component stringValue = ViewNodeOptionCommand.toString(value).orElseGet(() -> Component.text(value.toString()));
+        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + ": ").append(stringValue));
         return true;
     }
 

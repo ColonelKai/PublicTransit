@@ -4,7 +4,6 @@ import org.colonelkai.publictransit.node.Node;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public enum LineDirection {
 
@@ -17,19 +16,27 @@ public enum LineDirection {
         this.isPositive = isPositive;
     }
 
-    public boolean isPositive() {
-        return this.isPositive;
+    public Optional<Node> getNextNode(int currentIndex, List<Node> nodes) {
+        if (nodes.isEmpty()) {
+            return Optional.empty();
+        }
+        return this.next(currentIndex, nodes);
     }
 
     public LineDirection getOpposite() {
         return valueOf(!this.isPositive);
     }
 
-    public Optional<Node> getNextNode(int currentIndex, List<Node> nodes) {
-        if (nodes.isEmpty()) {
-            return Optional.empty();
-        }
-        return this.next(currentIndex, nodes);
+    public boolean isAtEndOfLine(int currentIndex, List<Node> nodes) {
+        return this.next(currentIndex, nodes).isEmpty();
+    }
+
+    public boolean isPositive() {
+        return this.isPositive;
+    }
+
+    public boolean isValid(int from, int to) {
+        return (from < to) == this.isPositive;
     }
 
     private Optional<Node> next(int currentIndex, List<Node> nodes) {
@@ -40,10 +47,6 @@ public enum LineDirection {
             return Optional.of(nodes.get(index));
         }
         return Optional.empty();
-    }
-
-    public boolean isAtEndOfLine(int currentIndex, List<Node> nodes) {
-        return this.next(currentIndex, nodes).isEmpty();
     }
 
     public static LineDirection valueOf(boolean isPositive) {
