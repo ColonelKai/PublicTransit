@@ -4,22 +4,32 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineDirection;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.Buildable;
+import org.core.world.position.impl.Position;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Travel implements Buildable<TravelBuilder, Travel> {
 
+    private UUID playerId;
     private final Line travellingOn;
     private final Node currentNode;
     private final Node endingNode;
+    private final Position<?> originalPosition;
+    private final Position<?> lastKnownLocation;
     private final LineDirection travellingDirection;
 
     Travel(TravelBuilder builder) {
         this.currentNode = Objects.requireNonNull(builder.currentNode());
+        this.originalPosition = Objects.requireNonNull(builder.originalPosition());
         this.endingNode = Objects.requireNonNull(builder.endingNode());
         this.travellingOn = Objects.requireNonNull(builder.travellingOn());
-        this.travellingDirection = Objects.requireNonNullElse(builder.travellingDirection(), this.travellingOn.getDirection());
+        this.travellingDirection = Objects.requireNonNullElse(builder.travellingDirection(),
+                                                              this.travellingOn.getDirection());
+        this.playerId = Objects.requireNonNull(builder.playerId());
+        this.lastKnownLocation = Objects.requireNonNullElse(builder.lastKnownPosition(),
+                                                            this.currentNode.getPosition());
 
         if (!this.travellingOn.getNodes().contains(this.currentNode)) {
             throw new IllegalStateException("Travelling On must contain the current node");
@@ -36,12 +46,19 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
         return this.currentNode.equals(this.endingNode);
     }
 
+    public Position<?> getLastKnownPosition() {
+        return this.lastKnownLocation;
+    }
+
     @Override
     public TravelBuilder toBuilder() {
         return new TravelBuilder()
                 .setTravellingOn(this.travellingOn)
                 .setEndingNode(this.endingNode)
                 .setCurrentNode(this.currentNode)
+                .setOriginalPosition(this.originalPosition)
+                .setPlayerId(this.playerId)
+                .setLastKnownPosition(this.lastKnownLocation)
                 .setTravellingDirection(this.travellingDirection);
     }
 
@@ -57,7 +74,8 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
         Optional<Node> opNext = nextIsReversed.getNextNode(index, this.travellingOn.getNodes());
         if (opNext.isPresent()) {
             final LineDirection finalNextIsReversed = nextIsReversed;
-            return opNext.map(node -> this.toBuilder().setCurrentNode(node).setTravellingDirection(finalNextIsReversed).build());
+            return opNext.map(
+                    node -> this.toBuilder().setCurrentNode(node).setTravellingDirection(finalNextIsReversed).build());
         }
         return Optional.empty();
     }
@@ -72,6 +90,14 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
 
     public Node getEndingNode() {
         return this.endingNode;
+    }
+
+    public UUID getPlayerId() {
+        return this.playerId;
+    }
+
+    public Position<?> getOriginalPosition() {
+        return this.originalPosition;
     }
 
     public LineDirection getTravellingDirection() {
