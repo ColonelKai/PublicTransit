@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class Travel implements Buildable<TravelBuilder, Travel> {
 
-    private UUID playerId;
+    private final UUID playerId;
     private final Line travellingOn;
     private final Node currentNode;
     private final Node endingNode;
@@ -42,12 +42,36 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
         }
     }
 
-    public boolean hasArrived() {
-        return this.currentNode.equals(this.endingNode);
+    public Node getCurrentNode() {
+        return this.currentNode;
+    }
+
+    public Node getEndingNode() {
+        return this.endingNode;
     }
 
     public Position<?> getLastKnownPosition() {
         return this.lastKnownLocation;
+    }
+
+    public Position<?> getOriginalPosition() {
+        return this.originalPosition;
+    }
+
+    public UUID getPlayerId() {
+        return this.playerId;
+    }
+
+    public LineDirection getTravellingDirection() {
+        return this.travellingDirection;
+    }
+
+    public Line getTravellingOn() {
+        return this.travellingOn;
+    }
+
+    public boolean hasArrived() {
+        return this.currentNode.equals(this.endingNode);
     }
 
     @Override
@@ -73,34 +97,11 @@ public class Travel implements Buildable<TravelBuilder, Travel> {
         }
         Optional<Node> opNext = nextIsReversed.getNextNode(index, this.travellingOn.getNodes());
         if (opNext.isPresent()) {
-            final LineDirection finalNextIsReversed = nextIsReversed;
-            return opNext.map(
-                    node -> this.toBuilder().setCurrentNode(node).setTravellingDirection(finalNextIsReversed).build());
+            Node nextNode = opNext.get();
+            Travel travel = this.toBuilder().setCurrentNode(nextNode).setTravellingDirection(nextIsReversed).build();
+            return Optional.of(travel);
+
         }
         return Optional.empty();
-    }
-
-    public Line getTravellingOn() {
-        return this.travellingOn;
-    }
-
-    public Node getCurrentNode() {
-        return this.currentNode;
-    }
-
-    public Node getEndingNode() {
-        return this.endingNode;
-    }
-
-    public UUID getPlayerId() {
-        return this.playerId;
-    }
-
-    public Position<?> getOriginalPosition() {
-        return this.originalPosition;
-    }
-
-    public LineDirection getTravellingDirection() {
-        return this.travellingDirection;
     }
 }

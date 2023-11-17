@@ -105,6 +105,14 @@ public class Line implements Buildable<LineBuilder, Line>, Savable {
         return this.direction;
     }
 
+    public String getIdentifier(@NotNull Node node) {
+        int index = this.getNodes().indexOf(node);
+        if (index == -1) {
+            throw new IllegalArgumentException("Node is not part of line");
+        }
+        return this.identifier + ":" + node.getName().orElse(index + "");
+    }
+
     public String getIdentifier() {
         return this.identifier;
     }

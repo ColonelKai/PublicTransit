@@ -10,6 +10,7 @@ import org.colonelkai.publictransit.commands.node.delete.DeleteNodeCommand;
 import org.colonelkai.publictransit.commands.node.info.NodeInfoCommand;
 import org.colonelkai.publictransit.commands.node.move.CloneNodeCommand;
 import org.colonelkai.publictransit.commands.node.move.MoveNodeCommand;
+import org.colonelkai.publictransit.commands.travel.TravelCommand;
 
 interface Commands {
 
@@ -28,4 +29,7 @@ interface Commands {
 
     //misc
     CostBetweenCommand COST_BETWEEN = new CostBetweenCommand();
+
+    @ForCommand(name = PublicTransitCommandLauncher.TRAVEL)
+    TravelCommand TRAVEL = new TravelCommand();
 }

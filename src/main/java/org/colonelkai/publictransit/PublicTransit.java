@@ -39,10 +39,6 @@ public class PublicTransit implements CorePlugin {
         return this.nodeManager;
     }
 
-    public TravelManager getTravelManager() {
-        return this.travelManager;
-    }
-
     @Override
     public @NotNull String getPluginName() {
         return "PublicTransit";
@@ -54,8 +50,19 @@ public class PublicTransit implements CorePlugin {
     }
 
     @Override
+    public void onCoreReady() {
+        TranslateCore.getEventManager().register(this, new TravelListener());
+        this.nodeManager.loadAll().forEach(this.nodeManager::register);
+        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
+    }
+
+    @Override
     public @NotNull Object getPlatformLauncher() {
         return this.launcher;
+    }
+
+    public TravelManager getTravelManager() {
+        return this.travelManager;
     }
 
     @Override
@@ -68,6 +75,7 @@ public class PublicTransit implements CorePlugin {
     @Override
     public void onRegisterCommands(@NotNull CommandRegister register) {
         register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.PUBLIC_TRANSIT));
+        register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.TRAVEL));
     }
 
     @Override
@@ -78,13 +86,6 @@ public class PublicTransit implements CorePlugin {
     @Override
     public @NotNull CorePluginVersion getPluginVersion() {
         return new CorePluginVersion(0, 0, 1);
-    }
-
-    @Override
-    public void onCoreReady() {
-        TranslateCore.getEventManager().register(this, new TravelListener());
-        this.nodeManager.loadAll().forEach(this.nodeManager::register);
-        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
     }
 
     public static PublicTransit getPlugin() {

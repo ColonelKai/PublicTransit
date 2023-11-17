@@ -1,10 +1,13 @@
 package org.colonelkai.publictransit.commands.travel;
 
 import net.kyori.adventure.text.Component;
-import org.colonelkai.publictransit.PublicTransit;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.colonelkai.publictransit.commands.arguments.LineArgument;
 import org.colonelkai.publictransit.commands.arguments.NodeArgument;
 import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.line.travel.Travel;
+import org.colonelkai.publictransit.line.travel.TravelBuilder;
+import org.colonelkai.publictransit.line.travel.TravelSchedule;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Permissions;
@@ -15,10 +18,10 @@ import org.core.command.argument.context.CommandContext;
 import org.core.entity.living.human.player.LivePlayer;
 import org.core.exceptions.NotEnoughArguments;
 import org.core.permission.Permission;
+import org.core.schedule.Scheduler;
 import org.core.source.command.CommandSource;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,38 +33,29 @@ public class TravelCommand implements ArgumentCommand {
 
     public TravelCommand() {
         this.lineArgument = LineArgument.linesOrClosest("line", stream -> stream.filter(Line::isActive));
-        this.fromNode = NodeArgument.nodeOrClosest("from", (commandContext, nodeCommandArgumentContext) -> commandContext
-                .getArgument(TravelCommand.this, this.lineArgument)
-                .stream()
-                .flatMap(line -> line.getNodes().stream())
-                .toList(), stream -> stream.filter(node -> NodeType.STOP == node.getNodeType()));
         this.toNode = new NodeArgument("to", ((commandContext, nodeCommandArgumentContext) -> {
             List<Line> lines = commandContext.getArgument(TravelCommand.this, this.lineArgument);
-            Node node = commandContext.getArgument(TravelCommand.this, this.fromNode);
-            Optional<Line> opLine = lines.stream().filter(line -> line.getNodes().contains(node)).findAny();
-            if (opLine.isEmpty()) {
-                return Collections.emptyList();
-            }
-            return opLine.get().getNodes();
+            return lines.stream().flatMap(line -> line.getNodes().stream()).toList();
         }), stream -> stream.filter(node -> NodeType.STOP == node.getNodeType()));
+        this.fromNode = NodeArgument.nodeOrClosest("from", (commandContext, nodeCommandArgumentContext) -> {
+            Node to = commandContext.getArgument(TravelCommand.this, this.toNode);
+            return commandContext
+                    .getArgument(TravelCommand.this, this.lineArgument)
+                    .stream()
+                    .filter(line -> line.getNodes().contains(to))
+                    .flatMap(line -> line.getNodes().stream())
+                    .toList();
+        }, stream -> stream.filter(node -> NodeType.STOP == node.getNodeType()));
     }
 
     @Override
     public List<CommandArgument<?>> getArguments() {
-        return Arrays.asList(lineArgument, fromNode, toNode);
+        return Arrays.asList(lineArgument, toNode, fromNode);
     }
 
     @Override
     public String getDescription() {
         return "Travel on a node";
-    }
-
-    @Override
-    public boolean hasPermission(CommandSource source) {
-        if(!(source instanceof LivePlayer)){
-            return false;
-        }
-        return ArgumentCommand.super.hasPermission(source);
     }
 
     @Override
@@ -71,7 +65,7 @@ public class TravelCommand implements ArgumentCommand {
 
     @Override
     public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
-        if(!(commandContext.getSource() instanceof LivePlayer player)){
+        if (!(commandContext.getSource() instanceof LivePlayer player)) {
             return false;
         }
         List<Line> lines = commandContext.getArgument(TravelCommand.this, this.lineArgument);
@@ -85,6 +79,17 @@ public class TravelCommand implements ArgumentCommand {
         Line line = opLine.get();
         Node to = commandContext.getArgument(this, this.toNode);
 
+        if (from.equals(to)) {
+            commandContext
+                    .getSource()
+                    .sendMessage(Component.text("Both to and from are the same.").color(NamedTextColor.RED));
+            return false;
+        }
+        if (!player.hasPermission(Permissions.IGNORE_DISTANCE_CHECK) && !from.isWithin(player)) {
+            commandContext.getSource().sendMessage(Component.text("Not close enough to " + line.getIdentifier(from)));
+            return false;
+        }
+
         if (!line.isBiDirectional()) {
             int fromIndex = line.getNodes().indexOf(from);
             int toIndex = line.getNodes().indexOf(to);
@@ -94,11 +99,29 @@ public class TravelCommand implements ArgumentCommand {
             }
         }
 
-        if (!line.isValidWeight(player)){
+        if (!line.isValidWeight(player)) {
             commandContext.getSource().sendMessage(Component.text("You are too heavy. Loose some weight"));
             return false;
         }
 
-        return false;
+        Travel travel = new TravelBuilder()
+                .setTravellingOn(line)
+                .setPlayer(player)
+                .setEndingNode(to)
+                .setCurrentNode(from)
+                .build();
+        Scheduler schedule = TravelSchedule.schedule(travel);
+        player.sendMessage(
+                Component.text("travelling from " + line.getIdentifier(from) + " - to " + line.getIdentifier(to)));
+        schedule.run();
+        return true;
+    }
+
+    @Override
+    public boolean hasPermission(CommandSource source) {
+        if (!(source instanceof LivePlayer)) {
+            return false;
+        }
+        return ArgumentCommand.super.hasPermission(source);
     }
 }
