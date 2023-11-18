@@ -6,9 +6,10 @@ import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class BooleanConfigNode extends AbstractConfigNode<Boolean> {
-    public BooleanConfigNode(ConfigurationNode path, Boolean defaultValue, Config config) {
+    public BooleanConfigNode(ConfigurationNode path, Boolean defaultValue, Supplier<Config> config) {
         super(path, defaultValue, config);
     }
 

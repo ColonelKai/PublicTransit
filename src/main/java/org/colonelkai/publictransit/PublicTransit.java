@@ -27,20 +27,16 @@ public class PublicTransit implements CorePlugin {
         this.config = new PublicTransitConfig();
     }
 
-    public Logger getLogger() {
-        return this.logger;
-    }
-
     public PublicTransitConfig getConfig() {
         return this.config;
     }
 
-    public NodeManager getNodeManager() {
-        return this.nodeManager;
+    public Logger getLogger() {
+        return this.logger;
     }
 
-    public TravelManager getTravelManager() {
-        return this.travelManager;
+    public NodeManager getNodeManager() {
+        return this.nodeManager;
     }
 
     @Override
@@ -54,19 +50,32 @@ public class PublicTransit implements CorePlugin {
     }
 
     @Override
+    public void onCoreReady() {
+        TranslateCore.getEventManager().register(this, new TravelListener());
+        this.nodeManager.loadAll().forEach(this.nodeManager::register);
+        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
+    }
+
+    @Override
     public @NotNull Object getPlatformLauncher() {
         return this.launcher;
+    }
+
+    public TravelManager getTravelManager() {
+        return this.travelManager;
     }
 
     @Override
     public void onConstruct(@NotNull Object pluginLauncher, @NotNull Logger logger) {
         this.launcher = pluginLauncher;
         this.logger = logger;
+        this.config.getFile().save();
     }
 
     @Override
     public void onRegisterCommands(@NotNull CommandRegister register) {
         register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.PUBLIC_TRANSIT));
+        register.register(new PublicTransitCommandLauncher(PublicTransitCommandLauncher.TRAVEL));
     }
 
     @Override
@@ -77,13 +86,6 @@ public class PublicTransit implements CorePlugin {
     @Override
     public @NotNull CorePluginVersion getPluginVersion() {
         return new CorePluginVersion(0, 0, 1);
-    }
-
-    @Override
-    public void onCoreReady() {
-        TranslateCore.getEventManager().register(this, new TravelListener());
-        this.nodeManager.loadAll().forEach(this.nodeManager::register);
-        this.logger.log("Loaded lines: " + this.nodeManager.getLines().size());
     }
 
     public static PublicTransit getPlugin() {

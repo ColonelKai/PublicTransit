@@ -40,13 +40,13 @@ public class PublicTransitConfig implements Config {
 
     @Override
     public void reloadFile() {
-        this.config = TranslateCore.createConfigurationFile(FILE, TranslateCore.getPlatform().getConfigFormat());
+        this.config = TranslateCore.getConfigManager().read(FILE);
         this.getNodes().forEach(ConfigNode::reset);
     }
 
     @Override
     public Stream<? extends ConfigNode<?>> getNodes() {
-        return Stream.of(PublicTransitConfigNodes.class.getDeclaredFields()).filter(field -> field.getType().isAssignableFrom(ConfigNode.class)).map(field -> {
+        return Stream.of(PublicTransitConfigNodes.class.getDeclaredFields()).filter(field -> ConfigNode.class.isAssignableFrom(field.getType())).map(field -> {
             try {
                 return (ConfigNode<?>) field.get(null);
             } catch (IllegalAccessException e) {
@@ -56,16 +56,15 @@ public class PublicTransitConfig implements Config {
         }).filter(Objects::nonNull);
     }
 
-
-    private <T> void setDefaultValue(ConfigNode<T> node) {
-        node.setValue(this.config, node.defaultValue());
-    }
-
     public OptionalInt getMaximumWeight() {
-        if(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get()==Integer.MAX_VALUE) {
+        if (PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get() == Integer.MAX_VALUE) {
             return OptionalInt.empty();
         } else {
             return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get());
         }
+    }
+
+    private <T> void setDefaultValue(ConfigNode<T> node) {
+        node.setValue(this.config, node.defaultValue());
     }
 }

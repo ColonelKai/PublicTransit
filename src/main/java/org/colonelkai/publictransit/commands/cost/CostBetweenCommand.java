@@ -14,6 +14,7 @@ import org.core.command.argument.arguments.operation.ExactArgument;
 import org.core.command.argument.arguments.operation.OptionalArgument;
 import org.core.command.argument.context.CommandContext;
 import org.core.eco.Currency;
+import org.core.exceptions.NotEnoughArguments;
 import org.core.permission.Permission;
 import org.core.source.command.CommandSource;
 
@@ -69,7 +70,7 @@ public class CostBetweenCommand implements ArgumentCommand {
     }
 
     @Override
-    public boolean run(CommandContext commandContext, String... args) {
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
         CommandSource source = commandContext.getSource();
         Currency currency = TranslateCore.getCurrencyManager().getDefaultCurrency();
         Node node = commandContext.getArgument(this, this.firstArgument);

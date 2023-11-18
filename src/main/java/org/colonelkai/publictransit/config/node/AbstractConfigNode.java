@@ -5,36 +5,29 @@ import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 abstract class AbstractConfigNode<T> implements ConfigNode<T> {
 
     private final ConfigurationNode path;
     private final T defaultValue;
+    private final Function<T, T> parseFunc;
+    private final Supplier<Config> config;
     private T lastKnown;
 
-    private Config config;
-
-    Function<T, T> parseFunc;
-
-    AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config, Function <T, T> parseFunc) {
-        this.path = path;
-        this.defaultValue = defaultValue;
-        this.config = config;
-        this.parseFunc = parseFunc;
+    AbstractConfigNode(ConfigurationNode path, T defaultValue, Supplier<Config> config, Function<T, T> parseFunc) {
+        this.path = Objects.requireNonNull(path, "Path is missing");
+        this.defaultValue = Objects.requireNonNull(defaultValue, "default value is missing");
+        this.config = Objects.requireNonNull(config, "config is missing");
+        this.parseFunc = Objects.requireNonNull(parseFunc, "Parse function is missing");
     }
 
-    protected AbstractConfigNode(ConfigurationNode path, T defaultValue, Config config) {
-        this.path = path;
-        this.defaultValue = defaultValue;
-        this.parseFunc = (t->t); // if no parseFunc is given, just return optional of.
-        this.config = config;
+    AbstractConfigNode(ConfigurationNode path, T defaultValue, Supplier<Config> config) {
+        this(path, defaultValue, config, t -> t);
     }
-
-    protected abstract @NotNull Optional<T> getRaw(@NotNull ConfigurationStream stream);
-
-    protected abstract void set(@NotNull ConfigurationStream stream, @NotNull T value);
 
     @Override
     public @NotNull ConfigurationNode getPath() {
@@ -46,13 +39,9 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         return this.defaultValue;
     }
 
-    public @NotNull T getRaw() {
-        ConfigurationStream stream = this.config.getFile();
-
-        if (this.lastKnown == null) {
-            this.lastKnown = this.getRaw(stream).orElseThrow(() -> new IllegalStateException("Unable to read '" + String.join(";", getPath().getPath()) + "'"));
-        }
-        return this.lastKnown;
+    @Override
+    public @NotNull T get() {
+        return this.parseFunc.apply(this.getRaw());
     }
 
     @Override
@@ -67,8 +56,19 @@ abstract class AbstractConfigNode<T> implements ConfigNode<T> {
         stream.save();
     }
 
-    @Override
-    public @NotNull T get() {
-        return this.parseFunc.apply(this.getRaw());
+    protected abstract @NotNull Optional<T> getRaw(@NotNull ConfigurationStream stream);
+
+    public @NotNull T getRaw() {
+        ConfigurationStream.ConfigurationFile stream = this.config.get().getFile();
+
+        if (this.lastKnown == null) {
+            this.lastKnown = this
+                    .getRaw(stream)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Unable to read '" + String.join(";", getPath().getPath()) + "' " + "in " + stream.getFile().getPath()));
+        }
+        return this.lastKnown;
     }
+
+    protected abstract void set(@NotNull ConfigurationStream stream, @NotNull T value);
 }

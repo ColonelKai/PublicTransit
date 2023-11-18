@@ -7,6 +7,7 @@ import org.colonelkai.publictransit.fake.position.FakeSyncExactPosition;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
+import org.core.exceptions.NotEnoughArguments;
 import org.core.source.command.ConsoleSource;
 import org.core.world.WorldExtent;
 import org.junit.jupiter.api.Assertions;
@@ -77,7 +78,21 @@ public class NodeArgumentTests {
     }
 
     @Test
-    public void testSuggestNoArgs() {
+    public void testSuggestInvalidOneLetter() throws NotEnoughArguments {
+        //setup
+        ConsoleSource source = Mockito.mock(ConsoleSource.class);
+        NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes);
+        CommandLine line = new CommandLineBuilder().setArguments(nodeArgument).build();
+
+        //act
+        Collection<String> suggestions = line.suggest(source, "z");
+
+        //assert
+        Assertions.assertEquals(0, suggestions.size());
+    }
+
+    @Test
+    public void testSuggestNoArgs() throws NotEnoughArguments {
         //setup
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
         NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes);
@@ -98,14 +113,19 @@ public class NodeArgumentTests {
     }
 
     @Test
-    public void testSuggestOneLetter() {
+    public void testSuggestOneLetter() throws NotEnoughArguments {
         //setup
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
         NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes);
         CommandLine line = new CommandLineBuilder().setArguments(nodeArgument).build();
 
         //act
-        Collection<String> suggestions = line.suggest(source, "f");
+        Collection<String> suggestions = null;
+        try {
+            suggestions = line.suggest(source, "f");
+        } catch (NotEnoughArguments e) {
+            throw new RuntimeException(e);
+        }
 
         //assert
         Assertions.assertEquals(2, suggestions.size());
@@ -116,10 +136,11 @@ public class NodeArgumentTests {
     }
 
     @Test
-    public void testSuggestOneNumberWithFilter() {
+    public void testSuggestOneNumberWithFilter() throws NotEnoughArguments {
         //setup
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
-        NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes, stream -> stream.filter(n -> NodeType.TRANSITIONAL == n.getNodeType()));
+        NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes,
+                                                     stream -> stream.filter(n -> NodeType.TRANSITIONAL == n.getNodeType()));
         CommandLine line = new CommandLineBuilder().setArguments(nodeArgument).build();
 
         //act
@@ -131,20 +152,6 @@ public class NodeArgumentTests {
         Assertions.assertInstanceOf(List.class, suggestions);
         List<String> sortedSuggestions = (List<String>) suggestions;
         Assertions.assertEquals("1", sortedSuggestions.get(0));
-    }
-
-    @Test
-    public void testSuggestInvalidOneLetter() {
-        //setup
-        ConsoleSource source = Mockito.mock(ConsoleSource.class);
-        NodeArgument nodeArgument = new NodeArgument("example", (context, arg) -> nodes);
-        CommandLine line = new CommandLineBuilder().setArguments(nodeArgument).build();
-
-        //act
-        Collection<String> suggestions = line.suggest(source, "z");
-
-        //assert
-        Assertions.assertEquals(0, suggestions.size());
     }
 
     @BeforeAll

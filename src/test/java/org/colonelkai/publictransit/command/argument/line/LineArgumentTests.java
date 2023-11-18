@@ -8,6 +8,7 @@ import org.colonelkai.publictransit.fake.CommandLineBuilder;
 import org.colonelkai.publictransit.line.CostType;
 import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.line.LineBuilder;
+import org.core.exceptions.NotEnoughArguments;
 import org.core.source.command.ConsoleSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -96,7 +97,7 @@ public class LineArgumentTests {
     }
 
     @Test
-    public void testSuggestNoArgs() {
+    public void testSuggestNoArgs() throws NotEnoughArguments {
         LineArgument lineArgument = new LineArgument("example");
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
 
@@ -113,7 +114,7 @@ public class LineArgumentTests {
     }
 
     @Test
-    public void testSuggestionOneCharacterArgs() {
+    public void testSuggestionOneCharacterArgs() throws NotEnoughArguments {
         LineArgument lineArgument = new LineArgument("example");
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
 
@@ -129,7 +130,7 @@ public class LineArgumentTests {
     }
 
     @Test
-    public void testSuggestionOneInvalidCharacterArgs() {
+    public void testSuggestionOneInvalidCharacterArgs() throws NotEnoughArguments {
         LineArgument lineArgument = new LineArgument("example");
         ConsoleSource source = Mockito.mock(ConsoleSource.class);
 

@@ -4,7 +4,6 @@ import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.node.Node;
 import org.colonelkai.publictransit.utils.serializers.Serializers;
 import org.core.TranslateCore;
-import org.core.config.ConfigurationFormat;
 import org.core.config.ConfigurationNode;
 import org.core.config.ConfigurationStream;
 import org.core.world.position.Positionable;
@@ -12,7 +11,6 @@ import org.core.world.position.impl.Position;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
@@ -34,31 +32,8 @@ public class NodeManager {
                 .min(Comparator.comparing(node -> node.getPosition().getPosition().distanceSquared(position.getPosition())));
     }
 
-    private ConfigurationFormat getFormat(String name) {
-        return this
-                .getFormats()
-                .filter(format -> Arrays.stream(format.getFileType()).anyMatch(t -> name.toLowerCase().endsWith(t.toLowerCase())))
-                .findAny()
-                .orElseThrow(() -> new IllegalArgumentException("No supported format for '" + name + "'"));
-    }
-
-    private Stream<ConfigurationFormat> getFormats() {
-        return Arrays
-                .stream(ConfigurationFormat.class.getDeclaredFields())
-                .filter(field -> Modifier.isFinal(field.getModifiers()))
-                .filter(field -> Modifier.isPublic(field.getModifiers()))
-                .filter(field -> Modifier.isStatic(field.getModifiers()))
-                .filter(field -> field.getType().isAssignableFrom(ConfigurationFormat.class))
-                .map(field -> {
-                    try {
-                        return (ConfigurationFormat) field.get(null);
-                    } catch (Throwable e) {
-                        //should never hit
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull);
+    public Optional<Line> getLine(String identifier) {
+        return this.lines.stream().filter(line -> line.getIdentifier().equalsIgnoreCase(identifier)).findAny();
     }
 
     public Collection<Line> getLines() {
@@ -78,10 +53,9 @@ public class NodeManager {
     }
 
     public Line load(File file) throws Exception {
-        ConfigurationFormat format = this.getFormat(file.getName());
-        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);
+        ConfigurationStream.ConfigurationFile config = TranslateCore.getConfigManager().read(file);
         Map<String, Object> map = config
-                .getMap(new ConfigurationNode())
+                .getMap(new ConfigurationNode("Line"))
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(entry -> entry.getKey().toString(), Map.Entry::getValue));
@@ -114,14 +88,17 @@ public class NodeManager {
         this.lines.add(line);
     }
 
-    public void save(Line line, File to) throws Exception {
-        ConfigurationFormat format = TranslateCore.getPlatform().getConfigFormat();
-        File file = new File(to, format.getFileType()[0]);
-        ConfigurationStream.ConfigurationFile config = TranslateCore.createConfigurationFile(file, format);
+    public void save(Line line, File file) throws Exception {
+        ConfigurationStream.ConfigurationFile config = TranslateCore.getConfigManager().read(file);
 
         Map<String, Object> map = Serializers.LINE.serialize(line);
-        config.set(new ConfigurationNode(), map);
+        config.set(new ConfigurationNode("Line"), map);
         config.save();
+    }
+
+    public void unregister(Line line) {
+        this.lines.remove(line);
+        line.defaultFile().delete();
     }
 
     public void update(@NotNull Line line) {

@@ -1,6 +1,5 @@
-import java.awt.Desktop
-import java.nio.file.Files
 import java.awt.*
+import java.nio.file.Files
 
 plugins {
     id "java-library"
@@ -46,10 +45,29 @@ repositories {
     }
 }
 
+jar {
+    from {
+        configurations.runtimeClasspath
+                .filter(filter -> filter.name.endsWith(".jar"))
+                .filter(filter -> {
+                    if(filter.name.contains("EasyConfig")){
+                        return true;
+                    }
+                    if(filter.name.contains("annotations")){
+                        return true;
+                    }
+                    return false;
+                }).
+                collect {
+            return it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
 dependencies {
     implementation project(":TranslateCore")
     implementation group: 'org.jetbrains', name: 'annotations', version: '24.0.1'
-    implementation group: 'com.github.mosemister', name: 'EasyConfig', version: 'master-SNAPSHOT'
+    api group: 'com.github.mosemister', name: 'EasyConfig', version: 'master-SNAPSHOT'
     implementation group: 'net.kyori', name: 'adventure-api', version: '4.12.0' //some reason this isnt picked up from translateCore
 
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.2.0'

@@ -6,10 +6,11 @@ import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class DoubleConfigNode extends AbstractConfigNode<Double> {
 
-    public DoubleConfigNode(ConfigurationNode path, double defaultValue, Config config) {
+    public DoubleConfigNode(ConfigurationNode path, double defaultValue, Supplier<Config> config) {
         super(path, defaultValue, config);
     }
 

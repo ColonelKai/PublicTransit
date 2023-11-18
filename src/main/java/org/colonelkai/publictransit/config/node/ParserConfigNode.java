@@ -6,10 +6,11 @@ import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ParserConfigNode<P, T> extends AbstractConfigNode<T> {
 
-    public ParserConfigNode(ConfigurationNode.KnownParser.SingleKnown<T> path, T defaultValue, Config config) {
+    public ParserConfigNode(ConfigurationNode.KnownParser.SingleKnown<T> path, T defaultValue, Supplier<Config> config) {
         super(path, defaultValue, config);
     }
 

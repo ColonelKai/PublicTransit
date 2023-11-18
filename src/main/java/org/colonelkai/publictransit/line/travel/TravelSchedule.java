@@ -1,5 +1,6 @@
 package org.colonelkai.publictransit.line.travel;
 
+import net.kyori.adventure.text.Component;
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.listeners.TravelListener;
 import org.core.TranslateCore;
@@ -14,22 +15,21 @@ import java.util.function.Consumer;
 public class TravelSchedule implements Consumer<Scheduler> {
 
     private final @NotNull Travel travel;
+    private boolean isTeleporting;
 
     public TravelSchedule(@NotNull Travel travel) {
         this.travel = travel;
     }
 
-    public Travel getTravel() {
-        return this.travel;
-    }
-
     @Override
     public void accept(Scheduler scheduler) {
-        if (TranslateCore
+        var opPlayer = TranslateCore
                 .getServer()
                 .getOnlinePlayers()
                 .stream()
-                .noneMatch(p -> p.getUniqueId().equals(this.travel.getPlayerId()))) {
+                .filter(player -> player.getUniqueId().equals(this.travel.getPlayerId()))
+                .findAny();
+        if (opPlayer.isEmpty()) {
             TravelListener.pausePlayer(this.travel);
             scheduler.cancel();
             return;
@@ -40,7 +40,24 @@ public class TravelSchedule implements Consumer<Scheduler> {
             scheduler.cancel();
             return;
         }
-        schedule(opTravel.get()).run();
+        Travel travel = opTravel.get();
+        opPlayer.ifPresent(livePlayer -> {
+            var newPos = travel.getCurrentNode().getPosition();
+            this.isTeleporting = true;
+            if (!livePlayer.setPosition(newPos)) {
+                livePlayer.sendMessage(Component.text("Could not teleport"));
+            }
+            this.isTeleporting = false;
+        });
+        schedule(travel).run();
+    }
+
+    public Travel getTravel() {
+        return this.travel;
+    }
+
+    public boolean isTeleporting() {
+        return this.isTeleporting;
     }
 
     public static Scheduler schedule(@NotNull Travel travel) {

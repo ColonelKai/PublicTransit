@@ -48,7 +48,7 @@ public class CommandLine implements ArgumentCommand {
         return run(this, source, arguments);
     }
 
-    public <T> Collection<String> suggest(CommandSource source, String arguments) {
+    public <T> Collection<String> suggest(CommandSource source, String arguments) throws NotEnoughArguments {
         return suggest(this, source, arguments);
     }
 
@@ -61,7 +61,7 @@ public class CommandLine implements ArgumentCommand {
         }
     }
 
-    public static <T> Collection<String> suggest(ArgumentCommand cmd, CommandSource source, String arguments) {
+    public static <T> Collection<String> suggest(ArgumentCommand cmd, CommandSource source, String arguments) throws NotEnoughArguments {
         CommandContext commandContext = new CommandContext(source, Collections.singleton(cmd), arguments);
         var cmdArguments = cmd.getArguments();
         if (1 == cmdArguments.size()) {
