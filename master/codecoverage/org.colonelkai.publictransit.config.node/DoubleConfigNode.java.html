@@ -6,21 +6,22 @@ import org.core.config.ConfigurationStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class DoubleConfigNode extends AbstractConfigNode&lt;Double&gt; {
 
-    public DoubleConfigNode(ConfigurationNode path, double defaultValue, Config config) {
-<span class="nc" id="L13">        super(path, defaultValue, config);</span>
-<span class="nc" id="L14">    }</span>
+    public DoubleConfigNode(ConfigurationNode path, double defaultValue, Supplier&lt;Config&gt; config) {
+<span class="nc" id="L14">        super(path, defaultValue, config);</span>
+<span class="nc" id="L15">    }</span>
 
     @Override
     protected @NotNull Optional&lt;Double&gt; getRaw(@NotNull ConfigurationStream stream) {
-<span class="nc" id="L18">        return stream.getDouble(this.getPath());</span>
+<span class="nc" id="L19">        return stream.getDouble(this.getPath());</span>
     }
 
     @Override
     protected void set(@NotNull ConfigurationStream stream, @NotNull Double value) {
-<span class="nc" id="L23">        stream.set(this.getPath(), value);</span>
-<span class="nc" id="L24">    }</span>
+<span class="nc" id="L24">        stream.set(this.getPath(), value);</span>
+<span class="nc" id="L25">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

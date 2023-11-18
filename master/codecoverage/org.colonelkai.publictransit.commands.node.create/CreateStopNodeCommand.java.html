@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateStopNodeCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.node.create</a> &gt; <span class="el_source">CreateStopNodeCommand.java</span></div><h1>CreateStopNodeCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.node.create;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
+import org.colonelkai.publictransit.node.NodeType;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.CommandArgumentResult;
+import org.core.command.argument.ParseCommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.arguments.operation.OptionalArgument;
+import org.core.command.argument.arguments.operation.SuggestionArgument;
+import org.core.command.argument.arguments.position.ExactPositionArgument;
+import org.core.command.argument.arguments.simple.StringArgument;
+import org.core.command.argument.arguments.simple.number.IntegerArgument;
+import org.core.command.argument.context.CommandArgumentContext;
+import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+import org.core.world.position.Positionable;
+import org.core.world.position.impl.ExactPosition;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+<span class="fc" id="L37">public class CreateStopNodeCommand implements ArgumentCommand {</span>
+
+<span class="fc" id="L39">    private LineArgument lineArgument = new LineArgument(&quot;line&quot;);</span>
+<span class="fc" id="L40">    private OptionalArgument&lt;ExactPosition&gt; locationArgument = new OptionalArgument&lt;&gt;(new ExactPositionArgument(&quot;location&quot;), new ParseCommandArgument&lt;&gt;() {</span>
+        @Override
+        public CommandArgumentResult&lt;ExactPosition&gt; parse(CommandContext context, CommandArgumentContext&lt;ExactPosition&gt; argument) throws IOException {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (!(context.getSource() instanceof Positionable&lt;?&gt;)) {</span>
+<span class="nc" id="L44">                throw new IOException(&quot;location must be specified&quot;);</span>
+            }
+
+<span class="nc" id="L47">            ExactPosition position = ((Positionable&lt;?&gt;) context.getSource()).getPosition().toExactPosition();</span>
+<span class="nc" id="L48">            return CommandArgumentResult.from(argument, 0, position);</span>
+        }
+    });
+<span class="fc" id="L51">    private StringArgument nameArgument = new StringArgument(&quot;name&quot;);</span>
+<span class="fc" id="L52">    private SuggestionArgument&lt;Integer&gt; positionArgument = new SuggestionArgument&lt;&gt;(new IntegerArgument(&quot;position&quot;)) {</span>
+        @Override
+        public Collection&lt;String&gt; suggest(CommandContext commandContext, CommandArgumentContext&lt;Integer&gt; argument) throws NotEnoughArguments {
+<span class="nc" id="L55">            int max = commandContext.getArgument(CreateStopNodeCommand.this, lineArgument).getNodes().size();</span>
+<span class="nc" id="L56">            String command = commandContext.getCommand()[argument.getFirstArgument()];</span>
+<span class="nc" id="L57">            return IntStream.range(0, max + 1).boxed().map(Object::toString).filter(v -&gt; v.startsWith(command)).collect(Collectors.toList());</span>
+        }
+    };
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="nc" id="L63">        return Arrays.asList(new ExactArgument(&quot;node&quot;), new ExactArgument(&quot;create&quot;), new ExactArgument(&quot;stop&quot;), lineArgument, positionArgument, nameArgument,</span>
+                             locationArgument);
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L69">        return &quot;Creates a node that players stop at&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L74">        return Optional.of(Permissions.CREATE_NODE);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc" id="L79">        Line line = commandContext.getArgument(this, this.lineArgument);</span>
+<span class="nc" id="L80">        int nodePosition = commandContext.getArgument(this, this.positionArgument);</span>
+<span class="nc" id="L81">        String nodeName = commandContext.getArgument(this, this.nameArgument);</span>
+        ExactPosition position;
+        try {
+<span class="nc" id="L84">            position = commandContext.getArgument(this, this.locationArgument);</span>
+<span class="nc" id="L85">        } catch (IllegalArgumentException e) {</span>
+            //ill fix this later
+<span class="nc" id="L87">            commandContext.getSource().sendMessage(Component.text(&quot;Location must be specified&quot;));</span>
+<span class="nc" id="L88">            return false;</span>
+<span class="nc" id="L89">        }</span>
+
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if ((line.getNodes().size() &lt; nodePosition) || (0 &gt; nodePosition)) {</span>
+<span class="nc" id="L92">            commandContext</span>
+<span class="nc" id="L93">                    .getSource()</span>
+<span class="nc" id="L94">                    .sendMessage(Component</span>
+<span class="nc" id="L95">                                         .text(&quot;Position must be between 0 and &quot; + line.getNodes().size() + &quot; for &quot;)</span>
+<span class="nc" id="L96">                                         .color(NamedTextColor.RED)</span>
+<span class="nc" id="L97">                                         .append(line.getName()));</span>
+<span class="nc" id="L98">            return false;</span>
+        }
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (line.getNodes().stream().filter(node -&gt; node.getName().isPresent()).anyMatch(node -&gt; node.getName().get().equalsIgnoreCase(nodeName))) {</span>
+<span class="nc" id="L101">            commandContext</span>
+<span class="nc" id="L102">                    .getSource()</span>
+<span class="nc" id="L103">                    .sendMessage(</span>
+<span class="nc" id="L104">                            Component.text(&quot;Node with the name of '&quot; + nodeName + &quot;' already exists in &quot;).color(NamedTextColor.RED).append(line.getName()));</span>
+        }
+
+        Optional&lt;Node&gt; optionalOverlappingNode = PublicTransit
+<span class="nc" id="L108">                .getPlugin()</span>
+<span class="nc" id="L109">                .getNodeManager()</span>
+<span class="nc" id="L110">                .getNodes()</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                .filter(compareNode -&gt; compareNode.getNodeType() == NodeType.STOP)</span>
+<span class="nc" id="L112">                .filter(compareNode -&gt; compareNode.isWithin(position))</span>
+<span class="nc" id="L113">                .findAny();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (optionalOverlappingNode.isPresent()) {</span>
+<span class="nc" id="L115">            commandContext</span>
+<span class="nc" id="L116">                    .getSource()</span>
+<span class="nc" id="L117">                    .sendMessage(Component.text(</span>
+<span class="nc" id="L118">                            &quot;The node of '&quot; + optionalOverlappingNode.get().getName().orElseThrow(() -&gt; new IllegalArgumentException(&quot;Broken logic&quot;)) + &quot;' &quot;</span>
+                                    + &quot;is at this location&quot;));
+<span class="nc" id="L120">            return false;</span>
+        }
+        //cancel line
+<span class="nc" id="L123">        NodeBuilder node = new NodeBuilder().setType(NodeType.STOP).setName(nodeName).setPosition(position);</span>
+<span class="nc" id="L124">        line = line.toBuilder().addNodeAt(nodePosition, node).build();</span>
+<span class="nc" id="L125">        PublicTransit.getPlugin().getNodeManager().update(line);</span>
+        try {
+<span class="nc" id="L127">            line.save();</span>
+<span class="nc" id="L128">        } catch (Exception e) {</span>
+<span class="nc" id="L129">            throw new RuntimeException(e);</span>
+<span class="nc" id="L130">        }</span>
+<span class="nc" id="L131">        commandContext.getSource().sendMessage(Component.text(&quot;Created stop node of &quot; + node.name()));</span>
+<span class="nc" id="L132">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

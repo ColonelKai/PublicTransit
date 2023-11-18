@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TravelCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.travel</a> &gt; <span class="el_source">TravelCommand.java</span></div><h1>TravelCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.travel;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.commands.arguments.NodeArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.line.travel.Travel;
+import org.colonelkai.publictransit.line.travel.TravelBuilder;
+import org.colonelkai.publictransit.line.travel.TravelSchedule;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeType;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.arguments.operation.OptionalArgument;
+import org.core.command.argument.context.CommandContext;
+import org.core.entity.living.human.player.LivePlayer;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+import org.core.schedule.Scheduler;
+import org.core.source.command.CommandSource;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+public class TravelCommand implements ArgumentCommand {
+
+    private OptionalArgument&lt;Node&gt; fromNode;
+    private OptionalArgument&lt;List&lt;Line&gt;&gt; lineArgument;
+    private NodeArgument toNode;
+
+<span class="fc" id="L34">    public TravelCommand() {</span>
+<span class="pc" id="L35">        this.lineArgument = LineArgument.linesOrClosest(&quot;line&quot;, stream -&gt; stream.filter(Line::isActive));</span>
+<span class="fc" id="L36">        this.toNode = new NodeArgument(&quot;to&quot;, ((commandContext, nodeCommandArgumentContext) -&gt; {</span>
+<span class="nc" id="L37">            List&lt;Line&gt; lines = commandContext.getArgument(TravelCommand.this, this.lineArgument);</span>
+<span class="nc" id="L38">            return lines.stream().flatMap(line -&gt; line.getNodes().stream()).toList();</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        }), stream -&gt; stream.filter(node -&gt; NodeType.STOP == node.getNodeType()));</span>
+<span class="fc" id="L40">        this.fromNode = NodeArgument.nodeOrClosest(&quot;from&quot;, (commandContext, nodeCommandArgumentContext) -&gt; {</span>
+<span class="nc" id="L41">            Node to = commandContext.getArgument(TravelCommand.this, this.toNode);</span>
+<span class="nc" id="L42">            return commandContext</span>
+<span class="nc" id="L43">                    .getArgument(TravelCommand.this, this.lineArgument)</span>
+<span class="nc" id="L44">                    .stream()</span>
+<span class="nc" id="L45">                    .filter(line -&gt; line.getNodes().contains(to))</span>
+<span class="nc" id="L46">                    .flatMap(line -&gt; line.getNodes().stream())</span>
+<span class="nc" id="L47">                    .toList();</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        }, stream -&gt; stream.filter(node -&gt; NodeType.STOP == node.getNodeType()));</span>
+<span class="fc" id="L49">    }</span>
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="nc" id="L53">        return Arrays.asList(lineArgument, toNode, fromNode);</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L58">        return &quot;Travel on a node&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L63">        return Optional.of(Permissions.TRAVEL);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!(commandContext.getSource() instanceof LivePlayer player)) {</span>
+<span class="nc" id="L69">            return false;</span>
+        }
+<span class="nc" id="L71">        List&lt;Line&gt; lines = commandContext.getArgument(TravelCommand.this, this.lineArgument);</span>
+<span class="nc" id="L72">        Node from = commandContext.getArgument(TravelCommand.this, this.fromNode);</span>
+<span class="nc" id="L73">        Optional&lt;Line&gt; opLine = lines.stream().filter(line -&gt; line.getNodes().contains(from)).findAny();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (opLine.isEmpty()) {</span>
+            //this should never be hit
+<span class="nc" id="L76">            commandContext.getSource().sendMessage(Component.text(&quot;Cannot find specified node&quot;));</span>
+<span class="nc" id="L77">            return false;</span>
+        }
+<span class="nc" id="L79">        Line line = opLine.get();</span>
+<span class="nc" id="L80">        Node to = commandContext.getArgument(this, this.toNode);</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (from.equals(to)) {</span>
+<span class="nc" id="L83">            commandContext</span>
+<span class="nc" id="L84">                    .getSource()</span>
+<span class="nc" id="L85">                    .sendMessage(Component.text(&quot;Both to and from are the same.&quot;).color(NamedTextColor.RED));</span>
+<span class="nc" id="L86">            return false;</span>
+        }
+<span class="nc bnc" id="L88" title="All 4 branches missed.">        if (!player.hasPermission(Permissions.IGNORE_DISTANCE_CHECK) &amp;&amp; !from.isWithin(player)) {</span>
+<span class="nc" id="L89">            commandContext.getSource().sendMessage(Component.text(&quot;Not close enough to &quot; + line.getIdentifier(from)));</span>
+<span class="nc" id="L90">            return false;</span>
+        }
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!line.isBiDirectional()) {</span>
+<span class="nc" id="L94">            int fromIndex = line.getNodes().indexOf(from);</span>
+<span class="nc" id="L95">            int toIndex = line.getNodes().indexOf(to);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (!line.getDirection().isValid(fromIndex, toIndex)) {</span>
+<span class="nc" id="L97">                commandContext.getSource().sendMessage(Component.text(&quot;Line is heading in the incorrect direction&quot;));</span>
+<span class="nc" id="L98">                return false;</span>
+            }
+        }
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (!line.isValidWeight(player)) {</span>
+<span class="nc" id="L103">            commandContext.getSource().sendMessage(Component.text(&quot;You are too heavy. Loose some weight&quot;));</span>
+<span class="nc" id="L104">            return false;</span>
+        }
+
+<span class="nc" id="L107">        Travel travel = new TravelBuilder()</span>
+<span class="nc" id="L108">                .setTravellingOn(line)</span>
+<span class="nc" id="L109">                .setPlayer(player)</span>
+<span class="nc" id="L110">                .setEndingNode(to)</span>
+<span class="nc" id="L111">                .setCurrentNode(from)</span>
+<span class="nc" id="L112">                .build();</span>
+<span class="nc" id="L113">        Scheduler schedule = TravelSchedule.schedule(travel);</span>
+<span class="nc" id="L114">        player.sendMessage(</span>
+<span class="nc" id="L115">                Component.text(&quot;travelling from &quot; + line.getIdentifier(from) + &quot; - to &quot; + line.getIdentifier(to)));</span>
+<span class="nc" id="L116">        schedule.run();</span>
+<span class="nc" id="L117">        return true;</span>
+    }
+
+    @Override
+    public boolean hasPermission(CommandSource source) {
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (!(source instanceof LivePlayer)) {</span>
+<span class="nc" id="L123">            return false;</span>
+        }
+<span class="nc" id="L125">        return ArgumentCommand.super.hasPermission(source);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

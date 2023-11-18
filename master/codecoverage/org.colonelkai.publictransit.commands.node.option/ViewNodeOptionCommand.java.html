@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ViewNodeOptionCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.node.option</a> &gt; <span class="el_source">ViewNodeOptionCommand.java</span></div><h1>ViewNodeOptionCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.node.option;
+
+import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.commands.arguments.NodeArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
+import org.colonelkai.publictransit.options.CommandOptionBuilder;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class ViewNodeOptionCommand implements ArgumentCommand {
+
+<span class="pc" id="L30">    private final ExactArgument NODE_ARGUMENT = new ExactArgument(&quot;node&quot;);</span>
+<span class="pc" id="L31">    private final ExactArgument VIEW_ARGUMENT = new ExactArgument(&quot;view&quot;);</span>
+    private final Method getter;
+    private final ExactArgument nameArgument;
+    private final LineArgument lineArgument;
+    private final NodeArgument nodeArgument;
+
+
+<span class="fc" id="L38">    public ViewNodeOptionCommand(ExactArgument argument, Method getter) {</span>
+<span class="fc" id="L39">        this.nameArgument = argument;</span>
+<span class="fc" id="L40">        this.lineArgument = new LineArgument(&quot;linename&quot;);</span>
+<span class="fc" id="L41">        this.nodeArgument = new NodeArgument(&quot;nodename&quot;, (commandContext, nodeCommandArgumentContext) -&gt; commandContext</span>
+<span class="fc" id="L42">                .getArgument(ViewNodeOptionCommand.this, lineArgument)</span>
+<span class="fc" id="L43">                .getNodes());</span>
+<span class="fc" id="L44">        this.getter = getter;</span>
+<span class="fc" id="L45">    }</span>
+
+<span class="nc" id="L47">    public ViewNodeOptionCommand(ExactArgument argument, Method method, Function&lt;Stream&lt;Line&gt;, Stream&lt;Line&gt;&gt; filter) {</span>
+<span class="nc" id="L48">        this.nameArgument = argument;</span>
+<span class="nc" id="L49">        this.lineArgument = new LineArgument(&quot;linename&quot;, filter);</span>
+<span class="nc" id="L50">        this.nodeArgument = new NodeArgument(&quot;nodename&quot;, (commandContext, nodeCommandArgumentContext) -&gt; commandContext</span>
+<span class="nc" id="L51">                .getArgument(ViewNodeOptionCommand.this, lineArgument)</span>
+<span class="nc" id="L52">                .getNodes());</span>
+<span class="nc" id="L53">        this.getter = method;</span>
+<span class="nc" id="L54">    }</span>
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="fc" id="L58">        return Arrays.asList(this.NODE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nodeArgument, this.nameArgument);</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L63">        return &quot;view the &quot; + this.nameArgument.getId() + &quot; of a line&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L68">        return Optional.of(Permissions.VIEW_NODE_OPTION);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="fc" id="L73">        Node node = commandContext.getArgument(this, this.nodeArgument);</span>
+        Object value;
+        try {
+<span class="fc" id="L76">            value = this.getter.invoke(node.toBuilder());</span>
+<span class="nc" id="L77">        } catch (IllegalAccessException | InvocationTargetException e) {</span>
+<span class="nc" id="L78">            throw new RuntimeException(e);</span>
+<span class="fc" id="L79">        }</span>
+<span class="pc" id="L80">        Component stringValue = toString(value).orElseGet(() -&gt; Component.text(value.toString()));</span>
+<span class="fc" id="L81">        commandContext.getSource().sendMessage(Component.text(this.nameArgument.getId() + &quot;: &quot;).append(stringValue));</span>
+<span class="fc" id="L82">        return true;</span>
+    }
+
+    public static Collection&lt;ViewNodeOptionCommand&gt; createViewCommands() {
+<span class="fc" id="L86">        return CommandOptionBuilder</span>
+<span class="fc" id="L87">                .buildFrom(NodeBuilder.class)</span>
+<span class="fc" id="L88">                .stream()</span>
+<span class="fc" id="L89">                .map(meta -&gt; new ViewNodeOptionCommand(meta.nameArgument(), meta.getter()))</span>
+<span class="fc" id="L90">                .collect(Collectors.toList());</span>
+    }
+
+    public static Optional&lt;Component&gt; toString(Object obj) {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (obj == null) {</span>
+<span class="fc" id="L95">            return Optional.of(Component.text(&quot;none&quot;));</span>
+        }
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (obj instanceof Optional&lt;?&gt; optional) {</span>
+<span class="nc" id="L98">            return Optional.of(optional.flatMap(ViewNodeOptionCommand::toString).orElse(Component.text(&quot;none&quot;)));</span>
+        }
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (obj instanceof Component component) {</span>
+<span class="nc" id="L101">            return Optional.of(component);</span>
+        }
+<span class="nc" id="L103">        return Optional.empty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

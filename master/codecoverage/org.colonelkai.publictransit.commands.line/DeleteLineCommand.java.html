@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeleteLineCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.line</a> &gt; <span class="el_source">DeleteLineCommand.java</span></div><h1>DeleteLineCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.line;
+
+import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+<span class="fc" id="L19">public class DeleteLineCommand implements ArgumentCommand {</span>
+
+<span class="fc" id="L21">    private final ExactArgument DELETE_ARGUMENT = new ExactArgument(&quot;delete&quot;);</span>
+<span class="fc" id="L22">    private final ExactArgument LINE_ARGUMENT = new ExactArgument(&quot;line&quot;);</span>
+<span class="fc" id="L23">    private final LineArgument LINE_NAME_ARGUMENT = new LineArgument(&quot;linename&quot;);</span>
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="nc" id="L27">        return Arrays.asList(LINE_ARGUMENT, DELETE_ARGUMENT, LINE_NAME_ARGUMENT);</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L32">        return &quot;Deletes a created line&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L37">        return Optional.of(Permissions.DELETE_LINE);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc" id="L42">        Line line = commandContext.getArgument(this, LINE_NAME_ARGUMENT);</span>
+        //cancel lines
+<span class="nc" id="L44">        PublicTransit.getPlugin().getNodeManager().unregister(line);</span>
+<span class="nc" id="L45">        commandContext.getSource().sendMessage(Component.text(&quot;Deleted &quot;).append(line.getName()));</span>
+<span class="nc" id="L46">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

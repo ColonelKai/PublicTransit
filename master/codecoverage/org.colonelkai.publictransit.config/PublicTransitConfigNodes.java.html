@@ -10,42 +10,38 @@ public interface PublicTransitConfigNodes {
 
     // General Settings
     // Max distance a player needs to be from a node to interact with it
-<span class="nc" id="L13">    DoubleConfigNode PLAYER_DISTANCE_FROM_NODE = new DoubleConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L14">            &quot;node&quot;, &quot;distance&quot;, &quot;player&quot;), 10, PublicTransit.getPlugin().getConfig());</span>
+<span class="nc" id="L13">    DoubleConfigNode PLAYER_DISTANCE_FROM_NODE = new DoubleConfigNode(new ConfigurationNode(&quot;node&quot;, &quot;distance&quot;, &quot;player&quot;), 10,</span>
+<span class="nc" id="L14">                                                                      () -&gt; PublicTransit.getPlugin().getConfig());</span>
 
     // Node Default Settings
-<span class="nc" id="L17">    DoubleConfigNode DEFAULT_NODE_PRICE = new DoubleConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L18">            &quot;node&quot;, &quot;default&quot;, &quot;price&quot;), 100, PublicTransit.getPlugin().getConfig());</span>
-<span class="nc" id="L19">    DoubleConfigNode DEFAULT_NODE_TIME = new DoubleConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L20">            &quot;node&quot;, &quot;default&quot;, &quot;time&quot;), 15, PublicTransit.getPlugin().getConfig());</span>
+<span class="nc" id="L17">    DoubleConfigNode DEFAULT_NODE_PRICE = new DoubleConfigNode(new ConfigurationNode(&quot;node&quot;, &quot;default&quot;, &quot;price&quot;), 100,</span>
+<span class="nc" id="L18">                                                               () -&gt; PublicTransit.getPlugin().getConfig());</span>
+<span class="nc" id="L19">    DoubleConfigNode DEFAULT_NODE_TIME = new DoubleConfigNode(new ConfigurationNode(&quot;node&quot;, &quot;default&quot;, &quot;time&quot;), 15,</span>
+<span class="nc" id="L20">                                                              () -&gt; PublicTransit.getPlugin().getConfig());</span>
 
     // Line Default Settings
 
-<span class="nc" id="L24">    CostTypeConfigNode DEFAULT_LINE_COST_TYPE = new CostTypeConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L25">            &quot;line&quot;, &quot;default&quot;, &quot;costtype&quot;), CostType.FLAT_RATE, PublicTransit.getPlugin().getConfig());</span>
+<span class="nc" id="L24">    CostTypeConfigNode DEFAULT_LINE_COST_TYPE = new CostTypeConfigNode(new ConfigurationNode(&quot;line&quot;, &quot;default&quot;, &quot;costtype&quot;), CostType.FLAT_RATE,</span>
+<span class="nc" id="L25">                                                                       () -&gt; PublicTransit.getPlugin().getConfig());</span>
 
     // Weight System Settings
 
-<span class="nc" id="L29">    BooleanConfigNode WEIGHT_ENABLED = new BooleanConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L30">            &quot;weight&quot;, &quot;enabled&quot;), false, PublicTransit.getPlugin().getConfig()</span>
-    );
+<span class="nc" id="L29">    BooleanConfigNode WEIGHT_ENABLED = new BooleanConfigNode(new ConfigurationNode(&quot;weight&quot;, &quot;enabled&quot;), false, () -&gt; PublicTransit.getPlugin().getConfig());</span>
 
-<span class="nc" id="L33">    IntegerConfigNode WEIGHT_MAXIMUM_DEFAULT = new IntegerConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L34">            &quot;weight&quot;, &quot;maximum&quot;), Integer.MAX_VALUE, PublicTransit.getPlugin().getConfig(), (t-&gt;{</span>
-<span class="nc bnc" id="L35" title="All 2 branches missed.">        if(PublicTransitConfigNodes.WEIGHT_ENABLED.get()) {</span>
-<span class="nc" id="L36">            return t;</span>
+<span class="nc" id="L31">    IntegerConfigNode WEIGHT_MAXIMUM_DEFAULT = new IntegerConfigNode(new ConfigurationNode(&quot;weight&quot;, &quot;maximum&quot;), Integer.MAX_VALUE,</span>
+<span class="nc" id="L32">                                                                     () -&gt; PublicTransit.getPlugin().getConfig(), (t -&gt; {</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (PublicTransitConfigNodes.WEIGHT_ENABLED.get()) {</span>
+<span class="nc" id="L34">            return t;</span>
+        } else {
+<span class="nc" id="L36">            return Integer.MAX_VALUE;</span>
         }
-        else {
-<span class="nc" id="L39">            return Integer.MAX_VALUE;</span>
-        }
-    })
-    );
+    }));
 
     // Economy Settings
 
-<span class="nc" id="L46">    BooleanConfigNode USE_DEPOSIT_ACCOUNT = new BooleanConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L47">            &quot;economy&quot;, &quot;depositaccount&quot;, &quot;use&quot;), false, PublicTransit.getPlugin().getConfig());</span>
-<span class="nc" id="L48">    StringConfigNode DEPOSIT_ACCOUNT = new StringConfigNode(new ConfigurationNode(</span>
-<span class="nc" id="L49">            &quot;economy&quot;, &quot;depositaccount&quot;, &quot;name&quot;), &quot;Government&quot;, PublicTransit.getPlugin().getConfig());</span>
+<span class="nc" id="L42">    BooleanConfigNode USE_DEPOSIT_ACCOUNT = new BooleanConfigNode(new ConfigurationNode(&quot;economy&quot;, &quot;depositaccount&quot;, &quot;use&quot;), false,</span>
+<span class="nc" id="L43">                                                                  () -&gt; PublicTransit.getPlugin().getConfig());</span>
+<span class="nc" id="L44">    StringConfigNode DEPOSIT_ACCOUNT = new StringConfigNode(new ConfigurationNode(&quot;economy&quot;, &quot;depositaccount&quot;, &quot;name&quot;), &quot;Government&quot;,</span>
+<span class="nc" id="L45">                                                            () -&gt; PublicTransit.getPlugin().getConfig());</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

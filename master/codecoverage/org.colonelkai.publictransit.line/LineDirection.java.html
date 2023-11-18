@@ -4,50 +4,53 @@ import org.colonelkai.publictransit.node.Node;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
-<span class="fc" id="L9">public enum LineDirection {</span>
+<span class="fc" id="L8">public enum LineDirection {</span>
 
-<span class="fc" id="L11">    POSITIVE(true),</span>
-<span class="fc" id="L12">    NEGATIVE(false);</span>
+<span class="fc" id="L10">    POSITIVE(true),</span>
+<span class="fc" id="L11">    NEGATIVE(false);</span>
 
     private final boolean isPositive;
 
-<span class="fc" id="L16">    LineDirection(boolean isPositive) {</span>
-<span class="fc" id="L17">        this.isPositive = isPositive;</span>
-<span class="fc" id="L18">    }</span>
+<span class="fc" id="L15">    LineDirection(boolean isPositive) {</span>
+<span class="fc" id="L16">        this.isPositive = isPositive;</span>
+<span class="fc" id="L17">    }</span>
 
-    public boolean isPositive() {
-<span class="nc" id="L21">        return this.isPositive;</span>
+    public Optional&lt;Node&gt; getNextNode(int currentIndex, List&lt;Node&gt; nodes) {
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">        if (nodes.isEmpty()) {</span>
+<span class="nc" id="L21">            return Optional.empty();</span>
+        }
+<span class="fc" id="L23">        return this.next(currentIndex, nodes);</span>
     }
 
     public LineDirection getOpposite() {
-<span class="nc bnc" id="L25" title="All 2 branches missed.">        return valueOf(!this.isPositive);</span>
-    }
-
-    public Optional&lt;Node&gt; getNextNode(int currentIndex, List&lt;Node&gt; nodes) {
-<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (nodes.isEmpty()) {</span>
-<span class="nc" id="L30">            return Optional.empty();</span>
-        }
-<span class="fc" id="L32">        return this.next(currentIndex, nodes);</span>
-    }
-
-    private Optional&lt;Node&gt; next(int currentIndex, List&lt;Node&gt; nodes) {
-<span class="fc bfc" id="L36" title="All 2 branches covered.">        int index = currentIndex + (this.isPositive ? 1 : -1);</span>
-
-<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (index &lt; nodes.size()) {</span>
-            //valid index
-<span class="fc" id="L40">            return Optional.of(nodes.get(index));</span>
-        }
-<span class="nc" id="L42">        return Optional.empty();</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        return valueOf(!this.isPositive);</span>
     }
 
     public boolean isAtEndOfLine(int currentIndex, List&lt;Node&gt; nodes) {
-<span class="fc" id="L46">        return this.next(currentIndex, nodes).isEmpty();</span>
+<span class="fc" id="L31">        return this.next(currentIndex, nodes).isEmpty();</span>
+    }
+
+    public boolean isPositive() {
+<span class="nc" id="L35">        return this.isPositive;</span>
+    }
+
+    public boolean isValid(int from, int to) {
+<span class="nc bnc" id="L39" title="All 4 branches missed.">        return (from &lt; to) == this.isPositive;</span>
+    }
+
+    private Optional&lt;Node&gt; next(int currentIndex, List&lt;Node&gt; nodes) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        int index = currentIndex + (this.isPositive ? 1 : -1);</span>
+
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (index &lt; nodes.size()) {</span>
+            //valid index
+<span class="fc" id="L47">            return Optional.of(nodes.get(index));</span>
+        }
+<span class="nc" id="L49">        return Optional.empty();</span>
     }
 
     public static LineDirection valueOf(boolean isPositive) {
-<span class="nc bnc" id="L50" title="All 2 branches missed.">        return isPositive ? POSITIVE : NEGATIVE;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        return isPositive ? POSITIVE : NEGATIVE;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

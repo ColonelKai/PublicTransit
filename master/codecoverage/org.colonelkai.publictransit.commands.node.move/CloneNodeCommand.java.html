@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CloneNodeCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.node.move</a> &gt; <span class="el_source">CloneNodeCommand.java</span></div><h1>CloneNodeCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.node.move;
+
+import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.commands.arguments.NodeArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.arguments.operation.SuggestionArgument;
+import org.core.command.argument.arguments.simple.number.IntegerArgument;
+import org.core.command.argument.context.CommandArgumentContext;
+import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class CloneNodeCommand implements ArgumentCommand {
+
+    private final LineArgument lineArgument;
+    private final LineArgument otherLineArgument;
+    private final NodeArgument nodeArgument;
+    private final SuggestionArgument&lt;Integer&gt; movedToArgument;
+
+<span class="fc" id="L34">    public CloneNodeCommand() {</span>
+<span class="fc" id="L35">        this.lineArgument = new LineArgument(&quot;line&quot;);</span>
+<span class="fc" id="L36">        this.otherLineArgument = new LineArgument(&quot;toLine&quot;);</span>
+<span class="fc" id="L37">        this.nodeArgument = new NodeArgument(&quot;nodeName&quot;, (commandContext, nodeCommandArgumentContext) -&gt; commandContext</span>
+<span class="nc" id="L38">                .getArgument(CloneNodeCommand.this, CloneNodeCommand.this.lineArgument)</span>
+<span class="nc" id="L39">                .getNodes());</span>
+<span class="fc" id="L40">        this.movedToArgument = new SuggestionArgument&lt;&gt;(new IntegerArgument(&quot;newPosition&quot;)) {</span>
+            @Override
+            public Collection&lt;String&gt; suggest(CommandContext commandContext, CommandArgumentContext&lt;Integer&gt; argument) throws NotEnoughArguments {
+<span class="nc" id="L43">                Line line = commandContext.getArgument(CloneNodeCommand.this, otherLineArgument);</span>
+<span class="nc" id="L44">                Line originalLine = commandContext.getArgument(CloneNodeCommand.this, lineArgument);</span>
+<span class="nc" id="L45">                Integer originalPos = null;</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                if (line.equals(originalLine)) {</span>
+<span class="nc" id="L47">                    Node node = commandContext.getArgument(CloneNodeCommand.this, nodeArgument);</span>
+<span class="nc" id="L48">                    originalPos = originalLine.getNodes().indexOf(node);</span>
+                }
+<span class="nc" id="L50">                Integer finalOriginalPos = originalPos;</span>
+<span class="nc" id="L51">                int max = line.getNodes().size();</span>
+<span class="nc" id="L52">                String peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
+<span class="nc" id="L53">                return IntStream</span>
+<span class="nc" id="L54">                        .range(0, max + 1)</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">                        .filter(v -&gt; finalOriginalPos != null &amp;&amp; finalOriginalPos != v)</span>
+<span class="nc" id="L56">                        .boxed()</span>
+<span class="nc" id="L57">                        .map(Object::toString)</span>
+<span class="nc" id="L58">                        .filter(v -&gt; v.startsWith(peek))</span>
+<span class="nc" id="L59">                        .sorted()</span>
+<span class="nc" id="L60">                        .collect(Collectors.toList());</span>
+            }
+        };
+
+<span class="fc" id="L64">    }</span>
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="nc" id="L68">        return Arrays.asList(new ExactArgument(&quot;node&quot;), new ExactArgument(&quot;copy&quot;), this.lineArgument, this.nodeArgument, otherLineArgument, movedToArgument);</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L73">        return &quot;Moves a node from a line to a new position&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L78">        return Optional.of(Permissions.COPY_NODE);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc" id="L83">        Line originalLine = commandContext.getArgument(this, this.lineArgument);</span>
+<span class="nc" id="L84">        Node node = commandContext.getArgument(this, this.nodeArgument);</span>
+<span class="nc" id="L85">        int originalPosition = originalLine.getNodes().indexOf(node);</span>
+
+<span class="nc" id="L87">        Line moveTo = commandContext.getArgument(this, this.otherLineArgument);</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (originalLine.equals(moveTo)) {</span>
+<span class="nc" id="L89">            commandContext.getSource().sendMessage(Component.text(&quot;Cannot copy a node into the same line&quot;));</span>
+<span class="nc" id="L90">            return false;</span>
+        }
+<span class="nc" id="L92">        int moveToPosition = commandContext.getArgument(this, this.movedToArgument);</span>
+        //update
+<span class="nc" id="L94">        PublicTransit.getPlugin().getNodeManager().update(moveTo.toBuilder().addNodeAt(moveToPosition, node.toBuilder()).build());</span>
+<span class="nc" id="L95">        commandContext</span>
+<span class="nc" id="L96">                .getSource()</span>
+<span class="nc" id="L97">                .sendMessage(Component</span>
+<span class="nc" id="L98">                                     .text(&quot;Copied '&quot;)</span>
+<span class="nc" id="L99">                                     .append(originalLine.getName())</span>
+<span class="nc" id="L100">                                     .append(Component.text(&quot;':'&quot; + originalPosition + &quot;' to '&quot;))</span>
+<span class="nc" id="L101">                                     .append(moveTo.getName())</span>
+<span class="nc" id="L102">                                     .append(Component.text(&quot;':'&quot; + moveToPosition + &quot;'&quot;)));</span>
+<span class="nc" id="L103">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

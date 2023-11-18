@@ -64,7 +64,7 @@ public class LineArgument implements CommandArgument&lt;Line&gt; {
     }
 
     public static OptionalArgument&lt;List&lt;Line&gt;&gt; linesOrClosest(String id, Function&lt;Stream&lt;Line&gt;, Stream&lt;Line&gt;&gt; filter) {
-<span class="nc" id="L67">        return linesOrClosest(new LineArgument(id, filter));</span>
+<span class="fc" id="L67">        return linesOrClosest(new LineArgument(id, filter));</span>
     }
 
     private static OptionalArgument&lt;List&lt;Line&gt;&gt; linesOrClosest(LineArgument filter) {

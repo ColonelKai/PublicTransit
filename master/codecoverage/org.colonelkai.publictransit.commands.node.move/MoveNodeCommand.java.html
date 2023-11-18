@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MoveNodeCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.node.move</a> &gt; <span class="el_source">MoveNodeCommand.java</span></div><h1>MoveNodeCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.node.move;
+
+import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.commands.arguments.NodeArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.CommandArgumentResult;
+import org.core.command.argument.ParseCommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.arguments.operation.OptionalArgument;
+import org.core.command.argument.arguments.operation.SuggestionArgument;
+import org.core.command.argument.arguments.simple.number.IntegerArgument;
+import org.core.command.argument.context.CommandArgumentContext;
+import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+public class MoveNodeCommand implements ArgumentCommand {
+
+    private final LineArgument lineArgument;
+    private final OptionalArgument&lt;Line&gt; otherLineArgument;
+    private final NodeArgument nodeArgument;
+    private final SuggestionArgument&lt;Integer&gt; movedToArgument;
+
+<span class="fc" id="L38">    public MoveNodeCommand() {</span>
+<span class="fc" id="L39">        this.lineArgument = new LineArgument(&quot;line&quot;);</span>
+<span class="fc" id="L40">        this.otherLineArgument = new OptionalArgument&lt;&gt;(new LineArgument(&quot;toLine&quot;), new ParseCommandArgument&lt;&gt;() {</span>
+            @Override
+            public CommandArgumentResult&lt;Line&gt; parse(CommandContext context, CommandArgumentContext&lt;Line&gt; argument) throws IOException {
+<span class="nc" id="L43">                return CommandArgumentResult.from(argument, context.getArgument(MoveNodeCommand.this, lineArgument));</span>
+            }
+        });
+<span class="fc" id="L46">        this.nodeArgument = new NodeArgument(&quot;nodeName&quot;, (commandContext, nodeCommandArgumentContext) -&gt; commandContext</span>
+<span class="nc" id="L47">                .getArgument(MoveNodeCommand.this, MoveNodeCommand.this.lineArgument)</span>
+<span class="nc" id="L48">                .getNodes());</span>
+<span class="fc" id="L49">        this.movedToArgument = new SuggestionArgument&lt;&gt;(new IntegerArgument(&quot;newPosition&quot;)) {</span>
+            @Override
+            public Collection&lt;String&gt; suggest(CommandContext commandContext, CommandArgumentContext&lt;Integer&gt; argument) throws NotEnoughArguments {
+<span class="nc" id="L52">                Line line = commandContext.getArgument(MoveNodeCommand.this, otherLineArgument);</span>
+<span class="nc" id="L53">                Line originalLine = commandContext.getArgument(MoveNodeCommand.this, lineArgument);</span>
+<span class="nc" id="L54">                Integer originalPos = null;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">                if (line.equals(originalLine)) {</span>
+<span class="nc" id="L56">                    Node node = commandContext.getArgument(MoveNodeCommand.this, nodeArgument);</span>
+<span class="nc" id="L57">                    originalPos = originalLine.getNodes().indexOf(node);</span>
+                }
+<span class="nc" id="L59">                Integer finalOriginalPos = originalPos;</span>
+<span class="nc" id="L60">                int max = line.getNodes().size();</span>
+<span class="nc" id="L61">                String peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
+<span class="nc" id="L62">                return IntStream</span>
+<span class="nc" id="L63">                        .range(0, max + 1)</span>
+<span class="nc bnc" id="L64" title="All 4 branches missed.">                        .filter(v -&gt; finalOriginalPos != null &amp;&amp; finalOriginalPos != v)</span>
+<span class="nc" id="L65">                        .boxed()</span>
+<span class="nc" id="L66">                        .map(Object::toString)</span>
+<span class="nc" id="L67">                        .filter(v -&gt; v.startsWith(peek))</span>
+<span class="nc" id="L68">                        .sorted()</span>
+<span class="nc" id="L69">                        .collect(Collectors.toList());</span>
+            }
+        };
+
+<span class="fc" id="L73">    }</span>
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="nc" id="L77">        return Arrays.asList(new ExactArgument(&quot;node&quot;), new ExactArgument(&quot;move&quot;), this.lineArgument, this.nodeArgument, this.otherLineArgument,</span>
+                             this.movedToArgument);
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L83">        return &quot;Moves a node from a line to a new position&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L88">        return Optional.of(Permissions.MOVE_NODE);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc" id="L93">        Line line = commandContext.getArgument(this, this.lineArgument);</span>
+<span class="nc" id="L94">        Node node = commandContext.getArgument(this, this.nodeArgument);</span>
+
+<span class="nc" id="L96">        Line moveTo = commandContext.getArgument(this, this.otherLineArgument);</span>
+<span class="nc" id="L97">        int moveToPosition = commandContext.getArgument(this, this.movedToArgument);</span>
+<span class="nc" id="L98">        boolean isLineSame = line.equals(moveTo);</span>
+<span class="nc" id="L99">        int originalPosition = line.getNodes().indexOf(node);</span>
+
+        //update
+<span class="nc" id="L102">        line = line.toBuilder().removeNode(node).build();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (isLineSame) {</span>
+<span class="nc" id="L104">            moveTo = line;</span>
+        }
+<span class="nc" id="L106">        moveTo = moveTo.toBuilder().addNodeAt(moveToPosition, node.toBuilder()).build();</span>
+<span class="nc" id="L107">        PublicTransit.getPlugin().getNodeManager().update(line);</span>
+<span class="nc" id="L108">        PublicTransit.getPlugin().getNodeManager().update(moveTo);</span>
+<span class="nc" id="L109">        commandContext</span>
+<span class="nc" id="L110">                .getSource()</span>
+<span class="nc" id="L111">                .sendMessage(Component</span>
+<span class="nc" id="L112">                                     .text(&quot;Moved '&quot;)</span>
+<span class="nc" id="L113">                                     .append(line.getName())</span>
+<span class="nc" id="L114">                                     .append(Component.text(&quot;':'&quot; + originalPosition + &quot;' to '&quot;))</span>
+<span class="nc" id="L115">                                     .append(moveTo.getName())</span>
+<span class="nc" id="L116">                                     .append(Component.text(&quot;':'&quot; + moveToPosition + &quot;'&quot;)));</span>
+<span class="nc" id="L117">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

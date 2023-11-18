@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetNodeOptionCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands.node.option</a> &gt; <span class="el_source">SetNodeOptionCommand.java</span></div><h1>SetNodeOptionCommand.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands.node.option;
+
+import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.PublicTransit;
+import org.colonelkai.publictransit.commands.arguments.LineArgument;
+import org.colonelkai.publictransit.commands.arguments.NodeArgument;
+import org.colonelkai.publictransit.line.Line;
+import org.colonelkai.publictransit.line.LineBuilder;
+import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.node.NodeBuilder;
+import org.colonelkai.publictransit.options.CommandOptionBuilder;
+import org.colonelkai.publictransit.utils.Permissions;
+import org.core.command.argument.ArgumentCommand;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
+import org.core.permission.Permission;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class SetNodeOptionCommand implements ArgumentCommand {
+
+<span class="pc" id="L32">    private final ExactArgument NODE_ARGUMENT = new ExactArgument(&quot;node&quot;);</span>
+<span class="pc" id="L33">    private final ExactArgument VIEW_ARGUMENT = new ExactArgument(&quot;set&quot;);</span>
+    private final ExactArgument nameArgument;
+    private final LineArgument lineArgument;
+    private final NodeArgument nodeArgument;
+    private final CommandArgument&lt;?&gt; valueArgument;
+    private final Method setter;
+
+
+<span class="fc" id="L41">    public SetNodeOptionCommand(ExactArgument argument, CommandArgument&lt;?&gt; valueArgument, Method setter) {</span>
+<span class="fc" id="L42">        this.nameArgument = argument;</span>
+<span class="fc" id="L43">        this.lineArgument = new LineArgument(&quot;linename&quot;);</span>
+<span class="fc" id="L44">        this.valueArgument = valueArgument;</span>
+<span class="fc" id="L45">        this.nodeArgument = new NodeArgument(&quot;nodevalue&quot;, (commandContext, nodeCommandArgumentContext) -&gt; {</span>
+<span class="nc" id="L46">            Line line = commandContext.getArgument(SetNodeOptionCommand.this, SetNodeOptionCommand.this.lineArgument);</span>
+<span class="nc" id="L47">            return line.getNodes();</span>
+        });
+<span class="fc" id="L49">        this.setter = setter;</span>
+<span class="fc" id="L50">    }</span>
+
+<span class="nc" id="L52">    public SetNodeOptionCommand(ExactArgument argument, CommandArgument&lt;?&gt; valueArgument, Method setter, Function&lt;Stream&lt;Line&gt;, Stream&lt;Line&gt;&gt; filter) {</span>
+<span class="nc" id="L53">        this.nameArgument = argument;</span>
+<span class="nc" id="L54">        this.lineArgument = new LineArgument(&quot;linename&quot;, filter);</span>
+<span class="nc" id="L55">        this.valueArgument = valueArgument;</span>
+<span class="nc" id="L56">        this.nodeArgument = new NodeArgument(&quot;node&quot;, (commandContext, nodeCommandArgumentContext) -&gt; {</span>
+<span class="nc" id="L57">            Line line = commandContext.getArgument(SetNodeOptionCommand.this, SetNodeOptionCommand.this.lineArgument);</span>
+<span class="nc" id="L58">            return line.getNodes();</span>
+        });
+<span class="nc" id="L60">        this.setter = setter;</span>
+<span class="nc" id="L61">    }</span>
+
+    @Override
+    public List&lt;CommandArgument&lt;?&gt;&gt; getArguments() {
+<span class="nc" id="L65">        return Arrays.asList(this.NODE_ARGUMENT, this.VIEW_ARGUMENT, this.lineArgument, this.nodeArgument, this.nameArgument, this.valueArgument);</span>
+    }
+
+    @Override
+    public String getDescription() {
+<span class="nc" id="L70">        return &quot;set the &quot; + this.nameArgument.getId() + &quot; of a node&quot;;</span>
+    }
+
+    @Override
+    public Optional&lt;Permission&gt; getPermissionNode() {
+<span class="nc" id="L75">        return Optional.of(Permissions.SET_NODE_OPTION);</span>
+    }
+
+    @Override
+    public boolean run(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc" id="L80">        return runCommand(commandContext, args);</span>
+    }
+
+    private &lt;T&gt; boolean runCommand(CommandContext commandContext, String... args) throws NotEnoughArguments {
+<span class="nc" id="L84">        Line line = commandContext.getArgument(this, this.lineArgument);</span>
+<span class="nc" id="L85">        Node node = commandContext.getArgument(this, this.nodeArgument);</span>
+<span class="nc" id="L86">        LineBuilder builder = line.toBuilder().removeNode(node);</span>
+<span class="nc" id="L87">        T value = (T) commandContext.getArgument(this, this.valueArgument);</span>
+        NodeBuilder nodeBuilder;
+        try {
+<span class="nc" id="L90">            nodeBuilder = ((NodeBuilder) this.setter.invoke(node.toBuilder(), value));</span>
+<span class="nc" id="L91">        } catch (IllegalAccessException | InvocationTargetException e) {</span>
+<span class="nc" id="L92">            throw new RuntimeException(e);</span>
+<span class="nc" id="L93">        }</span>
+
+<span class="nc" id="L95">        PublicTransit.getPlugin().getNodeManager().update(builder.addNodes(nodeBuilder).build());</span>
+        try {
+<span class="nc" id="L97">            line.save();</span>
+<span class="nc" id="L98">        } catch (Exception e) {</span>
+<span class="nc" id="L99">            throw new RuntimeException(e);</span>
+<span class="nc" id="L100">        }</span>
+<span class="nc" id="L101">        commandContext.getSource().sendMessage(Component.text(&quot;updated line&quot;));</span>
+<span class="nc" id="L102">        return true;</span>
+    }
+
+    public static Collection&lt;SetNodeOptionCommand&gt; createSetCommands() {
+<span class="fc" id="L106">        return CommandOptionBuilder</span>
+<span class="fc" id="L107">                .buildFrom(NodeBuilder.class)</span>
+<span class="fc" id="L108">                .stream()</span>
+<span class="fc" id="L109">                .map(meta -&gt; new SetNodeOptionCommand(meta.nameArgument(), meta.setterArgument(), meta.setter()))</span>
+<span class="fc" id="L110">                .collect(Collectors.toList());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -2,13 +2,13 @@
 
 import org.colonelkai.publictransit.PublicTransit;
 import org.colonelkai.publictransit.line.travel.Travel;
+import org.colonelkai.publictransit.line.travel.TravelSchedule;
 import org.core.TranslateCore;
 import org.core.entity.living.human.player.LivePlayer;
 import org.core.event.EventListener;
 import org.core.event.HEvent;
 import org.core.event.events.connection.ClientConnectionEvent;
 import org.core.event.events.entity.EntityDeathEvent;
-import org.core.event.events.entity.EntityEvent;
 import org.core.event.events.entity.EntityMoveEvent;
 import org.core.world.position.impl.Position;
 
@@ -22,53 +22,73 @@ import java.util.function.Consumer;
 
 <span class="nc" id="L23">    private static final Map&lt;UUID, Consumer&lt;LivePlayer&gt;&gt; actions = new HashMap&lt;&gt;();</span>
 
-    public static void returnPlayerToStart(UUID playerId, Position&lt;?&gt; position) {
-        Optional&lt;LivePlayer&gt; optionalLivePlayer = TranslateCore
-<span class="nc" id="L27">                .getServer()</span>
-<span class="nc" id="L28">                .getOnlinePlayers()</span>
-<span class="nc" id="L29">                .parallelStream()</span>
-<span class="nc" id="L30">                .filter(p -&gt; p.getUniqueId().equals(playerId))</span>
-<span class="nc" id="L31">                .findAny();</span>
-<span class="nc bnc" id="L32" title="All 2 branches missed.">        if (optionalLivePlayer.isPresent()) {</span>
-<span class="nc" id="L33">            LivePlayer livePlayer = optionalLivePlayer.get();</span>
-<span class="nc" id="L34">            livePlayer.setPosition(position);</span>
-<span class="nc" id="L35">            return;</span>
+    @HEvent
+    public void onPlayerDeathEvent(EntityDeathEvent&lt;?&gt; event) {
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        if (!(event.getEntity() instanceof LivePlayer player)) {</span>
+<span class="nc" id="L28">            return;</span>
         }
-<span class="nc" id="L37">        actions.put(playerId, (player) -&gt; player.setPosition(position));</span>
-<span class="nc" id="L38">    }</span>
-
-    public static void pausePlayer(Travel travel) {
-<span class="nc" id="L41">        actions.put(travel.getPlayerId(),</span>
-<span class="nc" id="L42">                    (player) -&gt; PublicTransit.getPlugin().getTravelManager().createSchedule(travel).run());</span>
-<span class="nc" id="L43">    }</span>
+<span class="nc" id="L30">        PublicTransit.getPlugin().getTravelManager().cancel(player.getUniqueId());</span>
+<span class="nc" id="L31">    }</span>
 
     @HEvent
     public void onPlayerJoinEvent(ClientConnectionEvent.Incoming.Joined event) {
-<span class="nc" id="L47">        LivePlayer player = event.getEntity();</span>
-<span class="nc" id="L48">        UUID playerId = player.getUniqueId();</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (!actions.containsKey(playerId)) {</span>
-<span class="nc" id="L50">            return;</span>
+<span class="nc" id="L35">        LivePlayer player = event.getEntity();</span>
+<span class="nc" id="L36">        UUID playerId = player.getUniqueId();</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (!actions.containsKey(playerId)) {</span>
+<span class="nc" id="L38">            return;</span>
         }
-<span class="nc" id="L52">        actions.get(playerId).accept(player);</span>
-<span class="nc" id="L53">        actions.remove(playerId);</span>
-<span class="nc" id="L54">    }</span>
+<span class="nc" id="L40">        actions.get(playerId).accept(player);</span>
+<span class="nc" id="L41">        actions.remove(playerId);</span>
+<span class="nc" id="L42">    }</span>
 
     @HEvent
     public void onPlayerMoveEvent(EntityMoveEvent.AsPlayer event) {
-<span class="nc" id="L58">        Optional&lt;Travel&gt; opTravel = PublicTransit.getPlugin().getTravelManager().getTravelFromPlayer(event.getEntity());</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (opTravel.isEmpty()) {</span>
-<span class="nc" id="L60">            return;</span>
+<span class="nc" id="L46">        Optional&lt;Travel&gt; opTravel = PublicTransit.getPlugin().getTravelManager().getTravelFromPlayer(event.getEntity());</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (opTravel.isEmpty()) {</span>
+<span class="nc" id="L48">            return;</span>
         }
-<span class="nc" id="L62">        Travel travel = opTravel.get();</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (travel.getLastKnownPosition().toBlockPosition().equals(event.getAfterPosition().toBlockPosition())) {</span>
-<span class="nc" id="L64">            return;</span>
+<span class="nc" id="L50">        Travel travel = opTravel.get();</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (travel.getLastKnownPosition().toBlockPosition().equals(event.getAfterPosition().toBlockPosition())) {</span>
+<span class="nc" id="L52">            return;</span>
         }
-<span class="nc" id="L66">        event.setCancelled(true);</span>
-<span class="nc" id="L67">    }</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (travel.hasArrived()) {</span>
+<span class="nc" id="L55">            return;</span>
+        }
+        boolean isOther = TranslateCore
+<span class="nc" id="L58">                .getScheduleManager()</span>
+<span class="nc" id="L59">                .getSchedules()</span>
+<span class="nc" id="L60">                .stream()</span>
+<span class="nc" id="L61">                .filter(scheduler -&gt; scheduler.getRunner() instanceof TravelSchedule)</span>
+<span class="nc" id="L62">                .map(sch -&gt; (TravelSchedule) sch.getRunner())</span>
+<span class="nc" id="L63">                .filter(schedule -&gt; schedule.getTravel().equals(travel))</span>
+<span class="nc" id="L64">                .findAny()</span>
+<span class="nc" id="L65">                .map(TravelSchedule::isTeleporting)</span>
+<span class="nc" id="L66">                .orElse(false);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (isOther) {</span>
+<span class="nc" id="L68">            return;</span>
+        }
 
-    @HEvent
-    public void onPlayerDeathEvent(EntityDeathEvent&lt;LivePlayer&gt; player) {
-<span class="nc" id="L71">        PublicTransit.getPlugin().getTravelManager().cancel(player.getEntity().getUniqueId());</span>
+<span class="nc" id="L71">        event.setCancelled(true);</span>
 <span class="nc" id="L72">    }</span>
+
+    public static void pausePlayer(Travel travel) {
+<span class="nc" id="L75">        actions.put(travel.getPlayerId(),</span>
+<span class="nc" id="L76">                    (player) -&gt; PublicTransit.getPlugin().getTravelManager().createSchedule(travel).run());</span>
+<span class="nc" id="L77">    }</span>
+
+    public static void returnPlayerToStart(UUID playerId, Position&lt;?&gt; position) {
+        Optional&lt;LivePlayer&gt; optionalLivePlayer = TranslateCore
+<span class="nc" id="L81">                .getServer()</span>
+<span class="nc" id="L82">                .getOnlinePlayers()</span>
+<span class="nc" id="L83">                .parallelStream()</span>
+<span class="nc" id="L84">                .filter(p -&gt; p.getUniqueId().equals(playerId))</span>
+<span class="nc" id="L85">                .findAny();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (optionalLivePlayer.isPresent()) {</span>
+<span class="nc" id="L87">            LivePlayer livePlayer = optionalLivePlayer.get();</span>
+<span class="nc" id="L88">            livePlayer.setPosition(position);</span>
+<span class="nc" id="L89">            return;</span>
+        }
+<span class="nc" id="L91">        actions.put(playerId, (player) -&gt; player.setPosition(position));</span>
+<span class="nc" id="L92">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

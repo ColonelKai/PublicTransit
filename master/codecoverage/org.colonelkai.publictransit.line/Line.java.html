@@ -8,9 +8,9 @@ import org.colonelkai.publictransit.node.NodeBuilder;
 import org.colonelkai.publictransit.node.NodeType;
 import org.colonelkai.publictransit.utils.Buildable;
 import org.colonelkai.publictransit.utils.Savable;
+import org.core.TranslateCore;
 import org.core.entity.Entity;
 import org.core.entity.InventoryHoldingEntity;
-import org.core.entity.living.human.player.Player;
 import org.core.inventory.Inventory;
 import org.core.inventory.item.stack.ItemStack;
 import org.core.inventory.parts.Slot;
@@ -64,8 +64,8 @@ public class Line implements Buildable&lt;LineBuilder, Line&gt;, Savable {
 <span class="fc" id="L64">        this.identifier = Objects.requireNonNull(builder.identifier());</span>
 <span class="fc bfc" id="L65" title="All 2 branches covered.">        this.name = Objects.requireNonNullElse((null == builder.name()) ? null : builder.name(), ComponentUtils.fromPlain(this.identifier));</span>
 <span class="fc" id="L66">        this.nodes = builder.nodes().stream().map(NodeBuilder::build).toList();</span>
-<span class="fc" id="L67">        this.cost = Objects.requireNonNull(builder.cost());</span>
-<span class="fc" id="L68">        this.costType = Objects.requireNonNull(builder.costType());</span>
+<span class="fc" id="L67">        this.cost = Objects.requireNonNullElse(builder.cost(), 10.0);</span>
+<span class="fc" id="L68">        this.costType = Objects.requireNonNullElse(builder.costType(), CostType.PER_NODE);</span>
 <span class="fc" id="L69">        this.isBiDirectional = builder.isBiDirectional();</span>
 <span class="fc" id="L70">        LineDirection direction = builder.direction();</span>
 <span class="pc bpc" id="L71" title="1 of 4 branches missed.">        if (!this.isBiDirectional &amp;&amp; (null == direction)) {</span>
@@ -83,125 +83,133 @@ public class Line implements Buildable&lt;LineBuilder, Line&gt;, Savable {
 <span class="nc" id="L83">        this.nodes.add(node);</span>
 <span class="nc" id="L84">    }</span>
 
-    public OptionalInt getWeight() {
-<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (null != this.weight) {</span>
-<span class="fc" id="L88">            return OptionalInt.of(this.weight);</span>
-        }
-<span class="nc" id="L90">        return PublicTransit.getPlugin().getConfig().getMaximumWeight();</span>
-    }
-
-    public boolean isValidWeight(InventoryHoldingEntity&lt;? extends Entity&lt;?&gt;&gt; player) {
-<span class="nc" id="L94">        return this.isValidWeight(player.getInventory());</span>
-    }
-
-    public boolean isValidWeight(Inventory inventory) {
-<span class="fc" id="L98">        OptionalInt opWeight = this.getWeight();</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (opWeight.isEmpty()) {</span>
-<span class="nc" id="L100">            return true;</span>
-        }
-<span class="fc" id="L102">        long currentWeight = inventory</span>
-<span class="fc" id="L103">                .getSlots()</span>
-<span class="fc" id="L104">                .stream()</span>
-<span class="fc" id="L105">                .map(Slot::getItem)</span>
-<span class="fc" id="L106">                .filter(Optional::isPresent)</span>
-<span class="fc" id="L107">                .map(Optional::get)</span>
-<span class="fc" id="L108">                .mapToInt(ItemStack::getQuantity)</span>
-<span class="fc" id="L109">                .count();</span>
-<span class="fc bfc" id="L110" title="All 2 branches covered.">        return opWeight.getAsInt() &gt; currentWeight;</span>
-    }
-
     @Override
     public File defaultFile() {
-<span class="nc" id="L115">        return new File(NodeManager.LINES_DATA_PATH, this.identifier);</span>
+<span class="fc" id="L88">        return new File(NodeManager.LINES_DATA_PATH, this.identifier + &quot;.&quot; + TranslateCore.getConfigManager().getDefaultFormat().getFileType()[0]);</span>
     }
 
     @Override
     public void save(File file) throws Exception {
-<span class="nc" id="L120">        PublicTransit.getPlugin().getNodeManager().save(this, file);</span>
-<span class="nc" id="L121">    }</span>
+<span class="fc" id="L93">        PublicTransit.getPlugin().getNodeManager().save(this, file);</span>
+<span class="fc" id="L94">    }</span>
 
     public double getCost() {
-<span class="fc" id="L124">        return this.cost;</span>
+<span class="fc" id="L97">        return this.cost;</span>
     }
 
     public CostType getCostType() {
-<span class="fc" id="L128">        return this.costType;</span>
-    }
-
-    public Component getName() {
-<span class="fc" id="L132">        return this.name;</span>
+<span class="fc" id="L101">        return this.costType;</span>
     }
 
     public LineDirection getDirection() {
-<span class="fc" id="L136">        return this.direction;</span>
+<span class="fc" id="L105">        return this.direction;</span>
+    }
+
+    public String getIdentifier(@NotNull Node node) {
+<span class="nc" id="L109">        int index = this.getNodes().indexOf(node);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (index == -1) {</span>
+<span class="nc" id="L111">            throw new IllegalArgumentException(&quot;Node is not part of line&quot;);</span>
+        }
+<span class="nc" id="L113">        return this.identifier + &quot;:&quot; + node.getName().orElse(index + &quot;&quot;);</span>
     }
 
     public String getIdentifier() {
-<span class="fc" id="L140">        return this.identifier;</span>
+<span class="fc" id="L117">        return this.identifier;</span>
+    }
+
+    public Component getName() {
+<span class="fc" id="L121">        return this.name;</span>
     }
 
     public List&lt;Node&gt; getNodes() {
-<span class="fc" id="L144">        return Collections.unmodifiableList(this.nodes);</span>
+<span class="fc" id="L125">        return Collections.unmodifiableList(this.nodes);</span>
     }
 
     public List&lt;Node&gt; getNodesBetween(Node start, Node end) {
-<span class="fc" id="L148">        return this.getNodesBetween(start, end, true);</span>
+<span class="fc" id="L129">        return this.getNodesBetween(start, end, true);</span>
     }
 
     public List&lt;Node&gt; getNodesBetween(Node start, Node end, boolean includeEnd) {
-<span class="fc" id="L152">        int startIndex = this.nodes.indexOf(start);</span>
-<span class="fc" id="L153">        int endIndex = this.nodes.indexOf(end);</span>
-<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (includeEnd) {</span>
-<span class="fc" id="L155">            endIndex++;</span>
+<span class="fc" id="L133">        int startIndex = this.nodes.indexOf(start);</span>
+<span class="fc" id="L134">        int endIndex = this.nodes.indexOf(end);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">        if (includeEnd) {</span>
+<span class="fc" id="L136">            endIndex++;</span>
         }
-<span class="fc" id="L157">        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));</span>
+<span class="fc" id="L138">        return this.nodes.subList(Math.min(startIndex, endIndex), Math.max(startIndex, endIndex));</span>
     }
 
     public double getPrice() {
-<span class="fc" id="L161">        return this.getPrice(this.nodes.get(0), this.nodes.get(this.nodes.size() - 1));</span>
+<span class="fc" id="L142">        return this.getPrice(this.nodes.get(0), this.nodes.get(this.nodes.size() - 1));</span>
     }
 
     public double getPrice(@NotNull Node start, @NotNull Node end) {
-<span class="fc" id="L165">        return this.costType.get(this, start, end);</span>
+<span class="fc" id="L146">        return this.costType.get(this, start, end);</span>
+    }
+
+    public OptionalInt getWeight() {
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (null != this.weight) {</span>
+<span class="fc" id="L151">            return OptionalInt.of(this.weight);</span>
+        }
+<span class="nc" id="L153">        return PublicTransit.getPlugin().getConfig().getMaximumWeight();</span>
     }
 
     @Override
     public int hashCode() {
-<span class="nc" id="L170">        return this.identifier.hashCode();</span>
+<span class="nc" id="L158">        return this.identifier.hashCode();</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        if (!(obj instanceof Line line)) {</span>
-<span class="nc" id="L176">            return false;</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (!(obj instanceof Line line)) {</span>
+<span class="nc" id="L164">            return false;</span>
         }
-<span class="fc" id="L178">        return line.identifier.equalsIgnoreCase(this.identifier);</span>
+<span class="fc" id="L166">        return line.identifier.equalsIgnoreCase(this.identifier);</span>
     }
 
     public boolean isActive() {
-<span class="nc bnc" id="L182" title="All 4 branches missed.">        return 2 &lt;= this.nodes.stream().filter(node -&gt; NodeType.STOP == node.getNodeType()).count();</span>
+<span class="nc bnc" id="L170" title="All 4 branches missed.">        return 2 &lt;= this.nodes.stream().filter(node -&gt; NodeType.STOP == node.getNodeType()).count();</span>
     }
 
     public boolean isBiDirectional() {
-<span class="fc" id="L186">        return this.isBiDirectional;</span>
+<span class="fc" id="L174">        return this.isBiDirectional;</span>
+    }
+
+    public boolean isValidWeight(InventoryHoldingEntity&lt;? extends Entity&lt;?&gt;&gt; player) {
+<span class="nc" id="L178">        return this.isValidWeight(player.getInventory());</span>
+    }
+
+    public boolean isValidWeight(Inventory inventory) {
+<span class="fc" id="L182">        OptionalInt opWeight = this.getWeight();</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        if (opWeight.isEmpty()) {</span>
+<span class="nc" id="L184">            return true;</span>
+        }
+<span class="fc" id="L186">        long currentWeight = inventory</span>
+<span class="fc" id="L187">                .getSlots()</span>
+<span class="fc" id="L188">                .stream()</span>
+<span class="fc" id="L189">                .map(Slot::getItem)</span>
+<span class="fc" id="L190">                .filter(Optional::isPresent)</span>
+<span class="fc" id="L191">                .map(Optional::get)</span>
+<span class="fc" id="L192">                .mapToInt(ItemStack::getQuantity)</span>
+<span class="fc" id="L193">                .count();</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        return opWeight.getAsInt() &gt; currentWeight;</span>
     }
 
     @Override
     public LineBuilder toBuilder() {
-<span class="nc" id="L191">        return new LineBuilder()</span>
-<span class="nc" id="L192">                .setIdentifier(this.identifier)</span>
-<span class="nc" id="L193">                .setName(this.name)</span>
-<span class="nc" id="L194">                .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())</span>
-<span class="nc" id="L195">                .setCostType(this.costType)</span>
-<span class="nc" id="L196">                .setCost(this.cost)</span>
-<span class="nc" id="L197">                .setDirection(this.direction);</span>
+<span class="fc" id="L199">        return new LineBuilder()</span>
+<span class="fc" id="L200">                .setIdentifier(this.identifier)</span>
+<span class="fc" id="L201">                .setName(this.name)</span>
+<span class="fc" id="L202">                .setNodes(this.getNodes().stream().map(Node::toBuilder).toList())</span>
+<span class="fc" id="L203">                .setCostType(this.costType)</span>
+<span class="fc" id="L204">                .setCost(this.cost)</span>
+<span class="fc" id="L205">                .setDirection(this.direction);</span>
     }
 
     private void validate(Collection&lt;Node&gt; nodes) {
-<span class="fc" id="L201">        Collection&lt;Node&gt; uniqueTest = new HashSet&lt;&gt;(nodes);</span>
-<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (uniqueTest.size() != nodes.size()) {</span>
-<span class="nc" id="L203">            throw new IllegalStateException(&quot;Two or more nodes have the same position&quot;);</span>
+<span class="fc" id="L209">        Collection&lt;Node&gt; uniqueTest = new HashSet&lt;&gt;(nodes);</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (uniqueTest.size() != nodes.size()) {</span>
+<span class="nc" id="L211">            throw new IllegalStateException(&quot;Two or more nodes have the same position&quot;);</span>
         }
-<span class="fc" id="L205">    }</span>
+<span class="fc" id="L213">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

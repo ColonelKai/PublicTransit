@@ -40,13 +40,13 @@ public class PublicTransitConfig implements Config {
 
     @Override
     public void reloadFile() {
-<span class="nc" id="L43">        this.config = TranslateCore.createConfigurationFile(FILE, TranslateCore.getPlatform().getConfigFormat());</span>
+<span class="nc" id="L43">        this.config = TranslateCore.getConfigManager().read(FILE);</span>
 <span class="nc" id="L44">        this.getNodes().forEach(ConfigNode::reset);</span>
 <span class="nc" id="L45">    }</span>
 
     @Override
     public Stream&lt;? extends ConfigNode&lt;?&gt;&gt; getNodes() {
-<span class="nc" id="L49">        return Stream.of(PublicTransitConfigNodes.class.getDeclaredFields()).filter(field -&gt; field.getType().isAssignableFrom(ConfigNode.class)).map(field -&gt; {</span>
+<span class="nc" id="L49">        return Stream.of(PublicTransitConfigNodes.class.getDeclaredFields()).filter(field -&gt; ConfigNode.class.isAssignableFrom(field.getType())).map(field -&gt; {</span>
             try {
 <span class="nc" id="L51">                return (ConfigNode&lt;?&gt;) field.get(null);</span>
 <span class="nc" id="L52">            } catch (IllegalAccessException e) {</span>
@@ -56,17 +56,16 @@ public class PublicTransitConfig implements Config {
 <span class="nc" id="L56">        }).filter(Objects::nonNull);</span>
     }
 
-
-    private &lt;T&gt; void setDefaultValue(ConfigNode&lt;T&gt; node) {
-<span class="nc" id="L61">        node.setValue(this.config, node.defaultValue());</span>
-<span class="nc" id="L62">    }</span>
-
     public OptionalInt getMaximumWeight() {
-<span class="nc bnc" id="L65" title="All 2 branches missed.">        if(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get()==Integer.MAX_VALUE) {</span>
-<span class="nc" id="L66">            return OptionalInt.empty();</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get() == Integer.MAX_VALUE) {</span>
+<span class="nc" id="L61">            return OptionalInt.empty();</span>
         } else {
-<span class="nc" id="L68">            return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get());</span>
+<span class="nc" id="L63">            return OptionalInt.of(PublicTransitConfigNodes.WEIGHT_MAXIMUM_DEFAULT.get());</span>
         }
     }
+
+    private &lt;T&gt; void setDefaultValue(ConfigNode&lt;T&gt; node) {
+<span class="nc" id="L68">        node.setValue(this.config, node.defaultValue());</span>
+<span class="nc" id="L69">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommandOptionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.options</a> &gt; <span class="el_source">CommandOptionBuilder.java</span></div><h1>CommandOptionBuilder.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.options;
+
+import net.kyori.adventure.text.Component;
+import org.colonelkai.publictransit.utils.Builder;
+import org.core.command.argument.CommandArgument;
+import org.core.command.argument.arguments.operation.ExactArgument;
+import org.core.command.argument.arguments.operation.MappedArgumentWrapper;
+import org.core.command.argument.arguments.operation.OptionalArgument;
+import org.core.command.argument.arguments.simple.BooleanArgument;
+import org.core.command.argument.arguments.simple.EnumArgument;
+import org.core.command.argument.arguments.simple.StringArgument;
+import org.core.command.argument.arguments.simple.number.DoubleArgument;
+import org.core.command.argument.arguments.simple.number.IntegerArgument;
+import org.core.utils.ComponentUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Method;
+import java.util.*;
+
+<span class="nc" id="L21">public class CommandOptionBuilder {</span>
+
+    private static CommandArgument&lt;?&gt; build(@NotNull Class&lt;?&gt; clazz, @NotNull String key) {
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        if (String.class.isAssignableFrom(clazz)) {</span>
+<span class="fc" id="L25">            return new StringArgument(key);</span>
+        }
+<span class="pc bpc" id="L27" title="1 of 4 branches missed.">        if(Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz)){</span>
+<span class="fc" id="L28">            return new DoubleArgument(key);</span>
+        }
+<span class="pc bpc" id="L30" title="1 of 4 branches missed.">        if(Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz)){</span>
+<span class="fc" id="L31">            return new IntegerArgument(key);</span>
+        }
+<span class="pc bpc" id="L33" title="1 of 4 branches missed.">        if(Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz)){</span>
+<span class="fc" id="L34">            return new BooleanArgument(key);</span>
+        }
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if(Component.class.isAssignableFrom(clazz)){</span>
+<span class="fc" id="L37">            return new MappedArgumentWrapper&lt;&gt;(new StringArgument(key), ComponentUtils::fromLegacy);</span>
+        }
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        if(Enum.class.isAssignableFrom(clazz)){</span>
+<span class="fc" id="L40">            return new EnumArgument&lt;&gt;(key, (Class&lt;? extends Enum&lt;?&gt;&gt;)clazz);</span>
+        }
+<span class="nc" id="L42">        throw new RuntimeException(&quot;Unknown mapping for &quot; + clazz.getSimpleName());</span>
+    }
+
+    private static &lt;T&gt; CommandOptionMeta&lt;T&gt; buildFor(Class&lt;? extends Builder&lt;?, ?&gt;&gt; clazz, Method getter) {
+<span class="fc" id="L46">        CommandOption options = getter.getDeclaredAnnotation(CommandOption.class);</span>
+<span class="fc" id="L47">        Optional&lt;Method&gt; opSetter = Arrays.stream(clazz.getDeclaredMethods()).filter(setterMethod -&gt; {</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            String name = (options.setter().equals(&quot;&quot;)) ? (&quot;set&quot; + getter.getName()) : options.setter();</span>
+<span class="fc" id="L49">            return setterMethod.getName().equalsIgnoreCase(name);</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        }).filter(setterMethod -&gt; 1 == setterMethod.getParameterCount()).findFirst();</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (opSetter.isEmpty()) {</span>
+<span class="nc" id="L52">            throw new RuntimeException(&quot;No setter found for getter &quot; + getter.getName());</span>
+        }
+<span class="fc" id="L54">        Method setter = opSetter.get();</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        Class&lt;?&gt; type = (options.argumentType().equals(Object.class)) ? setter.getParameterTypes()[0] : options.argumentType();</span>
+<span class="fc" id="L56">        CommandArgument&lt;T&gt; setterArgument = (CommandArgument&lt;T&gt;) build(type, &quot;value&quot;);</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        ExactArgument exactArgument = new ExactArgument(options.name().equals(&quot;&quot;) ? getter.getName() : options.name());</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (setter.getParameters()[0].isAnnotationPresent(Nullable.class)) {</span>
+<span class="nc" id="L59">            setterArgument = new OptionalArgument&lt;&gt;(setterArgument, (T) null);</span>
+        }
+<span class="fc" id="L61">        return new CommandOptionMeta&lt;&gt;(setterArgument, exactArgument, getter, setter);</span>
+    }
+
+    public static Collection&lt;? extends CommandOptionMeta&lt;?&gt;&gt; buildFrom(Class&lt;? extends Builder&lt;?, ?&gt;&gt; clazz) {
+<span class="fc" id="L65">        List&lt;Method&gt; getterMethods = Arrays</span>
+<span class="fc" id="L66">                .stream(clazz.getDeclaredMethods())</span>
+<span class="fc" id="L67">                .filter(method -&gt; method.isAnnotationPresent(CommandOption.class))</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                .filter(method -&gt; 0 == method.getParameters().length)</span>
+<span class="fc" id="L69">                .toList();</span>
+<span class="fc" id="L70">        return getterMethods.stream().map(method -&gt; {</span>
+            try {
+<span class="fc" id="L72">                return buildFor(clazz, method);</span>
+<span class="nc" id="L73">            } catch (RuntimeException e) {</span>
+<span class="nc" id="L74">                e.printStackTrace();</span>
+<span class="nc" id="L75">                return null;</span>
+            }
+<span class="fc" id="L77">        }).filter(Objects::nonNull).toList();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

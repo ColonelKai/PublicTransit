@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Commands.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">PublicTransit</a> &gt; <a href="index.source.html" class="el_package">org.colonelkai.publictransit.commands</a> &gt; <span class="el_source">Commands.java</span></div><h1>Commands.java</h1><pre class="source lang-java linenums">package org.colonelkai.publictransit.commands;
 
 import org.colonelkai.publictransit.commands.cost.CostBetweenCommand;
+import org.colonelkai.publictransit.commands.line.CreateLineCommand;
+import org.colonelkai.publictransit.commands.line.DeleteLineCommand;
+import org.colonelkai.publictransit.commands.line.info.LineInfoCommand;
+import org.colonelkai.publictransit.commands.node.create.CreateStopNodeCommand;
+import org.colonelkai.publictransit.commands.node.create.CreateTransitionalNodeCommand;
+import org.colonelkai.publictransit.commands.node.delete.DeleteNodeCommand;
+import org.colonelkai.publictransit.commands.node.info.NodeInfoCommand;
+import org.colonelkai.publictransit.commands.node.move.CloneNodeCommand;
+import org.colonelkai.publictransit.commands.node.move.MoveNodeCommand;
+import org.colonelkai.publictransit.commands.travel.TravelCommand;
 
 interface Commands {
 
-<span class="fc" id="L7">    CostBetweenCommand COST_BETWEEN = new CostBetweenCommand();</span>
+    //line
+<span class="fc" id="L18">    CreateLineCommand CREATE_LINE = new CreateLineCommand();</span>
+<span class="fc" id="L19">    DeleteLineCommand DELETE_LINE = new DeleteLineCommand();</span>
+<span class="fc" id="L20">    LineInfoCommand LINE_INFO = new LineInfoCommand();</span>
+
+    //node
+<span class="fc" id="L23">    CloneNodeCommand CLONE_NODE = new CloneNodeCommand();</span>
+<span class="fc" id="L24">    MoveNodeCommand MOVE_NODE = new MoveNodeCommand();</span>
+<span class="fc" id="L25">    DeleteNodeCommand DELETE_NODE = new DeleteNodeCommand();</span>
+<span class="fc" id="L26">    CreateStopNodeCommand CREATE_STOP = new CreateStopNodeCommand();</span>
+<span class="fc" id="L27">    CreateTransitionalNodeCommand CREATE_TRANSITIONAL = new CreateTransitionalNodeCommand();</span>
+<span class="fc" id="L28">    NodeInfoCommand NODE_INFO = new NodeInfoCommand();</span>
+
+    //misc
+<span class="fc" id="L31">    CostBetweenCommand COST_BETWEEN = new CostBetweenCommand();</span>
+
+    @ForCommand(name = PublicTransitCommandLauncher.TRAVEL)
+<span class="fc" id="L34">    TravelCommand TRAVEL = new TravelCommand();</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

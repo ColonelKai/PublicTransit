@@ -2,14 +2,15 @@
 
 import org.colonelkai.publictransit.NodeManager;
 import org.colonelkai.publictransit.PublicTransit;
-import org.colonelkai.publictransit.line.Line;
 import org.colonelkai.publictransit.node.Node;
+import org.colonelkai.publictransit.utils.lamda.ThrowableBiFunction;
 import org.core.command.argument.CommandArgument;
 import org.core.command.argument.CommandArgumentResult;
 import org.core.command.argument.ParseCommandArgument;
 import org.core.command.argument.arguments.operation.OptionalArgument;
 import org.core.command.argument.context.CommandArgumentContext;
 import org.core.command.argument.context.CommandContext;
+import org.core.exceptions.NotEnoughArguments;
 import org.core.source.command.CommandSource;
 import org.core.world.position.Positionable;
 
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,88 +25,90 @@ import java.util.stream.Stream;
 public class NodeArgument implements CommandArgument&lt;Node&gt; {
 
     private final String id;
-    private final BiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;&gt; function;
+    private final ThrowableBiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;, NotEnoughArguments&gt; function;
     private final Function&lt;Stream&lt;Node&gt;, Stream&lt;Node&gt;&gt; filter;
 
-    public NodeArgument(String id, BiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;&gt; function) {
+    public NodeArgument(String id, ThrowableBiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;, NotEnoughArguments&gt; function) {
 <span class="fc" id="L32">        this(id, function, s -&gt; s);</span>
 <span class="fc" id="L33">    }</span>
 
-<span class="fc" id="L35">    public NodeArgument(String id, BiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;&gt; function, Function&lt;Stream&lt;Node&gt;, Stream&lt;Node&gt;&gt; filter) {</span>
-<span class="fc" id="L36">        this.id = id;</span>
-<span class="fc" id="L37">        this.function = function;</span>
-<span class="fc" id="L38">        this.filter = filter;</span>
-<span class="fc" id="L39">    }</span>
+    public NodeArgument(String id,
+                        ThrowableBiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;, NotEnoughArguments&gt; function,
+<span class="fc" id="L37">                        Function&lt;Stream&lt;Node&gt;, Stream&lt;Node&gt;&gt; filter) {</span>
+<span class="fc" id="L38">        this.id = id;</span>
+<span class="fc" id="L39">        this.function = function;</span>
+<span class="fc" id="L40">        this.filter = filter;</span>
+<span class="fc" id="L41">    }</span>
 
     @Override
     public String getId() {
-<span class="fc" id="L43">        return this.id;</span>
+<span class="fc" id="L45">        return this.id;</span>
     }
 
     @Override
     public CommandArgumentResult&lt;Node&gt; parse(CommandContext commandContext, CommandArgumentContext&lt;Node&gt; argument) throws IOException {
-<span class="fc" id="L48">        String peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
-<span class="fc" id="L49">        List&lt;Node&gt; list = this.function.apply(commandContext, argument);</span>
+<span class="fc" id="L50">        String peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
+<span class="fc" id="L51">        List&lt;Node&gt; list = this.function.apply(commandContext, argument);</span>
         Node node;
         try {
-<span class="fc" id="L52">            int index = Integer.parseInt(peek);</span>
-<span class="pc bpc" id="L53" title="1 of 2 branches missed.">            if (list.size() &lt;= index) {</span>
-<span class="nc" id="L54">                throw new IOException(&quot;No node at that number&quot;);</span>
+<span class="fc" id="L54">            int index = Integer.parseInt(peek);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">            if (list.size() &lt;= index) {</span>
+<span class="nc" id="L56">                throw new IOException(&quot;No node at that number&quot;);</span>
             }
-<span class="fc" id="L56">            node = list.get(index);</span>
-<span class="fc" id="L57">        } catch (NumberFormatException e) {</span>
-<span class="fc" id="L58">            node = list</span>
-<span class="fc" id="L59">                    .stream()</span>
-<span class="fc" id="L60">                    .filter(n -&gt; n.getName().isPresent())</span>
-<span class="fc" id="L61">                    .filter(n -&gt; n.getName().get().equalsIgnoreCase(peek))</span>
-<span class="fc" id="L62">                    .findAny()</span>
-<span class="fc" id="L63">                    .orElseThrow(() -&gt; new IOException(&quot;no node by that name&quot;));</span>
-<span class="fc" id="L64">        }</span>
-<span class="fc" id="L65">        node = this.filter.apply(Stream.of(node)).findAny().orElseThrow(() -&gt; new IOException(&quot;Invalid node&quot;));</span>
-<span class="fc" id="L66">        return CommandArgumentResult.from(argument, node);</span>
+<span class="fc" id="L58">            node = list.get(index);</span>
+<span class="fc" id="L59">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L60">            node = list</span>
+<span class="fc" id="L61">                    .stream()</span>
+<span class="fc" id="L62">                    .filter(n -&gt; n.getName().isPresent())</span>
+<span class="fc" id="L63">                    .filter(n -&gt; n.getName().get().equalsIgnoreCase(peek))</span>
+<span class="fc" id="L64">                    .findAny()</span>
+<span class="fc" id="L65">                    .orElseThrow(() -&gt; new IOException(&quot;no node by that name&quot;));</span>
+<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">        node = this.filter.apply(Stream.of(node)).findAny().orElseThrow(() -&gt; new IOException(&quot;Invalid node&quot;));</span>
+<span class="fc" id="L68">        return CommandArgumentResult.from(argument, node);</span>
     }
 
     @Override
-    public Collection&lt;String&gt; suggest(CommandContext commandContext, CommandArgumentContext&lt;Node&gt; argument) {
-<span class="fc" id="L71">        String peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
-<span class="fc" id="L72">        List&lt;Node&gt; list = this.function.apply(commandContext, argument);</span>
-<span class="fc" id="L73">        Stream&lt;Node&gt; target = this.filter.apply(list.stream());</span>
-<span class="fc" id="L74">        Function&lt;Stream&lt;Node&gt;, List&lt;String&gt;&gt; toDisplay = (stream) -&gt; stream.flatMap(node -&gt; {</span>
-<span class="fc" id="L75">            Optional&lt;String&gt; opName = node.getName();</span>
-<span class="fc" id="L76">            String display = list.indexOf(node) + &quot;&quot;;</span>
-<span class="fc bfc" id="L77" title="All 2 branches covered.">            if (opName.isPresent()) {</span>
-<span class="fc" id="L78">                return Stream.of(display, opName.get());</span>
+    public Collection&lt;String&gt; suggest(CommandContext commandContext, CommandArgumentContext&lt;Node&gt; argument) throws NotEnoughArguments {
+<span class="fc" id="L73">        String peek = commandContext.getCommand()[argument.getFirstArgument()];</span>
+<span class="fc" id="L74">        List&lt;Node&gt; list = this.function.apply(commandContext, argument);</span>
+<span class="fc" id="L75">        Stream&lt;Node&gt; target = this.filter.apply(list.stream());</span>
+<span class="fc" id="L76">        Function&lt;Stream&lt;Node&gt;, List&lt;String&gt;&gt; toDisplay = (stream) -&gt; stream.flatMap(node -&gt; {</span>
+<span class="fc" id="L77">            Optional&lt;String&gt; opName = node.getName();</span>
+<span class="fc" id="L78">            String display = list.indexOf(node) + &quot;&quot;;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            if (opName.isPresent()) {</span>
+<span class="fc" id="L80">                return Stream.of(display, opName.get());</span>
             }
-<span class="fc" id="L80">            return Stream.of(display);</span>
-<span class="fc" id="L81">        }).sorted().collect(Collectors.toList());</span>
+<span class="fc" id="L82">            return Stream.of(display);</span>
+<span class="fc" id="L83">        }).sorted().collect(Collectors.toList());</span>
 
 
-<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (peek.isEmpty()) {</span>
-<span class="fc" id="L85">            return toDisplay.apply(target);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (peek.isEmpty()) {</span>
+<span class="fc" id="L87">            return toDisplay.apply(target);</span>
         }
-<span class="fc" id="L87">        return toDisplay.apply(target).stream().filter(name -&gt; name.toLowerCase().startsWith(peek.toLowerCase())).collect(Collectors.toList());</span>
+<span class="fc" id="L89">        return toDisplay.apply(target).stream().filter(name -&gt; name.toLowerCase().startsWith(peek.toLowerCase())).sorted().collect(Collectors.toList());</span>
     }
 
     public static OptionalArgument&lt;Node&gt; nodeOrClosest(String id,
-                                                       BiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;&gt; function,
+                                                       ThrowableBiFunction&lt;CommandContext, CommandArgumentContext&lt;Node&gt;, List&lt;Node&gt;, NotEnoughArguments&gt; function,
                                                        Function&lt;Stream&lt;Node&gt;, Stream&lt;Node&gt;&gt; filter) {
-<span class="nc" id="L93">        return nodeOrClosest(new NodeArgument(id, function, filter));</span>
+<span class="fc" id="L95">        return nodeOrClosest(new NodeArgument(id, function, filter));</span>
     }
 
     private static OptionalArgument&lt;Node&gt; nodeOrClosest(NodeArgument nodeArgument) {
-<span class="nc" id="L97">        ParseCommandArgument&lt;Node&gt; elser = (context, argument) -&gt; {</span>
-<span class="nc" id="L98">            CommandSource source = context.getSource();</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (!(source instanceof Positionable&lt;?&gt; positionable)) {</span>
-<span class="nc" id="L100">                throw new IOException(&quot;Line must be specified&quot;);</span>
+<span class="fc" id="L99">        ParseCommandArgument&lt;Node&gt; elser = (context, argument) -&gt; {</span>
+<span class="nc" id="L100">            CommandSource source = context.getSource();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (!(source instanceof Positionable&lt;?&gt; positionable)) {</span>
+<span class="nc" id="L102">                throw new IOException(&quot;Line must be specified&quot;);</span>
             }
-<span class="nc" id="L102">            NodeManager manager = PublicTransit.getPlugin().getNodeManager();</span>
-<span class="nc" id="L103">            Optional&lt;Node&gt; opNode = manager.getClosestNode(positionable);</span>
-<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (opNode.isEmpty()) {</span>
-<span class="nc" id="L105">                throw new IOException(&quot;No nodes near you&quot;);</span>
+<span class="nc" id="L104">            NodeManager manager = PublicTransit.getPlugin().getNodeManager();</span>
+<span class="nc" id="L105">            Optional&lt;Node&gt; opNode = manager.getClosestNode(positionable);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (opNode.isEmpty()) {</span>
+<span class="nc" id="L107">                throw new IOException(&quot;No nodes near you&quot;);</span>
             }
-<span class="nc" id="L107">            return CommandArgumentResult.from(argument, argument.getFirstArgument(), opNode.get());</span>
+<span class="nc" id="L109">            return CommandArgumentResult.from(argument, argument.getFirstArgument(), opNode.get());</span>
         };
-<span class="nc" id="L109">        return new OptionalArgument&lt;&gt;(nodeArgument, elser);</span>
+<span class="fc" id="L111">        return new OptionalArgument&lt;&gt;(nodeArgument, elser);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
